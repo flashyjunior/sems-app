@@ -1,0 +1,24 @@
+[package]
+name = "sems-tauri"
+version = "0.1.0"
+description = "SEMS - Smart Medication Dispensing System"
+authors = ["SEMS Team"]
+license = "MIT"
+repository = ""
+default-run = "sems-tauri"
+edition = "2021"
+rust-version = "1.60"
+
+[build-dependencies]
+tauri-build = { version = "1.5", features = [] }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+tauri = { version = "1.5", features = [] }
+tokio = { version = "1", features = ["full"] }
+
+[features]
+# this feature is used for production builds where `devPath` points to the filesystem
+# DO NOT remove this
+custom-protocol = ["tauri/custom-protocol"]
