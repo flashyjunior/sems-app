@@ -44,9 +44,7 @@ jobs:
         run: npm run build
       
       - name: Build Tauri MSI
-        run: |
-          cd src-tauri
-          cargo build --release -p sems-app
+        run: npm run tauri:build
       
       - name: Upload MSI artifact
         if: success()
