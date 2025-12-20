@@ -44,35 +44,51 @@
   </div>
 
   <script>
+    // Add logging to console
+    const log = (msg) => {
+      console.log(`[SEMS-LOADER] ${msg}`);
+      // Also update UI with status
+      const statusEl = document.querySelector('.loading-text');
+      if (statusEl) {
+        statusEl.innerHTML = msg + '<br><small style="font-size:12px; color:#666;">Check DevTools (F12) for detailed logs</small>';
+      }
+    };
+
+    log("Page loaded, initializing connection...");
+    
     // Check every 500ms if the server is ready
     let attempts = 0;
     const maxAttempts = 120; // 60 seconds
 
     function tryConnect() {
       attempts++;
+      const attemptNum = Math.ceil(attempts / 2); // Since we check every 500ms
+      log(`Connection attempt ${attemptNum}/120... (waiting for server on localhost:3000)`);
       
       // Try to fetch from the server
-      fetch('http://localhost:3000/')
+      fetch('http://localhost:3000/', { method: 'HEAD', mode: 'no-cors' })
         .then(response => {
-          if (response.ok) {
-            // Server is ready, redirect
-            window.location.href = 'http://localhost:3000/';
-          } else {
-            throw new Error('Server not ready');
-          }
+          log(`Server responded with status: ${response.status}. Redirecting...`);
+          window.location.href = 'http://localhost:3000/';
         })
-        .catch(() => {
+        .catch((err) => {
+          log(`Connection failed: ${err.message}`);
           if (attempts < maxAttempts) {
             setTimeout(tryConnect, 500);
           } else {
-            document.querySelector('.loading-text').textContent = 
-              'Failed to connect to server. Please restart the application.';
+            log('ERROR: Failed to connect after 60 seconds. Server may not have started. Check installation logs.');
+            document.querySelector('.loading-text').innerHTML = 
+              'Failed to connect to server after 60 seconds.<br><small>The Next.js server may not have started. Try restarting the application or check logs.</small>';
           }
         });
     }
 
-    // Start trying to connect
-    setTimeout(tryConnect, 1000);
+    // Start trying to connect after a brief delay
+    log("Waiting 1 second for app to initialize...");
+    setTimeout(() => {
+      log("Starting connection attempts to localhost:3000...");
+      tryConnect();
+    }, 1000);
   </script>
 </body>
 </html>
