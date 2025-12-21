@@ -1,6 +1,21 @@
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
-import { logInfo, logError } from '@/lib/logger';
+// Stub for browser environment - database initialization only happens on backend server
+// For frontend/Tauri app, the backend server handles all database operations
+
+export const initializeDatabase = async () => {
+  console.log('[Browser] Database initialization is handled by backend server');
+  return true;
+};
+
+export const checkDatabaseConnection = async () => {
+  console.log('[Browser] Checking connection via API...');
+  try {
+    const response = await fetch('/api/health/database');
+    return response.ok;
+  } catch {
+    return false;
+  }
+};
+
 
 const prisma = new PrismaClient();
 
