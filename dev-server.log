@@ -160,3 +160,18 @@ Could not write to storage: ReferenceError: localStorage is not defined
  Γ£ô Compiled in 137ms
  Γ£ô Compiled in 112ms
  Γ£ô Compiled in 95ms
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET / 200 in 1449ms (compile: 782ms, render: 667ms)
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET / 200 in 174ms (compile: 5ms, render: 168ms)
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ HEAD / 200 in 142ms (compile: 38ms, render: 105ms)
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET / 200 in 70ms (compile: 6ms, render: 64ms)
+ Γ£ô Compiled in 300ms

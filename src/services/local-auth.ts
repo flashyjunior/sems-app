@@ -24,7 +24,7 @@ export class LocalAuthService {
       
       // Find user by email or username
       const email = username.includes('@') ? username : `${username}@sems.local`;
-      const users = (await db.select<unknown>(
+      const users = (await (db.select as any)(
         'SELECT * FROM users WHERE email = ? LIMIT 1',
         [email]
       )) as {
@@ -104,7 +104,7 @@ export class LocalAuthService {
       const now = Date.now();
 
       // Check if user already exists
-      const existing = (await db.select<unknown>(
+      const existing = (await (db.select as any)(
         'SELECT id FROM users WHERE email = ? LIMIT 1',
         [userData.email]
       )) as { id: number }[];

@@ -3,19 +3,20 @@
  * Handles all local database operations for the desktop app
  */
 
-import Database from '@tauri-apps/plugin-sql';
-
-let dbInstance: Database | null = null;
+let dbInstance: any = null;
 
 /**
  * Initialize the local SQLite database
  */
-export async function initializeDatabase(): Promise<Database> {
+export async function initializeDatabase(): Promise<any> {
   if (dbInstance) {
     return dbInstance;
   }
 
   try {
+    // Dynamically import Tauri SQL plugin to avoid loading in browser
+    const { default: Database } = await import('@tauri-apps/plugin-sql');
+    
     // Load database using the Tauri SQL plugin API
     dbInstance = await Database.load('sqlite:sems.db');
 
@@ -37,7 +38,7 @@ export async function initializeDatabase(): Promise<Database> {
 /**
  * Get the database instance
  */
-export function getDatabase(): Database {
+export function getDatabase(): any {
   if (!dbInstance) {
     throw new Error('Database not initialized. Call initializeDatabase first.');
   }
@@ -47,7 +48,7 @@ export function getDatabase(): Database {
 /**
  * Create database schema
  */
-async function createSchema(db: Database): Promise<void> {
+async function createSchema(db: any): Promise<void> {
   // Users table - for local authentication
   await db.execute(`
     CREATE TABLE IF NOT EXISTS users (
@@ -158,10 +159,10 @@ async function createSchema(db: Database): Promise<void> {
 /**
  * Create default admin user if none exists
  */
-export async function ensureDefaultUsers(db: Database): Promise<void> {
+export async function ensureDefaultUsers(db: any): Promise<void> {
   try {
     // Check if any users exist
-    const users = (await db.select<unknown>(
+    const users = (await (db.select as any)(
       'SELECT COUNT(*) as count FROM users'
     )) as { count: number }[];
     
@@ -213,9 +214,9 @@ export async function ensureDefaultUsers(db: Database): Promise<void> {
 /**
  * Get sync configuration
  */
-export async function getSyncConfig(db: Database) {
+export async function getSyncConfig(db: any) {
   try {
-    const configs = (await db.select<unknown>(
+    const configs = (await (db.select as any)(
       'SELECT * FROM sync_config LIMIT 1'
     )) as {
       id?: number;
@@ -244,7 +245,7 @@ export async function getSyncConfig(db: Database) {
  * Update sync configuration
  */
 export async function updateSyncConfig(
-  db: Database,
+  db: any,
   config: {
     serverUrl: string;
     syncInterval: number;
@@ -253,7 +254,7 @@ export async function updateSyncConfig(
 ) {
   try {
     const now = Date.now();
-    const existing = (await db.select<unknown>(
+    const existing = (await (db.select as any)(
       'SELECT id FROM sync_config LIMIT 1'
     )) as { id: number }[];
 

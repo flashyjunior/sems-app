@@ -1,0 +1,73 @@
+
+> sems-app@0.1.0 tauri:build
+> tauri build
+
+     Running beforeBuildCommand `npm run build`
+
+> sems-app@0.1.0 build
+> next build
+
+   Γû▓ Next.js 16.0.10 (Turbopack)
+   - Environments: .env
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully in 3.9s
+   Running TypeScript ...
+   Collecting page data using 11 workers ...
+   Generating static pages using 11 workers (0/27) ...
+   Generating static pages using 11 workers (6/27) 
+   Generating static pages using 11 workers (13/27) 
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /_not-found. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /dose-regimens. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+   Generating static pages using 11 workers (20/27) 
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /drugs. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ Γ£ô Generating static pages using 11 workers (27/27) in 1231.8ms
+   Finalizing page optimization ...
+
+Route (app)
+Γöî Γùï /
+Γö£ Γùï /_not-found
+Γö£ ╞Æ /api/audit-logs
+Γö£ ╞Æ /api/auth/login
+Γö£ ╞Æ /api/auth/token
+Γö£ ╞Æ /api/dispenses
+Γö£ ╞Æ /api/dispenses/stats
+Γö£ ╞Æ /api/dose-regimens
+Γö£ ╞Æ /api/dose-regimens/[id]
+Γö£ ╞Æ /api/drugs
+Γö£ ╞Æ /api/drugs/[id]
+Γö£ ╞Æ /api/health/database
+Γö£ ╞Æ /api/printer-settings
+Γö£ ╞Æ /api/roles
+Γö£ ╞Æ /api/sync/pull-dose-regimens
+Γö£ ╞Æ /api/sync/pull-drugs
+Γö£ ╞Æ /api/sync/pull-print-templates
+Γö£ ╞Æ /api/sync/pull-printer-settings
+Γö£ ╞Æ /api/sync/pull-roles
+Γö£ ╞Æ /api/sync/pull-users
+Γö£ ╞Æ /api/sync/status
+Γö£ ╞Æ /api/system-settings
+Γö£ ╞Æ /api/templates
+Γö£ ╞Æ /api/user-profile
+Γö£ ╞Æ /api/users
+Γö£ ╞Æ /api/users/[id]
+Γö£ Γùï /dose-regimens
+Γöö Γùï /drugs
+
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+
+   Compiling sems-tauri v0.1.0 (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src-tauri)
+    Finished `release` profile [optimized] target(s) in 12.14s
+        Info Target: x64
+     Running candle for "main.wxs"
+     Running light to produce E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src-tauri\target\release\bundle\msi\sems-tauri_0.1.0_x64_en-US.msi
+    Finished 1 bundle at:
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src-tauri\target\release\bundle\msi\sems-tauri_0.1.0_x64_en-US.msi
+
