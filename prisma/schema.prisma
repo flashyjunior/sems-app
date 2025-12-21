@@ -1,0 +1,243 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Roles - for role-based access control
+model Role {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  description String?
+  permissions Permission[]
+  users       User[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([name])
+}
+
+// Permissions - fine-grained access control
+model Permission {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  roles       Role[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([name])
+}
+
+// Users
+model User {
+  id                Int          @id @default(autoincrement())
+  email             String       @unique
+  fullName          String
+  phone             String?
+  password          String       // bcrypt hashed
+  licenseNumber     String       @unique
+  specialization    String?
+  theme             String       @default("auto")
+  language          String       @default("en")
+  defaultDoseUnit   String       @default("mg")
+  autoLock          Boolean      @default(false)
+  autoLockMinutes   Int          @default(15)
+  isActive          Boolean      @default(true)
+  lastLogin         DateTime?
+  roleId            Int
+  role              Role         @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  activityLogs      ActivityLog[]
+  dispenseRecords   DispenseRecord[]
+  apiKeys           ApiKey[]
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([email])
+  @@index([licenseNumber])
+  @@index([roleId])
+}
+
+// Printers
+model Printer {
+  id            Int               @id @default(autoincrement())
+  name          String
+  location      String?
+  ipAddress     String?
+  modelNumber   String?
+  serialNumber  String?
+  isDefault     Boolean           @default(false)
+  isActive      Boolean           @default(true)
+  lastSync      DateTime?
+  settings      PrinterSettings?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([name])
+  @@index([ipAddress])
+  @@index([isDefault])
+}
+
+// Printer Settings
+model PrinterSettings {
+  id           Int      @id @default(autoincrement())
+  printerId    Int      @unique
+  printer      Printer  @relation(fields: [printerId], references: [id], onDelete: Cascade)
+  paperSize    String   @default("A4")
+  orientation  String   @default("portrait")
+  colorMode    String   @default("bw")
+  quality      String   @default("normal")
+  copies       Int      @default(1)
+  autoSync     Boolean  @default(true)
+  syncInterval Int      @default(300)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([printerId])
+}
+
+// System Settings
+model SystemSettings {
+  id                 Int      @id @default(autoincrement())
+  facilityName       String
+  facilityLogo       String?
+  address            String?
+  phoneNumber        String?
+  email              String?
+  autoSyncEnabled    Boolean  @default(true)
+  syncInterval       Int      @default(300)
+  dataRetention      Int      @default(365)
+  dataRetentionUnit  String   @default("days")
+  auditLogging       Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([facilityName])
+}
+
+// Activity Log - Audit Trail
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  resource  String
+  resourceId String?
+  changes   String?  // JSON stringified changes
+  ipAddress String?
+  userAgent String?
+  status    String   @default("success")
+  errorMsg  String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@index([resource])
+}
+
+// Dispense Records - Medication dispensing audit trail
+model DispenseRecord {
+  id              Int       @id @default(autoincrement())
+  externalId      String    @unique
+  userId          Int
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  patientName     String?
+  patientAge      Int?
+  patientWeight   Float?
+  drugId          String
+  drugName        String
+  dose            String    // JSON stringified DoseCalculation
+  safetyAcks      String    // JSON stringified array
+  printedAt       DateTime?
+  deviceId        String
+  auditLog        String?   // JSON stringified array
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([drugId])
+  @@index([createdAt])
+  @@index([externalId])
+}
+
+// API Keys for external integrations
+model ApiKey {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key       String    @unique
+  name      String
+  isActive  Boolean   @default(true)
+  lastUsed  DateTime?
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([key])
+}
+// Drugs - Master reference data
+model Drug {
+  id                  String   @id @default(cuid())
+  genericName         String
+  tradeName           String[] // JSON array of trade names
+  strength            String
+  route               String   @default("oral")
+  category            String
+  stgReference        String?
+  contraindications   String[] // JSON array
+  pregnancyCategory   String?  // A, B, C, D, X
+  warnings            String[] // JSON array
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([genericName])
+  @@index([category])
+}
+
+// Dose Regimens - Master reference data
+model DoseRegimen {
+  id              String  @id @default(cuid())
+  drugId          String
+  ageMin          Int?
+  ageMax          Int?
+  weightMin       Float?
+  weightMax       Float?
+  ageGroup        String  @default("adult") // adult, pediatric, neonatal
+  doseMg          String
+  frequency       String
+  duration        String
+  maxDoseMgDay    String?
+  route           String  @default("oral")
+  instructions    String?
+  isActive        Boolean @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([drugId])
+  @@index([ageGroup])
+}
+
+// Print Templates - Master reference data
+model PrintTemplate {
+  id              String   @id @default(cuid())
+  name            String
+  description     String?
+  htmlTemplate    String   @db.Text // HTML template for browser printing
+  escposTemplate  String?  @db.Text // ESC/POS format for thermal printers
+  isDefault       Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([name])
+  @@index([isDefault])
+}

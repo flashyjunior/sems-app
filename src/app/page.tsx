@@ -1,65 +1,140 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useAppStore } from '@/store/app';
+import { LoginForm } from '@/components/LoginForm';
+import { SyncStatus } from '@/components/SyncStatus';
+import { DispenseForm } from '@/components/DispenseForm';
+import { DatabaseInitializer } from '@/components/DatabaseInitializer';
+import { TemplateEditor } from '@/components/TemplateEditor';
+import { SettingsMenu } from '@/components/SettingsMenu';
+import { db } from '@/lib/db';
 
 export default function Home() {
+  const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+  const user = useAppStore((s) => s.user);
+  const logout = useAppStore((s) => s.logout);
+  const [currentView, setCurrentView] = useState<'dispense' | 'settings'>('dispense');
+  const [todayDispenses, setTodayDispenses] = useState(0);
+  const [pendingSync, setPendingSync] = useState(0);
+  
+  const isAdmin = user?.role === 'admin';
+
+  // Load quick stats
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    
+    const loadStats = async () => {
+      try {
+        const allRecords = await db.dispenseRecords.toArray();
+        
+        // Count today's dispenses
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayMs = today.getTime();
+        const todayCount = allRecords.filter(r => (r.timestamp || 0) >= todayMs).length;
+        setTodayDispenses(todayCount);
+        
+        // Count pending sync records
+        const pendingCount = allRecords.filter(r => !r.synced).length;
+        setPendingSync(pendingCount);
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    };
+    
+    loadStats();
+    // Refresh stats every 30 seconds
+    const interval = setInterval(loadStats, 30000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      <DatabaseInitializer />
+      
+      {!isAuthenticated ? (
+        <LoginForm />
+      ) : (
+        <div className="min-h-screen bg-gray-50">
+          {/* Header */}
+          <header className="bg-white shadow-sm sticky top-0 z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">SEMS</h1>
+                <p className="text-sm text-gray-600">Smart Dispensing System</p>
+              </div>
+              <div className="flex items-center gap-6">
+                <SyncStatus />
+                {isAdmin && (
+                  <button
+                    onClick={() => setCurrentView(currentView === 'dispense' ? 'settings' : 'dispense')}
+                    className={`px-4 py-2 rounded-lg transition ${
+                      currentView === 'settings'
+                        ? 'bg-blue-100 text-blue-700 font-medium'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                    title="Settings"
+                  >
+                    ⚙️ Settings
+                  </button>
+                )}
+                <button
+                  onClick={() => logout()}
+                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </header>
+
+          {/* Main Content */}
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {currentView === 'settings' ? (
+              <SettingsMenu />
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Dispense Form - Main Column */}
+                <div className="lg:col-span-2">
+                  <DispenseForm onDispenseComplete={() => {}} />
+                </div>
+
+                {/* Sidebar */}
+                <div className="lg:col-span-1 space-y-6">
+                  {/* Quick Stats */}
+                  <div className="bg-white rounded-lg shadow p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      Quick Stats
+                    </h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Today's Dispenses</span>
+                        <span className="font-semibold text-gray-900">{todayDispenses}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Pending Sync</span>
+                        <span className={`font-semibold ${pendingSync > 0 ? 'text-orange-600' : 'text-gray-900'}`}>
+                          {pendingSync}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Help */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg shadow p-6">
+                    <h3 className="font-semibold text-blue-900 mb-2">Help</h3>
+                    <p className="text-sm text-blue-800">
+                      The system works offline. All data is synchronized when you
+                      reconnect to the internet.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </main>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      )}
+    </>
   );
 }

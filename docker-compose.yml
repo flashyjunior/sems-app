@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sems-postgres
+    environment:
+      POSTGRES_USER: sems
+      POSTGRES_PASSWORD: sems_secure_pwd
+      POSTGRES_DB: sems_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sems"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sems-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: sems-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - sems-network
+
+  sems-app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://sems:sems_secure_pwd@postgres:5432/sems_db?schema=public
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - sems-network
+
+volumes:
+  postgres_data:
+
+networks:
+  sems-network:
+    driver: bridge
