@@ -1,0 +1,162 @@
+
+> sems-app@0.1.0 dev
+> next dev
+
+   Γû▓ Next.js 16.0.10 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.99.94:3000
+   - Environments: .env
+
+ Γ£ô Starting...
+ Γ£ô Ready in 1246ms
+[2025-12-21T20:03:35.744Z] INFO: Authenticating user {
+  "email": "admin@sems.local"
+}
+prisma:query SELECT "public"."User"."id", "public"."User"."email", "public"."User"."fullName", "public"."User"."phone", "public"."User"."password", "public"."User"."licenseNumber", "public"."User"."specialization", "public"."User"."theme", "public"."User"."language", "public"."User"."defaultDoseUnit", "public"."User"."autoLock", "public"."User"."autoLockMinutes", "public"."User"."isActive", "public"."User"."lastLogin", "public"."User"."roleId", "public"."User"."createdAt", "public"."User"."updatedAt" FROM "public"."User" WHERE ("public"."User"."email" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Role"."id", "public"."Role"."name", "public"."Role"."description", "public"."Role"."createdAt", "public"."Role"."updatedAt" FROM "public"."Role" WHERE "public"."Role"."id" = $1 OFFSET $2
+[2025-12-21T20:03:35.911Z] INFO: User found, comparing passwords {
+  "email": "admin@sems.local",
+  "userId": 1
+}
+[2025-12-21T20:03:36.021Z] INFO: Password comparison result {
+  "email": "admin@sems.local",
+  "isValid": true
+}
+prisma:query UPDATE "public"."User" SET "lastLogin" = $1, "updatedAt" = $2 WHERE ("public"."User"."id" = $3 AND 1=1) RETURNING "public"."User"."id", "public"."User"."email", "public"."User"."fullName", "public"."User"."phone", "public"."User"."password", "public"."User"."licenseNumber", "public"."User"."specialization", "public"."User"."theme", "public"."User"."language", "public"."User"."defaultDoseUnit", "public"."User"."autoLock", "public"."User"."autoLockMinutes", "public"."User"."isActive", "public"."User"."lastLogin", "public"."User"."roleId", "public"."User"."createdAt", "public"."User"."updatedAt"
+[2025-12-21T20:03:36.042Z] INFO: User authenticated successfully {
+  "userId": 1,
+  "email": "admin@sems.local"
+}
+prisma:query INSERT INTO "public"."ActivityLog" ("userId","action","resource","ipAddress","userAgent","status","createdAt") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."ActivityLog"."id", "public"."ActivityLog"."userId", "public"."ActivityLog"."action", "public"."ActivityLog"."resource", "public"."ActivityLog"."resourceId", "public"."ActivityLog"."changes", "public"."ActivityLog"."ipAddress", "public"."ActivityLog"."userAgent", "public"."ActivityLog"."status", "public"."ActivityLog"."errorMsg", "public"."ActivityLog"."createdAt"
+[2025-12-21T20:03:36.071Z] INFO: User login successful {
+  "userId": 1,
+  "email": "admin@sems.local"
+}
+ POST /api/auth/login 200 in 1274ms (compile: 896ms, render: 378ms)
+ Γùï Compiling / ...
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /?id=628a843a-1dea-4213-bd9c-a9181010c487&vscodeBrowserReqId=1766347423230 200 in 10.2s (compile: 10.0s, render: 231ms)
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ HEAD / 200 in 60ms (compile: 7ms, render: 53ms)
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET / 200 in 52ms (compile: 4ms, render: 48ms)
+[2025-12-21T20:16:43.663Z] INFO: Authenticating user {
+  "email": "admin@sems.local"
+}
+prisma:query SELECT "public"."User"."id", "public"."User"."email", "public"."User"."fullName", "public"."User"."phone", "public"."User"."password", "public"."User"."licenseNumber", "public"."User"."specialization", "public"."User"."theme", "public"."User"."language", "public"."User"."defaultDoseUnit", "public"."User"."autoLock", "public"."User"."autoLockMinutes", "public"."User"."isActive", "public"."User"."lastLogin", "public"."User"."roleId", "public"."User"."createdAt", "public"."User"."updatedAt" FROM "public"."User" WHERE ("public"."User"."email" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Role"."id", "public"."Role"."name", "public"."Role"."description", "public"."Role"."createdAt", "public"."Role"."updatedAt" FROM "public"."Role" WHERE "public"."Role"."id" = $1 OFFSET $2
+[2025-12-21T20:16:43.716Z] INFO: User found, comparing passwords {
+  "email": "admin@sems.local",
+  "userId": 1
+}
+[2025-12-21T20:16:43.836Z] INFO: Password comparison result {
+  "email": "admin@sems.local",
+  "isValid": true
+}
+prisma:query UPDATE "public"."User" SET "lastLogin" = $1, "updatedAt" = $2 WHERE ("public"."User"."id" = $3 AND 1=1) RETURNING "public"."User"."id", "public"."User"."email", "public"."User"."fullName", "public"."User"."phone", "public"."User"."password", "public"."User"."licenseNumber", "public"."User"."specialization", "public"."User"."theme", "public"."User"."language", "public"."User"."defaultDoseUnit", "public"."User"."autoLock", "public"."User"."autoLockMinutes", "public"."User"."isActive", "public"."User"."lastLogin", "public"."User"."roleId", "public"."User"."createdAt", "public"."User"."updatedAt"
+[2025-12-21T20:16:43.850Z] INFO: User authenticated successfully {
+  "userId": 1,
+  "email": "admin@sems.local"
+}
+prisma:query INSERT INTO "public"."ActivityLog" ("userId","action","resource","ipAddress","userAgent","status","createdAt") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."ActivityLog"."id", "public"."ActivityLog"."userId", "public"."ActivityLog"."action", "public"."ActivityLog"."resource", "public"."ActivityLog"."resourceId", "public"."ActivityLog"."changes", "public"."ActivityLog"."ipAddress", "public"."ActivityLog"."userAgent", "public"."ActivityLog"."status", "public"."ActivityLog"."errorMsg", "public"."ActivityLog"."createdAt"
+[2025-12-21T20:16:43.871Z] INFO: User login successful {
+  "userId": 1,
+  "email": "admin@sems.local"
+}
+ POST /api/auth/login 200 in 242ms (compile: 16ms, render: 227ms)
+[2025-12-21T20:17:00.104Z] WARN: Database health check: unhealthy {
+  timestamp: '2025-12-21T20:17:00.101Z',
+  status: 'unhealthy',
+  config: {
+    databaseUrl: 'Set',
+    parsedUrl: {
+      username: 'sems',
+      host: 'localhost',
+      port: '5432',
+      database: 'sems_db',
+      note: 'Password is masked for security'
+    }
+  },
+  database: { connected: false, error: 'prisma.$queryRaw is not a function' },
+  tables: {
+    dispenseRecord: { exists: false, count: 0, error: null },
+    user: { exists: false, count: 0, error: null }
+  }
+}
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\.next\dev\server\chunks\[root-of-the-server]__6cdcacef._.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\.next\dev\server\chunks\node_modules_75619ca5._.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\base-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\next-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\dev\next-dev-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\trace\trace.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\lib\router-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\lib\start-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+Error reading logs: ReferenceError: localStorage is not defined
+    at getLogs (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\.next\dev\server\chunks\[root-of-the-server]__6cdcacef._.js:236:24)
+    at writeLog (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\.next\dev\server\chunks\[root-of-the-server]__6cdcacef._.js:216:26)
+    at GET (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\.next\dev\server\chunks\[root-of-the-server]__6cdcacef._.js:463:158)
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\.next\dev\server\chunks\[root-of-the-server]__6cdcacef._.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\.next\dev\server\chunks\node_modules_75619ca5._.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\base-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\next-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\dev\next-dev-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\trace\trace.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\lib\router-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\lib\start-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+Could not write to storage: ReferenceError: localStorage is not defined
+    at writeLog (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\.next\dev\server\chunks\[root-of-the-server]__6cdcacef._.js:225:13)
+    at GET (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\.next\dev\server\chunks\[root-of-the-server]__6cdcacef._.js:463:158)
+ GET /api/health/database 503 in 780ms (compile: 536ms, render: 243ms)
+[2025-12-21T20:17:00.359Z] WARN: Database health check: unhealthy {
+  timestamp: '2025-12-21T20:17:00.358Z',
+  status: 'unhealthy',
+  config: {
+    databaseUrl: 'Set',
+    parsedUrl: {
+      username: 'sems',
+      host: 'localhost',
+      port: '5432',
+      database: 'sems_db',
+      note: 'Password is masked for security'
+    }
+  },
+  database: { connected: false, error: 'prisma.$queryRaw is not a function' },
+  tables: {
+    dispenseRecord: { exists: false, count: 0, error: null },
+    user: { exists: false, count: 0, error: null }
+  }
+}
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\.next\dev\server\chunks\[root-of-the-server]__6cdcacef._.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\.next\dev\server\chunks\node_modules_75619ca5._.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\base-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\next-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\dev\next-dev-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\trace\trace.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\lib\router-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\lib\start-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+Error reading logs: ReferenceError: localStorage is not defined
+    at getLogs (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\.next\dev\server\chunks\[root-of-the-server]__6cdcacef._.js:236:24)
+    at writeLog (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\.next\dev\server\chunks\[root-of-the-server]__6cdcacef._.js:216:26)
+    at GET (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\.next\dev\server\chunks\[root-of-the-server]__6cdcacef._.js:463:158)
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\.next\dev\server\chunks\[root-of-the-server]__6cdcacef._.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\.next\dev\server\chunks\node_modules_75619ca5._.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\base-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\next-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\dev\next-dev-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\trace\trace.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\lib\router-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\next\dist\server\lib\start-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+Could not write to storage: ReferenceError: localStorage is not defined
+    at writeLog (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\.next\dev\server\chunks\[root-of-the-server]__6cdcacef._.js:225:13)
+    at GET (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\.next\dev\server\chunks\[root-of-the-server]__6cdcacef._.js:463:158)
+ GET /api/health/database 503 in 34ms (compile: 7ms, render: 27ms)
+ Γ£ô Compiled in 137ms
+ Γ£ô Compiled in 112ms
+ Γ£ô Compiled in 95ms

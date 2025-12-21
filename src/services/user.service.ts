@@ -1,4 +1,4 @@
-import prisma from '@/lib/prisma';
+import prisma from '@/lib/prisma.server';
 import { hashPassword, comparePassword } from '@/lib/password';
 import { logError, logInfo } from '@/lib/logger';
 import { UserCreate, UserUpdate } from '@/lib/validations';

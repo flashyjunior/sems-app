@@ -6,6 +6,7 @@ import { LoginForm } from '@/components/LoginForm';
 import { SyncStatus } from '@/components/SyncStatus';
 import { DispenseForm } from '@/components/DispenseForm';
 import { DatabaseInitializer } from '@/components/DatabaseInitializer';
+import { TauriDatabaseInitializer } from '@/components/TauriDatabaseInitializer';
 import { TemplateEditor } from '@/components/TemplateEditor';
 import { SettingsMenu } from '@/components/SettingsMenu';
 import { db } from '@/lib/db';
@@ -52,6 +53,7 @@ export default function Home() {
   return (
     <>
       <DatabaseInitializer />
+      <TauriDatabaseInitializer />
       
       {!isAuthenticated ? (
         <LoginForm />

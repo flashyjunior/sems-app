@@ -1,135 +1,294 @@
 /**
- * Local SQLite database for offline storage
+ * Tauri SQLite Database Service
+ * Handles all local database operations for the desktop app
  */
-export class LocalDatabase {
-  private db: any = null;
-  private invoke: any = null;
 
-  async init(): Promise<void> {
-    // Database is auto-initialized by Tauri on app startup
-    // via migrations in main.rs
-    // Load Tauri API only when running in Tauri environment
-    if (typeof window !== 'undefined' && (window as any).__TAURI__) {
-      try {
-        // @ts-ignore - Tauri API not available in dev mode
-        // const { invoke: tauriInvoke } = await import('@tauri-apps/api/core');
-        // this.invoke = tauriInvoke;
-      } catch (e) {
-        console.warn('Tauri API not available, running in web mode');
-      }
-    }
+import Database from '@tauri-apps/plugin-sql';
+
+let dbInstance: Database | null = null;
+
+/**
+ * Initialize the local SQLite database
+ */
+export async function initializeDatabase(): Promise<Database> {
+  if (dbInstance) {
+    return dbInstance;
   }
 
-  /**
-   * Save a dispense record locally
-   */
-  async saveDispense(record: any): Promise<number> {
-    try {
-      if (!this.invoke) throw new Error('Tauri API not initialized');
-      const now = Date.now();
-      const result = await this.invoke('save_dispense', {
-        externalId: record.externalId,
-        patientName: record.patientName,
-        patientAge: record.patientAge,
-        patientWeight: record.patientWeight,
-        drugId: record.drugId,
-        drugName: record.drugName,
-        dose: JSON.stringify(record.dose),
-        safetyAcknowledgements: JSON.stringify(record.safetyAcknowledgements),
-        printedAt: record.printedAt,
-        deviceId: record.deviceId,
-        auditLog: record.auditLog ? JSON.stringify(record.auditLog) : null,
-        createdAt: now,
-        updatedAt: now,
-      });
-      return result as number;
-    } catch (error) {
-      console.error('Error saving dispense record locally', error);
-      throw error;
-    }
-  }
+  try {
+    // Load database using the Tauri SQL plugin API
+    dbInstance = await Database.load('sqlite:sems.db');
 
-  /**
-   * Get all unsynced dispense records
-   */
-  async getUnsyncedRecords(): Promise<any[]> {
-    try {
-      if (!this.invoke) throw new Error('Tauri API not initialized');
-      const records = await this.invoke('get_unsynced_dispenses');
-      return records as any[];
-    } catch (error) {
-      console.error('Error fetching unsynced records', error);
-      throw error;
-    }
-  }
+    // Set pragmas for better performance
+    await dbInstance.execute('PRAGMA journal_mode = WAL');
+    await dbInstance.execute('PRAGMA synchronous = NORMAL');
 
-  /**
-   * Get dispense record by ID
-   */
-  async getDispense(id: number): Promise<any> {
-    try {
-      if (!this.invoke) throw new Error('Tauri API not initialized');
-      const record = await this.invoke('get_dispense', { id });
-      return record;
-    } catch (error) {
-      console.error('Error fetching dispense record', error);
-      throw error;
-    }
-  }
+    // Create schema if it doesn't exist
+    await createSchema(dbInstance);
 
-  /**
-   * Get all dispense records with pagination
-   */
-  async listDispenses(page: number = 1, limit: number = 20): Promise<any> {
-    try {
-      if (!this.invoke) throw new Error('Tauri API not initialized');
-      const result = await this.invoke('list_dispenses', { page, limit });
-      return result;
-    } catch (error) {
-      console.error('Error listing dispense records', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Mark records as synced
-   */
-  async markAsSynced(externalIds: string[]): Promise<void> {
-    try {
-      if (!this.invoke) throw new Error('Tauri API not initialized');
-      await this.invoke('mark_as_synced', { externalIds });
-    } catch (error) {
-      console.error('Error marking records as synced', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Delete dispense record (soft delete)
-   */
-  async deleteDispense(id: number): Promise<void> {
-    try {
-      if (!this.invoke) throw new Error('Tauri API not initialized');
-      await this.invoke('delete_dispense', { id });
-    } catch (error) {
-      console.error('Error deleting dispense record', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get sync statistics
-   */
-  async getSyncStats(): Promise<any> {
-    try {
-      if (!this.invoke) throw new Error('Tauri API not initialized');
-      const stats = await this.invoke('get_sync_stats');
-      return stats;
-    } catch (error) {
-      console.error('Error getting sync stats', error);
-      throw error;
-    }
+    console.log('✓ Database initialized successfully');
+    return dbInstance;
+  } catch (error) {
+    console.error('Failed to initialize database:', error);
+    throw error;
   }
 }
 
-export const localDb = new LocalDatabase();
+/**
+ * Get the database instance
+ */
+export function getDatabase(): Database {
+  if (!dbInstance) {
+    throw new Error('Database not initialized. Call initializeDatabase first.');
+  }
+  return dbInstance;
+}
+
+/**
+ * Create database schema
+ */
+async function createSchema(db: Database): Promise<void> {
+  // Users table - for local authentication
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT UNIQUE NOT NULL,
+      fullName TEXT NOT NULL,
+      password TEXT NOT NULL,
+      role TEXT DEFAULT 'pharmacist',
+      licenseNumber TEXT,
+      isActive INTEGER DEFAULT 1,
+      createdAt INTEGER NOT NULL,
+      updatedAt INTEGER NOT NULL
+    )
+  `);
+
+  // Dispense Records - offline transactions
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS dispense_records (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      externalId TEXT,
+      userId INTEGER NOT NULL,
+      patientName TEXT NOT NULL,
+      patientAge INTEGER,
+      patientWeight REAL,
+      drugId INTEGER,
+      drugName TEXT NOT NULL,
+      dose TEXT,
+      safetyAcknowledgements TEXT,
+      deviceId TEXT,
+      timestamp INTEGER NOT NULL,
+      synced INTEGER DEFAULT 0,
+      syncedAt INTEGER,
+      createdAt INTEGER NOT NULL,
+      updatedAt INTEGER NOT NULL,
+      FOREIGN KEY (userId) REFERENCES users(id)
+    )
+  `);
+
+  // Sync Configuration
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS sync_config (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      serverUrl TEXT NOT NULL,
+      syncInterval INTEGER DEFAULT 15,
+      autoSyncEnabled INTEGER DEFAULT 1,
+      lastSyncAt INTEGER,
+      createdAt INTEGER NOT NULL,
+      updatedAt INTEGER NOT NULL
+    )
+  `);
+
+  // Sync Queue - pending changes to send to server
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS sync_queue (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      entityType TEXT NOT NULL,
+      entityId INTEGER,
+      action TEXT NOT NULL,
+      payload TEXT NOT NULL,
+      retryCount INTEGER DEFAULT 0,
+      lastRetryAt INTEGER,
+      createdAt INTEGER NOT NULL
+    )
+  `);
+
+  // Cached Drugs from server
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS drugs (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      code TEXT UNIQUE,
+      description TEXT,
+      dosageForm TEXT,
+      strength TEXT,
+      manufacturer TEXT,
+      batchNumber TEXT,
+      expiryDate TEXT,
+      quantity INTEGER,
+      unit TEXT,
+      storageConditions TEXT,
+      notes TEXT,
+      syncedFromServer INTEGER DEFAULT 1,
+      createdAt INTEGER NOT NULL,
+      updatedAt INTEGER NOT NULL
+    )
+  `);
+
+  // Cached Dose Regimens from server
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS dose_regimens (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      description TEXT,
+      dosage TEXT NOT NULL,
+      frequency TEXT NOT NULL,
+      duration TEXT,
+      instructions TEXT,
+      warnings TEXT,
+      syncedFromServer INTEGER DEFAULT 1,
+      createdAt INTEGER NOT NULL,
+      updatedAt INTEGER NOT NULL
+    )
+  `);
+
+  console.log('✓ Database schema created');
+}
+
+/**
+ * Create default admin user if none exists
+ */
+export async function ensureDefaultUsers(db: Database): Promise<void> {
+  try {
+    // Check if any users exist
+    const users = (await db.select<unknown>(
+      'SELECT COUNT(*) as count FROM users'
+    )) as { count: number }[];
+    
+    if (users.length > 0 && users[0].count > 0) {
+      return; // Users already exist
+    }
+
+    // Hash function (simple - in production use bcrypt)
+    const hashPassword = (pwd: string) => Buffer.from(pwd).toString('base64');
+
+    // Create default admin user
+    const now = Date.now();
+    await db.execute(
+      `INSERT INTO users (email, fullName, password, role, licenseNumber, createdAt, updatedAt)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        'admin@sems.local',
+        'SEMS Administrator',
+        hashPassword('Admin@123'),
+        'admin',
+        'ADMIN-001',
+        now,
+        now,
+      ]
+    );
+
+    // Create default pharmacist user
+    await db.execute(
+      `INSERT INTO users (email, fullName, password, role, licenseNumber, createdAt, updatedAt)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        'pharmacist@sems.local',
+        'Default Pharmacist',
+        hashPassword('Pharmacist@123'),
+        'pharmacist',
+        'PHARM-001',
+        now,
+        now,
+      ]
+    );
+
+    console.log('✓ Default users created');
+  } catch (error) {
+    console.error('Error ensuring default users:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get sync configuration
+ */
+export async function getSyncConfig(db: Database) {
+  try {
+    const configs = (await db.select<unknown>(
+      'SELECT * FROM sync_config LIMIT 1'
+    )) as {
+      id?: number;
+      serverUrl: string;
+      syncInterval: number;
+      autoSyncEnabled: number;
+      lastSyncAt: number | null;
+      createdAt: number;
+      updatedAt: number;
+    }[];
+    return configs.length > 0
+      ? configs[0]
+      : {
+          serverUrl: '',
+          syncInterval: 15,
+          autoSyncEnabled: 1,
+          lastSyncAt: null,
+        };
+  } catch (error) {
+    console.error('Error getting sync config:', error);
+    throw error;
+  }
+}
+
+/**
+ * Update sync configuration
+ */
+export async function updateSyncConfig(
+  db: Database,
+  config: {
+    serverUrl: string;
+    syncInterval: number;
+    autoSyncEnabled: boolean;
+  }
+) {
+  try {
+    const now = Date.now();
+    const existing = (await db.select<unknown>(
+      'SELECT id FROM sync_config LIMIT 1'
+    )) as { id: number }[];
+
+    if (existing.length > 0) {
+      // Update existing
+      await db.execute(
+        `UPDATE sync_config SET serverUrl = ?, syncInterval = ?, autoSyncEnabled = ?, updatedAt = ?
+         WHERE id = ?`,
+        [config.serverUrl, config.syncInterval, config.autoSyncEnabled ? 1 : 0, now, existing[0].id]
+      );
+    } else {
+      // Insert new
+      await db.execute(
+        `INSERT INTO sync_config (serverUrl, syncInterval, autoSyncEnabled, createdAt, updatedAt)
+         VALUES (?, ?, ?, ?, ?)`,
+        [config.serverUrl, config.syncInterval, config.autoSyncEnabled ? 1 : 0, now, now]
+      );
+    }
+  } catch (error) {
+    console.error('Error updating sync config:', error);
+    throw error;
+  }
+}
+
+/**
+ * Simple password hash for demo (use bcrypt in production)
+ */
+export function hashPassword(password: string): string {
+  return Buffer.from(password).toString('base64');
+}
+
+/**
+ * Verify password
+ */
+export function verifyPassword(password: string, hash: string): boolean {
+  return hashPassword(password) === hash;
+}
+

@@ -1,4 +1,4 @@
-import { LocalDatabase } from '@/lib/tauri-db';
+import { getDatabase } from '@/lib/tauri-db';
 import { WebDatabase } from '@/lib/web-db';
 import { logInfo, logError } from '@/lib/logger';
 import { writeLog } from '@/lib/file-logger';
@@ -17,7 +17,7 @@ interface SyncOptions {
 export class SyncManager {
   private isSyncing = false;
   private syncInterval: NodeJS.Timeout | null = null;
-  private localDb: LocalDatabase | WebDatabase;
+  private localDb: WebDatabase | null;
   private isWebMode: boolean;
 
   constructor() {
@@ -26,11 +26,11 @@ export class SyncManager {
     
     if (this.isWebMode) {
       this.localDb = new WebDatabase();
+      this.localDb.init().catch(console.error);
     } else {
-      this.localDb = new LocalDatabase();
+      // Tauri mode - database initialized separately
+      this.localDb = null;
     }
-    
-    this.localDb.init().catch(console.error);
   }
 
   /**
@@ -39,6 +39,12 @@ export class SyncManager {
   async syncNow(options: SyncOptions): Promise<{ synced: number; failed: number }> {
     if (this.isSyncing) {
       logInfo('Sync already in progress');
+      return { synced: 0, failed: 0 };
+    }
+
+    // In Tauri mode, localDb is null - sync is handled separately
+    if (!this.localDb) {
+      logInfo('Local database not available (Tauri mode)');
       return { synced: 0, failed: 0 };
     }
 
@@ -223,6 +229,9 @@ export class SyncManager {
    */
   async getSyncStats(): Promise<any> {
     try {
+      if (!this.localDb) {
+        return { synced: 0, pending: 0, failed: 0 };
+      }
       return await this.localDb.getSyncStats();
     } catch (error) {
       logError('Error getting sync stats', error);

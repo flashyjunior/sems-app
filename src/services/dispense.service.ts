@@ -1,4 +1,4 @@
-import prisma from '@/lib/prisma';
+import prisma from '@/lib/prisma.server';
 import { logError, logInfo } from '@/lib/logger';
 import { DispenseCreate, DispenseUpdate } from '@/lib/validations';
 
@@ -17,8 +17,23 @@ async function ensureUserExists(userId: number, email?: string): Promise<number>
       return existingUser.id;
     }
 
-    // User doesn't exist, create a placeholder user
+    // User doesn't exist, create a placeholder user with default pharmacist role
     logInfo('Creating placeholder user for dispense record', { userId });
+    
+    // Get or create the default pharmacist role
+    let role = await prisma.role.findFirst({
+      where: { name: 'Pharmacist' },
+    });
+    
+    if (!role) {
+      role = await prisma.role.create({
+        data: {
+          name: 'Pharmacist',
+          description: 'Default pharmacist role',
+        },
+      });
+    }
+
     const newUser = await prisma.user.create({
       data: {
         id: userId,
@@ -26,6 +41,7 @@ async function ensureUserExists(userId: number, email?: string): Promise<number>
         fullName: `User ${userId}`,
         licenseNumber: `LICENSE-${userId}`,
         password: 'placeholder', // In production, this should be handled differently
+        roleId: role.id,
       },
     });
 

@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, Save, AlertCircle } from 'lucide-react';
 import { settingsService } from '@/services/settings';
+import { ServerSettings } from './ServerSettings';
+import { TauriSyncSettings } from './TauriSyncSettings';
 import type { SystemSettings } from '@/types';
 
 interface SystemSettingsEditorProps {
@@ -266,6 +268,16 @@ export function SystemSettingsEditor({ onBack }: SystemSettingsEditorProps) {
                 />
               </div>
             )}
+
+            {/* Backend Server Configuration */}
+            <div className="mt-6 pt-6 border-t">
+              {/* Show TauriSyncSettings for Tauri app, ServerSettings for web */}
+              {typeof window !== 'undefined' && (window as any).__TAURI__ ? (
+                <TauriSyncSettings />
+              ) : (
+                <ServerSettings />
+              )}
+            </div>
 
             <label className="flex items-center gap-3">
               <input

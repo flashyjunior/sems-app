@@ -1,14 +1,29 @@
 import { db } from '@/lib/db';
+import { localAuthService } from './local-auth';
 import type { User, AuthState } from '@/types';
 
 const STORAGE_KEY = 'sems_auth_session';
 const AUTH_TOKEN_KEY = 'authToken';
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
+/**
+ * Check if running in Tauri desktop environment
+ */
+function isRunningInTauri(): boolean {
+  if (typeof window !== 'undefined') {
+    return !!(window as any).__TAURI__;
+  }
+  return false;
+}
+
 export class AuthService {
   async login(username: string, pin: string): Promise<User | null> {
-    // In production, this would validate against Supabase or backend
-    // For demo, accept any non-empty PIN
+    // In Tauri app, use local SQLite authentication
+    if (isRunningInTauri()) {
+      return await localAuthService.login(username, pin);
+    }
+
+    // In web browser, call API endpoint
     if (!pin || pin.trim().length === 0) {
       throw new Error('PIN is required');
     }

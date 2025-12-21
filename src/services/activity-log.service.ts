@@ -1,4 +1,4 @@
-import prisma from '@/lib/prisma';
+import prisma from '@/lib/prisma.server';
 import { logError, logInfo } from '@/lib/logger';
 
 /**

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@/lib/auth-middleware';
 import { setCORSHeaders, handleCORS } from '@/lib/cors';
 import { AuthenticatedRequest } from '@/lib/auth-middleware';
-import prisma from '@/lib/prisma';
+import prisma from '@/lib/prisma.server';
 import { db } from '@/lib/db';
 import { logInfo, logError } from '@/lib/logger';
 
