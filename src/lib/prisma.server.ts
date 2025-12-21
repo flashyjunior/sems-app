@@ -1,3 +1,12 @@
+// This file is server-only - ensure it's never imported on the client
+if (typeof window !== 'undefined') {
+  throw new Error(
+    'prisma.server.ts was imported on the client. ' +
+    'This file can only be used on the server side. ' +
+    'Make sure you are not importing it from client components.'
+  );
+}
+
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
