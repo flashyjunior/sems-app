@@ -11,7 +11,7 @@
    - Environments: .env
 
    Creating an optimized production build ...
- Γ£ô Compiled successfully in 6.8s
+ Γ£ô Compiled successfully in 4.0s
    Running TypeScript ...
    Collecting page data using 11 workers ...
    Generating static pages using 11 workers (0/27) ...
@@ -19,14 +19,14 @@
    Generating static pages using 11 workers (13/27) 
  ΓÜá Unsupported metadata themeColor is configured in metadata export in /_not-found. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /dose-regimens. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
  ΓÜá Unsupported metadata themeColor is configured in metadata export in /drugs. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
    Generating static pages using 11 workers (20/27) 
- ΓÜá Unsupported metadata themeColor is configured in metadata export in /dose-regimens. Please move it to viewport export instead.
-Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
  ΓÜá Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- Γ£ô Generating static pages using 11 workers (27/27) in 1142.4ms
+ Γ£ô Generating static pages using 11 workers (27/27) in 1148.0ms
    Finalizing page optimization ...
 
 Route (app)
