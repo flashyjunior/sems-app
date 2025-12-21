@@ -11,7 +11,7 @@
    - Environments: .env
 
    Creating an optimized production build ...
- Γ£ô Compiled successfully in 3.9s
+ Γ£ô Compiled successfully in 6.8s
    Running TypeScript ...
    Collecting page data using 11 workers ...
    Generating static pages using 11 workers (0/27) ...
@@ -19,14 +19,14 @@
    Generating static pages using 11 workers (13/27) 
  ΓÜá Unsupported metadata themeColor is configured in metadata export in /_not-found. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- ΓÜá Unsupported metadata themeColor is configured in metadata export in /dose-regimens. Please move it to viewport export instead.
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /drugs. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
    Generating static pages using 11 workers (20/27) 
- ΓÜá Unsupported metadata themeColor is configured in metadata export in /drugs. Please move it to viewport export instead.
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /dose-regimens. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
  ΓÜá Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
 Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
- Γ£ô Generating static pages using 11 workers (27/27) in 1231.8ms
+ Γ£ô Generating static pages using 11 workers (27/27) in 1142.4ms
    Finalizing page optimization ...
 
 Route (app)
@@ -63,8 +63,7 @@ Route (app)
 Γùï  (Static)   prerendered as static content
 ╞Æ  (Dynamic)  server-rendered on demand
 
-   Compiling sems-tauri v0.1.0 (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src-tauri)
-    Finished `release` profile [optimized] target(s) in 12.14s
+    Finished `release` profile [optimized] target(s) in 1.06s
         Info Target: x64
      Running candle for "main.wxs"
      Running light to produce E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src-tauri\target\release\bundle\msi\sems-tauri_0.1.0_x64_en-US.msi
