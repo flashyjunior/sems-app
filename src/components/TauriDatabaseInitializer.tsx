@@ -24,21 +24,24 @@ export function TauriDatabaseInitializer() {
           console.log('🔧 Initializing Tauri SQLite database...');
           const db = await initializeDatabase();
           
-          // Ensure default users exist
-          await ensureDefaultUsers(db);
+          if (db) {
+            // Ensure default users exist
+            await ensureDefaultUsers(db);
+            
+            // Show database location for debugging
+            const dbLocation = await getDatabaseLocation();
+            console.log('📁 Database location:', dbLocation);
+            
+            console.log('✓ Tauri database initialized successfully');
+          } else {
+            console.warn('⚠️ Tauri database not available - running in web mode');
+          }
           
-          // Show database location for debugging
-          const dbLocation = await getDatabaseLocation();
-          console.log('📁 Database location:', dbLocation);
-          
-          console.log('✓ Tauri database initialized successfully');
           setInitialized(true);
         } catch (err) {
           const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-          console.error('✗ Failed to initialize Tauri database:', errorMsg);
-          console.error('Full error:', err);
-          setError(errorMsg);
-          // Don't block app startup, just log error
+          console.error('✗ Database initialization error:', errorMsg);
+          // Don't block app startup, just log error and continue
           setInitialized(true);
         }
       } else {

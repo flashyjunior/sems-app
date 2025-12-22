@@ -29,24 +29,25 @@ export function getDebugLogs(): string[] {
 /**
  * Wait for Tauri to be fully initialized
  */
-async function waitForTauri(maxWait: number = 10000): Promise<boolean> {
+async function waitForTauri(maxWait: number = 15000): Promise<boolean> {
   const startTime = Date.now();
   
   while (Date.now() - startTime < maxWait) {
-    if (typeof window !== 'undefined' && (window as any).__TAURI__) {
-      // Double-check that core invoke is available
-      try {
-        const { invoke } = (window as any).__TAURI__.core;
-        if (invoke) {
-          logDebug('✓ Tauri core.invoke found');
+    try {
+      if (typeof window !== 'undefined' && (window as any).__TAURI__) {
+        // Double-check that core invoke is available
+        const core = (window as any).__TAURI__.core;
+        if (core && typeof core.invoke === 'function') {
+          logDebug('✓ Tauri core.invoke fully ready after ' + (Date.now() - startTime) + 'ms');
           return true;
         }
-      } catch (e) {
-        // invoke not ready yet
       }
+    } catch (e) {
+      // Continue checking
     }
-    // Wait 100ms before checking again
-    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Wait 50ms before checking again
+    await new Promise(resolve => setTimeout(resolve, 50));
   }
   
   logDebug('❌ Tauri core not fully initialized after ' + maxWait + 'ms');
@@ -64,72 +65,72 @@ export async function initializeDatabase(): Promise<any> {
   try {
     logDebug('🔧 Initializing Tauri SQLite database...');
 
-    // Wait for Tauri to be fully initialized
-    const tauriReady = await waitForTauri(10000);
+    // Wait for Tauri to be fully initialized (up to 15 seconds)
+    const tauriReady = await waitForTauri(15000);
     if (!tauriReady) {
-      logDebug('❌ Tauri not available, cannot initialize database');
-      throw new Error('Tauri context not available');
+      logDebug('⚠️ Tauri not available - running in web mode without offline database');
+      // Don't throw error - just return null and let app work in web mode
+      return null;
     }
 
     logDebug('✓ Tauri ready, attempting SQL plugin load');
 
     // Initialize database using Tauri's SQL plugin with retry logic
-    let retries = 3;
+    let retries = 5;
     let lastError: any;
     
     while (retries > 0) {
       try {
-        logDebug(`📦 Attempting to import @tauri-apps/plugin-sql (retries: ${retries})`);
+        logDebug(`📦 Attempting SQL plugin load (${6 - retries}/5)`);
         const sqlModule = await import('@tauri-apps/plugin-sql');
-        logDebug('📦 SQL module loaded, exports:', Object.keys(sqlModule));
+        logDebug('📦 SQL module loaded');
         
         const Database = sqlModule.default;
         
         if (!Database) {
-          throw new Error('Database class not exported from @tauri-apps/plugin-sql');
+          throw new Error('Database class not found');
         }
         
-        logDebug('✓ Database class found');
-
-        // Open or create the database
-        logDebug('🔄 Loading sqlite:sems.db...');
+        logDebug('✓ Loading database...');
         dbInstance = await Database.load('sqlite:sems.db');
-        logDebug('✓ SQLite database opened/created');
+        logDebug('✓ Database loaded');
 
-        // Set pragmas for better performance
+        // Set pragmas
         await dbInstance.execute('PRAGMA journal_mode = WAL');
         await dbInstance.execute('PRAGMA synchronous = NORMAL');
-        logDebug('✓ Database pragmas configured');
+        logDebug('✓ Pragmas configured');
 
-        // Create schema if it doesn't exist
+        // Create schema
         await createSchema(dbInstance);
-        logDebug('✓ Schema verified/created');
+        logDebug('✓ Schema ready');
 
-        // Seed default users
+        // Seed users
         await ensureDefaultUsers(dbInstance);
-        logDebug('✓ Default users ensured');
+        logDebug('✓ Default users ready');
 
-        logDebug('✓ Database initialized successfully');
+        logDebug('✅ Database initialized successfully');
         return dbInstance;
         
       } catch (sqlError: any) {
         lastError = sqlError;
-        logDebug('❌ Attempt failed:', sqlError?.message || sqlError);
+        logDebug(`❌ Attempt ${6 - retries} failed: ${sqlError?.message}`);
         retries--;
         
         if (retries > 0) {
-          logDebug(`⏳ Retrying in 500ms...`);
+          logDebug(`⏳ Retrying in 500ms (${retries} attempts left)...`);
           await new Promise(resolve => setTimeout(resolve, 500));
         }
       }
     }
     
-    // All retries failed
-    throw lastError || new Error('Failed to initialize database after retries');
+    logDebug('❌ All database initialization attempts failed');
+    // Don't throw - let app continue without database
+    return null;
     
   } catch (error: any) {
-    logDebug('❌ Failed to initialize database:', error?.message || error);
-    throw error;
+    logDebug('⚠️ Database initialization exception:', error?.message);
+    // Return null instead of throwing to let app continue
+    return null;
   }
 }
 
