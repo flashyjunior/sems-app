@@ -21,9 +21,6 @@ export async function initializeDatabase(): Promise<any> {
     }
 
     console.log('🔧 Initializing Tauri SQLite database...');
-
-    // Import Tauri modules
-    const { invoke } = (window as any).__TAURI__.core;
     
     // Initialize database using Tauri's SQL plugin
     // This creates the database in the app's local data directory
