@@ -16,43 +16,56 @@ export async function initializeDatabase(): Promise<any> {
   try {
     // First check if we're in Tauri environment
     if (typeof window === 'undefined' || !(window as any).__TAURI__) {
-      throw new Error('Not running in Tauri environment');
+      console.log('Not in Tauri environment, skipping database initialization');
+      return null;
     }
 
-    // Dynamically import Tauri SQL plugin to avoid loading in browser
-    let Database: any;
+    console.log('🔧 Initializing Tauri SQLite database...');
+
+    // Import Tauri modules
+    const { invoke } = (window as any).__TAURI__.core;
+    
+    // Initialize database using Tauri's SQL plugin
+    // This creates the database in the app's local data directory
     try {
-      const sqlModule = await import('@tauri-apps/plugin-sql') as any;
-      
-      // Try different export patterns
-      Database = sqlModule.Database || sqlModule.default;
+      // Load the SQL module - Database is the default export
+      const Database = (await import('@tauri-apps/plugin-sql')).default;
       
       if (!Database) {
-        console.error('Available exports:', Object.keys(sqlModule));
-        throw new Error('Database class not found in @tauri-apps/plugin-sql');
+        throw new Error('Database class not exported from @tauri-apps/plugin-sql');
       }
-    } catch (importError) {
-      console.error('Failed to import @tauri-apps/plugin-sql:', importError);
-      throw importError;
+
+      // Open or create the database
+      // Using 'sqlite:' prefix tells Tauri to store it in the app data directory
+      dbInstance = await Database.load('sqlite:sems.db');
+      console.log('✓ SQLite database opened/created at: sqlite:sems.db');
+
+      // Set pragmas for better performance
+      await dbInstance.execute('PRAGMA journal_mode = WAL');
+      await dbInstance.execute('PRAGMA synchronous = NORMAL');
+      console.log('✓ Database pragmas configured');
+
+      // Create schema if it doesn't exist
+      await createSchema(dbInstance);
+      console.log('✓ Schema verified/created');
+
+      // Seed default users
+      await ensureDefaultUsers(dbInstance);
+      console.log('✓ Default users ensured');
+
+      console.log('✓ Database initialized successfully');
+      return dbInstance;
+    } catch (sqlError: any) {
+      console.error('SQL Plugin Error:', sqlError);
+      console.error('Error details:', {
+        message: sqlError.message,
+        code: sqlError.code,
+        stack: sqlError.stack,
+      });
+      throw sqlError;
     }
-    
-    console.log('✓ Tauri SQL plugin loaded');
-    
-    // Load database using the Tauri SQL plugin API
-    dbInstance = await Database.load('sqlite:sems.db');
-    console.log('✓ Database file loaded');
-
-    // Set pragmas for better performance
-    await dbInstance.execute('PRAGMA journal_mode = WAL');
-    await dbInstance.execute('PRAGMA synchronous = NORMAL');
-
-    // Create schema if it doesn't exist
-    await createSchema(dbInstance);
-
-    console.log('✓ Database initialized successfully');
-    return dbInstance;
   } catch (error) {
-    console.error('Failed to initialize database:', error);
+    console.error('❌ Failed to initialize database:', error);
     throw error;
   }
 }
@@ -65,6 +78,24 @@ export function getDatabase(): any {
     throw new Error('Database not initialized. Call initializeDatabase first.');
   }
   return dbInstance;
+}
+
+/**
+ * Get the database file location for the user
+ * The SQLite database is stored in Tauri's app data directory
+ */
+export async function getDatabaseLocation(): Promise<string> {
+  try {
+    if (typeof window === 'undefined' || !(window as any).__TAURI__) {
+      return 'Not in Tauri environment';
+    }
+
+    const { appDataDir } = await import('@tauri-apps/api/path');
+    const dataDir = await appDataDir();
+    return `${dataDir}sems.db`;
+  } catch (error) {
+    return 'Unable to determine database location';
+  }
 }
 
 /**

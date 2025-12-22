@@ -17,7 +17,7 @@ export function TauriDatabaseInitializer() {
       if (typeof window !== 'undefined' && (window as any).__TAURI__) {
         try {
           // Dynamically import and initialize database
-          const { initializeDatabase, ensureDefaultUsers, getDatabase } = await import(
+          const { initializeDatabase, ensureDefaultUsers, getDatabaseLocation } = await import(
             '@/lib/tauri-db'
           );
 
@@ -27,11 +27,16 @@ export function TauriDatabaseInitializer() {
           // Ensure default users exist
           await ensureDefaultUsers(db);
           
+          // Show database location for debugging
+          const dbLocation = await getDatabaseLocation();
+          console.log('📁 Database location:', dbLocation);
+          
           console.log('✓ Tauri database initialized successfully');
           setInitialized(true);
         } catch (err) {
           const errorMsg = err instanceof Error ? err.message : 'Unknown error';
           console.error('✗ Failed to initialize Tauri database:', errorMsg);
+          console.error('Full error:', err);
           setError(errorMsg);
           // Don't block app startup, just log error
           setInitialized(true);
