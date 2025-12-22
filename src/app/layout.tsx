@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { DatabaseLocationDisplay } from '@/components/DatabaseLocationDisplay';
 
 export const metadata: Metadata = {
   title: 'SEMS - Smart Dispensing System',
@@ -27,7 +28,10 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="SEMS" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <DatabaseLocationDisplay />
+      </body>
     </html>
   );
 }
