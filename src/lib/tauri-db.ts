@@ -76,12 +76,14 @@ export async function initializeDatabase(): Promise<any> {
     logDebug('✓ Tauri ready, attempting SQL plugin load');
 
     // Initialize database using Tauri's SQL plugin with retry logic
-    let retries = 5;
+    let attemptNumber = 0;
+    const maxAttempts = 5;
     let lastError: any;
     
-    while (retries > 0) {
+    while (attemptNumber < maxAttempts) {
+      attemptNumber++;
       try {
-        logDebug(`📦 Attempting SQL plugin load (${6 - retries}/5)`);
+        logDebug(`📦 Attempting SQL plugin load (${attemptNumber}/${maxAttempts})`);
         const sqlModule = await import('@tauri-apps/plugin-sql');
         logDebug('📦 SQL module loaded');
         
@@ -113,11 +115,10 @@ export async function initializeDatabase(): Promise<any> {
         
       } catch (sqlError: any) {
         lastError = sqlError;
-        logDebug(`❌ Attempt ${6 - retries} failed: ${sqlError?.message}`);
-        retries--;
+        logDebug(`❌ Attempt ${attemptNumber} failed: ${sqlError?.message}`);
         
-        if (retries > 0) {
-          logDebug(`⏳ Retrying in 500ms (${retries} attempts left)...`);
+        if (attemptNumber < maxAttempts) {
+          logDebug(`⏳ Retrying in 500ms (${maxAttempts - attemptNumber} attempts remaining)...`);
           await new Promise(resolve => setTimeout(resolve, 500));
         }
       }
