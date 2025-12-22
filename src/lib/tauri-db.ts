@@ -5,6 +5,36 @@
 
 let dbInstance: any = null;
 
+// Store logs in memory for debugging
+const debugLogs: string[] = [];
+
+/**
+ * Write debug log to console and memory
+ */
+function logDebug(message: string, data?: any): void {
+  const timestamp = new Date().toISOString();
+  const logEntry = `[${timestamp}] ${message}${data ? ' ' + JSON.stringify(data) : ''}`;
+  
+  console.log(logEntry);
+  debugLogs.push(logEntry);
+  
+  // Store in localStorage if available
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem('sems_debug_logs', JSON.stringify(debugLogs));
+    }
+  } catch (err) {
+    // Silently fail
+  }
+}
+
+/**
+ * Get all debug logs (for troubleshooting)
+ */
+export function getDebugLogs(): string[] {
+  return [...debugLogs];
+}
+
 /**
  * Initialize the local SQLite database
  */
@@ -16,60 +46,61 @@ export async function initializeDatabase(): Promise<any> {
   try {
     // First check if we're in Tauri environment
     if (typeof window === 'undefined' || !(window as any).__TAURI__) {
-      console.log('Not in Tauri environment, skipping database initialization');
+      logDebug('Not in Tauri environment, skipping database initialization');
       return null;
     }
 
-    console.log('🔧 Initializing Tauri SQLite database...');
-    
+    logDebug('🔧 Initializing Tauri SQLite database...');
+
     // Initialize database using Tauri's SQL plugin
     // This creates the database in the app's local data directory
     try {
       // Load the SQL module - Database is the default export
+      logDebug('📦 Importing @tauri-apps/plugin-sql...');
       const sqlModule = await import('@tauri-apps/plugin-sql');
-      console.log('📦 SQL module loaded, exports:', Object.keys(sqlModule));
+      logDebug('📦 SQL module loaded, exports:', Object.keys(sqlModule));
       
       const Database = sqlModule.default;
       
       if (!Database) {
-        console.error('❌ Database is undefined. Module exports:', sqlModule);
+        logDebug('❌ Database is undefined. Module exports:', sqlModule);
         throw new Error('Database class not exported from @tauri-apps/plugin-sql');
       }
       
-      console.log('✓ Database class found:', typeof Database);
+      logDebug('✓ Database class found:', typeof Database);
 
       // Open or create the database
       // Using 'sqlite:' prefix tells Tauri to store it in the app data directory
-      console.log('🔄 Loading sqlite:sems.db...');
+      logDebug('🔄 Loading sqlite:sems.db...');
       dbInstance = await Database.load('sqlite:sems.db');
-      console.log('✓ SQLite database opened/created at: sqlite:sems.db');
+      logDebug('✓ SQLite database opened/created at: sqlite:sems.db');
 
       // Set pragmas for better performance
       await dbInstance.execute('PRAGMA journal_mode = WAL');
       await dbInstance.execute('PRAGMA synchronous = NORMAL');
-      console.log('✓ Database pragmas configured');
+      logDebug('✓ Database pragmas configured');
 
       // Create schema if it doesn't exist
       await createSchema(dbInstance);
-      console.log('✓ Schema verified/created');
+      logDebug('✓ Schema verified/created');
 
       // Seed default users
       await ensureDefaultUsers(dbInstance);
-      console.log('✓ Default users ensured');
+      logDebug('✓ Default users ensured');
 
-      console.log('✓ Database initialized successfully');
+      logDebug('✓ Database initialized successfully');
       return dbInstance;
     } catch (sqlError: any) {
-      console.error('SQL Plugin Error:', sqlError);
-      console.error('Error details:', {
-        message: sqlError.message,
-        code: sqlError.code,
-        stack: sqlError.stack,
+      logDebug('SQL Plugin Error:', sqlError);
+      logDebug('Error details:', {
+        message: sqlError?.message,
+        code: sqlError?.code,
+        stack: sqlError?.stack,
       });
       throw sqlError;
     }
   } catch (error) {
-    console.error('❌ Failed to initialize database:', error);
+    logDebug('❌ Failed to initialize database:', error);
     throw error;
   }
 }
@@ -96,7 +127,7 @@ export async function getDatabaseLocation(): Promise<string> {
 
     const { appDataDir } = await import('@tauri-apps/api/path');
     const dataDir = await appDataDir();
-    return `${dataDir}sems.db`;
+    return `${dataDir}\n\nDatabase: ${dataDir}sems.db\nDebug log: ${dataDir}sems-debug.log`;
   } catch (error) {
     return 'Unable to determine database location';
   }
