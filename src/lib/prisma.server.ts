@@ -7,8 +7,29 @@ if (typeof window !== 'undefined') {
   );
 }
 
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
+// Import types for TypeScript (these are safe at type-check time)
+import type { PrismaClient as PrismaClientType } from '@prisma/client';
+
+// Dynamically require the actual modules at runtime
+let PrismaClient: any;
+let PrismaPg: any;
+
+try {
+  const prismaModule = require('@prisma/client');
+  PrismaClient = prismaModule.PrismaClient;
+} catch (e) {
+  console.error('Failed to import PrismaClient:', e);
+  throw new Error('Prisma client is required but not available');
+}
+
+try {
+  const adapterModule = require('@prisma/adapter-pg');
+  PrismaPg = adapterModule.PrismaPg;
+} catch (e) {
+  console.error('Failed to import PrismaPg adapter:', e);
+  throw new Error('Prisma adapter is required but not available');
+}
+
 import { Pool } from 'pg';
 
 // Create a database connection pool
@@ -19,7 +40,7 @@ const pool = new Pool({
 
 // Prevent multiple Prisma Client instances in development
 declare global {
-  var prisma: PrismaClient | undefined;
+  var prisma: PrismaClientType | undefined;
 }
 
 // Only instantiate if DATABASE_URL is set
