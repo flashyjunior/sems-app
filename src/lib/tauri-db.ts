@@ -14,11 +14,33 @@ export async function initializeDatabase(): Promise<any> {
   }
 
   try {
+    // First check if we're in Tauri environment
+    if (typeof window === 'undefined' || !(window as any).__TAURI__) {
+      throw new Error('Not running in Tauri environment');
+    }
+
     // Dynamically import Tauri SQL plugin to avoid loading in browser
-    const { default: Database } = await import('@tauri-apps/plugin-sql');
+    let Database: any;
+    try {
+      const sqlModule = await import('@tauri-apps/plugin-sql') as any;
+      
+      // Try different export patterns
+      Database = sqlModule.Database || sqlModule.default;
+      
+      if (!Database) {
+        console.error('Available exports:', Object.keys(sqlModule));
+        throw new Error('Database class not found in @tauri-apps/plugin-sql');
+      }
+    } catch (importError) {
+      console.error('Failed to import @tauri-apps/plugin-sql:', importError);
+      throw importError;
+    }
+    
+    console.log('✓ Tauri SQL plugin loaded');
     
     // Load database using the Tauri SQL plugin API
     dbInstance = await Database.load('sqlite:sems.db');
+    console.log('✓ Database file loaded');
 
     // Set pragmas for better performance
     await dbInstance.execute('PRAGMA journal_mode = WAL');
