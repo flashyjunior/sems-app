@@ -17,15 +17,6 @@ function logDebug(message: string, data?: any): void {
   
   console.log(logEntry);
   debugLogs.push(logEntry);
-  
-  // Store in localStorage if available
-  try {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      window.localStorage.setItem('sems_debug_logs', JSON.stringify(debugLogs));
-    }
-  } catch (err) {
-    // Silently fail
-  }
 }
 
 /**
@@ -33,6 +24,25 @@ function logDebug(message: string, data?: any): void {
  */
 export function getDebugLogs(): string[] {
   return [...debugLogs];
+}
+
+/**
+ * Wait for Tauri to be fully initialized
+ */
+async function waitForTauri(maxWait: number = 5000): Promise<boolean> {
+  const startTime = Date.now();
+  
+  while (Date.now() - startTime < maxWait) {
+    if (typeof window !== 'undefined' && (window as any).__TAURI__) {
+      logDebug('✓ Tauri context found');
+      return true;
+    }
+    // Wait 100ms before checking again
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  
+  logDebug('❌ Tauri context not available after', maxWait + 'ms');
+  return false;
 }
 
 /**
@@ -44,18 +54,17 @@ export async function initializeDatabase(): Promise<any> {
   }
 
   try {
-    // First check if we're in Tauri environment
-    if (typeof window === 'undefined' || !(window as any).__TAURI__) {
-      logDebug('Not in Tauri environment, skipping database initialization');
+    logDebug('🔧 Initializing Tauri SQLite database...');
+
+    // Wait for Tauri to be fully initialized
+    const tauriReady = await waitForTauri();
+    if (!tauriReady) {
+      logDebug('❌ Tauri not available, skipping database initialization');
       return null;
     }
 
-    logDebug('🔧 Initializing Tauri SQLite database...');
-
     // Initialize database using Tauri's SQL plugin
-    // This creates the database in the app's local data directory
     try {
-      // Load the SQL module - Database is the default export
       logDebug('📦 Importing @tauri-apps/plugin-sql...');
       const sqlModule = await import('@tauri-apps/plugin-sql');
       logDebug('📦 SQL module loaded, exports:', Object.keys(sqlModule));
@@ -67,13 +76,12 @@ export async function initializeDatabase(): Promise<any> {
         throw new Error('Database class not exported from @tauri-apps/plugin-sql');
       }
       
-      logDebug('✓ Database class found:', typeof Database);
+      logDebug('✓ Database class found');
 
       // Open or create the database
-      // Using 'sqlite:' prefix tells Tauri to store it in the app data directory
       logDebug('🔄 Loading sqlite:sems.db...');
       dbInstance = await Database.load('sqlite:sems.db');
-      logDebug('✓ SQLite database opened/created at: sqlite:sems.db');
+      logDebug('✓ SQLite database opened/created');
 
       // Set pragmas for better performance
       await dbInstance.execute('PRAGMA journal_mode = WAL');
@@ -91,16 +99,11 @@ export async function initializeDatabase(): Promise<any> {
       logDebug('✓ Database initialized successfully');
       return dbInstance;
     } catch (sqlError: any) {
-      logDebug('SQL Plugin Error:', sqlError);
-      logDebug('Error details:', {
-        message: sqlError?.message,
-        code: sqlError?.code,
-        stack: sqlError?.stack,
-      });
+      logDebug('❌ SQL Plugin Error:', sqlError?.message || sqlError);
       throw sqlError;
     }
-  } catch (error) {
-    logDebug('❌ Failed to initialize database:', error);
+  } catch (error: any) {
+    logDebug('❌ Failed to initialize database:', error?.message || error);
     throw error;
   }
 }
