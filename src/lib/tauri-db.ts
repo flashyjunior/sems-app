@@ -26,14 +26,21 @@ export async function initializeDatabase(): Promise<any> {
     // This creates the database in the app's local data directory
     try {
       // Load the SQL module - Database is the default export
-      const Database = (await import('@tauri-apps/plugin-sql')).default;
+      const sqlModule = await import('@tauri-apps/plugin-sql');
+      console.log('📦 SQL module loaded, exports:', Object.keys(sqlModule));
+      
+      const Database = sqlModule.default;
       
       if (!Database) {
+        console.error('❌ Database is undefined. Module exports:', sqlModule);
         throw new Error('Database class not exported from @tauri-apps/plugin-sql');
       }
+      
+      console.log('✓ Database class found:', typeof Database);
 
       // Open or create the database
       // Using 'sqlite:' prefix tells Tauri to store it in the app data directory
+      console.log('🔄 Loading sqlite:sems.db...');
       dbInstance = await Database.load('sqlite:sems.db');
       console.log('✓ SQLite database opened/created at: sqlite:sems.db');
 
