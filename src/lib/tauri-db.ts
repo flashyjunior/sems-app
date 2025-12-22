@@ -29,19 +29,27 @@ export function getDebugLogs(): string[] {
 /**
  * Wait for Tauri to be fully initialized
  */
-async function waitForTauri(maxWait: number = 5000): Promise<boolean> {
+async function waitForTauri(maxWait: number = 10000): Promise<boolean> {
   const startTime = Date.now();
   
   while (Date.now() - startTime < maxWait) {
     if (typeof window !== 'undefined' && (window as any).__TAURI__) {
-      logDebug('✓ Tauri context found');
-      return true;
+      // Double-check that core invoke is available
+      try {
+        const { invoke } = (window as any).__TAURI__.core;
+        if (invoke) {
+          logDebug('✓ Tauri core.invoke found');
+          return true;
+        }
+      } catch (e) {
+        // invoke not ready yet
+      }
     }
     // Wait 100ms before checking again
     await new Promise(resolve => setTimeout(resolve, 100));
   }
   
-  logDebug('❌ Tauri context not available after', maxWait + 'ms');
+  logDebug('❌ Tauri core not fully initialized after ' + maxWait + 'ms');
   return false;
 }
 
@@ -57,51 +65,68 @@ export async function initializeDatabase(): Promise<any> {
     logDebug('🔧 Initializing Tauri SQLite database...');
 
     // Wait for Tauri to be fully initialized
-    const tauriReady = await waitForTauri();
+    const tauriReady = await waitForTauri(10000);
     if (!tauriReady) {
-      logDebug('❌ Tauri not available, skipping database initialization');
-      return null;
+      logDebug('❌ Tauri not available, cannot initialize database');
+      throw new Error('Tauri context not available');
     }
 
-    // Initialize database using Tauri's SQL plugin
-    try {
-      logDebug('📦 Importing @tauri-apps/plugin-sql...');
-      const sqlModule = await import('@tauri-apps/plugin-sql');
-      logDebug('📦 SQL module loaded, exports:', Object.keys(sqlModule));
-      
-      const Database = sqlModule.default;
-      
-      if (!Database) {
-        logDebug('❌ Database is undefined. Module exports:', sqlModule);
-        throw new Error('Database class not exported from @tauri-apps/plugin-sql');
+    logDebug('✓ Tauri ready, attempting SQL plugin load');
+
+    // Initialize database using Tauri's SQL plugin with retry logic
+    let retries = 3;
+    let lastError: any;
+    
+    while (retries > 0) {
+      try {
+        logDebug(`📦 Attempting to import @tauri-apps/plugin-sql (retries: ${retries})`);
+        const sqlModule = await import('@tauri-apps/plugin-sql');
+        logDebug('📦 SQL module loaded, exports:', Object.keys(sqlModule));
+        
+        const Database = sqlModule.default;
+        
+        if (!Database) {
+          throw new Error('Database class not exported from @tauri-apps/plugin-sql');
+        }
+        
+        logDebug('✓ Database class found');
+
+        // Open or create the database
+        logDebug('🔄 Loading sqlite:sems.db...');
+        dbInstance = await Database.load('sqlite:sems.db');
+        logDebug('✓ SQLite database opened/created');
+
+        // Set pragmas for better performance
+        await dbInstance.execute('PRAGMA journal_mode = WAL');
+        await dbInstance.execute('PRAGMA synchronous = NORMAL');
+        logDebug('✓ Database pragmas configured');
+
+        // Create schema if it doesn't exist
+        await createSchema(dbInstance);
+        logDebug('✓ Schema verified/created');
+
+        // Seed default users
+        await ensureDefaultUsers(dbInstance);
+        logDebug('✓ Default users ensured');
+
+        logDebug('✓ Database initialized successfully');
+        return dbInstance;
+        
+      } catch (sqlError: any) {
+        lastError = sqlError;
+        logDebug('❌ Attempt failed:', sqlError?.message || sqlError);
+        retries--;
+        
+        if (retries > 0) {
+          logDebug(`⏳ Retrying in 500ms...`);
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
       }
-      
-      logDebug('✓ Database class found');
-
-      // Open or create the database
-      logDebug('🔄 Loading sqlite:sems.db...');
-      dbInstance = await Database.load('sqlite:sems.db');
-      logDebug('✓ SQLite database opened/created');
-
-      // Set pragmas for better performance
-      await dbInstance.execute('PRAGMA journal_mode = WAL');
-      await dbInstance.execute('PRAGMA synchronous = NORMAL');
-      logDebug('✓ Database pragmas configured');
-
-      // Create schema if it doesn't exist
-      await createSchema(dbInstance);
-      logDebug('✓ Schema verified/created');
-
-      // Seed default users
-      await ensureDefaultUsers(dbInstance);
-      logDebug('✓ Default users ensured');
-
-      logDebug('✓ Database initialized successfully');
-      return dbInstance;
-    } catch (sqlError: any) {
-      logDebug('❌ SQL Plugin Error:', sqlError?.message || sqlError);
-      throw sqlError;
     }
+    
+    // All retries failed
+    throw lastError || new Error('Failed to initialize database after retries');
+    
   } catch (error: any) {
     logDebug('❌ Failed to initialize database:', error?.message || error);
     throw error;
