@@ -33,10 +33,17 @@ try {
 import { Pool } from 'pg';
 
 // Create a database connection pool
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-});
+let pool: any = null;
+
+const getPool = () => {
+  if (!pool) {
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    });
+  }
+  return pool;
+};
 
 // Prevent multiple Prisma Client instances in development
 declare global {
@@ -46,12 +53,17 @@ declare global {
 // Only instantiate if DATABASE_URL is set
 const prismaClientSingleton = () => {
   if (!process.env.DATABASE_URL) {
+    // During build time, return a null proxy to avoid errors
+    if (process.env.NEXT_PHASE === 'phase-production-build') {
+      return null as any;
+    }
+    
     throw new Error(
       'Missing DATABASE_URL environment variable. Please check your .env file.',
     );
   }
 
-  const adapter = new PrismaPg(pool);
+  const adapter = new PrismaPg(getPool());
 
   return new PrismaClient({
     adapter,
@@ -65,10 +77,11 @@ const prismaClientSingleton = () => {
 type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClientSingleton | undefined;
+  prisma: PrismaClientType | undefined;
 };
 
-export const prisma = globalForPrisma.prisma ?? prismaClientSingleton();
+export const prisma = (globalForPrisma.prisma ??
+  prismaClientSingleton()) as PrismaClientType;
 
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
