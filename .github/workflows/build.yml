@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Setup Rust
@@ -29,7 +29,17 @@ jobs:
           targets: x86_64-pc-windows-msvc
 
       - name: Clean node_modules
-        run: rm -r node_modules -Force -ErrorAction SilentlyContinue; $null
+        shell: pwsh
+        run: |
+          if (Test-Path node_modules) {
+            Write-Host "Removing node_modules..."
+            Remove-Item -Path node_modules -Recurse -Force -ErrorAction SilentlyContinue
+            Start-Sleep -Milliseconds 1000
+          }
+          if (Test-Path package-lock.json) {
+            Remove-Item -Path package-lock.json -Force -ErrorAction SilentlyContinue
+          }
+          npm cache clean --force
 
       - name: Install dependencies
         run: npm ci
