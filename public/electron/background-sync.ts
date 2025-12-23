@@ -7,7 +7,7 @@ import type { SyncService } from '../../src/services/sync';
  */
 export class ElectronBackgroundSync {
   private syncService: SyncService | null = null;
-  private syncInterval: NodeJS.Timer | null = null;
+  private syncInterval: ReturnType<typeof setInterval> | null = null;
   private isOnline: boolean = true;
   private syncInProgress = false;
 

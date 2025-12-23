@@ -13,7 +13,7 @@ export const rules: RuleSetRule[] = [
   // TypeScript loader
   {
     test: /\.tsx?$/,
-    exclude: /(node_modules|\.webpack)/,
+    exclude: [/(node_modules|\.webpack)/, /__tests__/, /\.test\.(ts|tsx)$/],
     use: {
       loader: 'ts-loader',
       options: {

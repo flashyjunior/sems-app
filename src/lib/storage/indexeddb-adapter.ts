@@ -165,7 +165,7 @@ export class IndexedDBAdapter implements StorageAdapter {
   }
 
   async getUnsyncedRecords(): Promise<DispenseRecord[]> {
-    return this.dispenseRecordTable.where('synced').equals(false).toArray();
+    return this.dispenseRecordTable.filter((record: DispenseRecord) => !record.synced).toArray();
   }
 
   async saveDispenseRecord(record: DispenseRecord): Promise<void> {
@@ -258,7 +258,7 @@ export class IndexedDBAdapter implements StorageAdapter {
   }
 
   async getDefaultPrintTemplate(): Promise<PrintTemplate | undefined> {
-    return this.printTemplateTable.where('isDefault').equals(true).first();
+    return this.printTemplateTable.filter((t: PrintTemplate) => t.isDefault).first();
   }
 
   async savePrintTemplate(template: PrintTemplate): Promise<void> {
@@ -302,7 +302,7 @@ export class IndexedDBAdapter implements StorageAdapter {
   }
 
   async getDefaultPrinterSettings(): Promise<PrinterSettings | undefined> {
-    return this.printerSettingsTable.where('isDefault').equals(true).first();
+    return this.printerSettingsTable.filter((s: PrinterSettings) => s.isDefault).first();
   }
 
   async savePrinterSettings(settings: PrinterSettings): Promise<void> {

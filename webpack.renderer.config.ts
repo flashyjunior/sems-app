@@ -16,3 +16,5 @@ export const rendererConfig: Configuration = {
     },
   },
 };
+
+export default rendererConfig;

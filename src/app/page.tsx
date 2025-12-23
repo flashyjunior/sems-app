@@ -5,6 +5,7 @@ import { useAppStore } from '@/store/app';
 import { LoginForm } from '@/components/LoginForm';
 import { SyncStatus } from '@/components/SyncStatus';
 import { DispenseForm } from '@/components/DispenseForm';
+import { DispenseRecordsViewer } from '@/components/DispenseRecordsViewer';
 import { DatabaseInitializer } from '@/components/DatabaseInitializer';
 import { TemplateEditor } from '@/components/TemplateEditor';
 import { SettingsMenu } from '@/components/SettingsMenu';
@@ -94,41 +95,49 @@ export default function Home() {
             {currentView === 'settings' ? (
               <SettingsMenu />
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Dispense Form - Main Column */}
-                <div className="lg:col-span-2">
-                  <DispenseForm onDispenseComplete={() => {}} />
-                </div>
+              <div className="space-y-8">
+                {/* Dispense Form Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Dispense Form - Main Column */}
+                  <div className="lg:col-span-2">
+                    <DispenseForm onDispenseComplete={() => {}} />
+                  </div>
 
-                {/* Sidebar */}
-                <div className="lg:col-span-1 space-y-6">
-                  {/* Quick Stats */}
-                  <div className="bg-white rounded-lg shadow p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                      Quick Stats
-                    </h3>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Today's Dispenses</span>
-                        <span className="font-semibold text-gray-900">{todayDispenses}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Pending Sync</span>
-                        <span className={`font-semibold ${pendingSync > 0 ? 'text-orange-600' : 'text-gray-900'}`}>
-                          {pendingSync}
-                        </span>
+                  {/* Sidebar */}
+                  <div className="lg:col-span-1 space-y-6">
+                    {/* Quick Stats */}
+                    <div className="bg-white rounded-lg shadow p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                        Quick Stats
+                      </h3>
+                      <div className="space-y-3">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Today's Dispenses</span>
+                          <span className="font-semibold text-gray-900">{todayDispenses}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Pending Sync</span>
+                          <span className={`font-semibold ${pendingSync > 0 ? 'text-orange-600' : 'text-gray-900'}`}>
+                            {pendingSync}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Help */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg shadow p-6">
-                    <h3 className="font-semibold text-blue-900 mb-2">Help</h3>
-                    <p className="text-sm text-blue-800">
-                      The system works offline. All data is synchronized when you
-                      reconnect to the internet.
-                    </p>
+                    {/* Help */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg shadow p-6">
+                      <h3 className="font-semibold text-blue-900 mb-2">Help</h3>
+                      <p className="text-sm text-blue-800">
+                        The system works offline. All data is synchronized when you
+                        reconnect to the internet.
+                      </p>
+                    </div>
                   </div>
+                </div>
+
+                {/* Records Section */}
+                <div className="bg-white rounded-lg shadow">
+                  <DispenseRecordsViewer />
                 </div>
               </div>
             )}

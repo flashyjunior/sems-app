@@ -9,6 +9,8 @@ export const mainConfig: Configuration = {
    * 'main' thread.
    */
   entry: `${__dirname}/public/electron/main.ts`,
+  target: 'electron-main',
+  mode: 'production',
   // Put your normal webpack config below here
   module: {
     rules,
@@ -21,3 +23,5 @@ export const mainConfig: Configuration = {
     },
   },
 };
+
+export default mainConfig;

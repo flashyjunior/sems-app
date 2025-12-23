@@ -1,0 +1,741 @@
+[33mΓ¥»[39m Checking your system
+[33mΓ¥»[39m Checking package manager version
+[32mΓ£ö[39m Found npm@11.5.1
+[32mΓ£ö[39m Checking your system
+[?25h[33mΓ¥»[39m Loading configuration
+[32mΓ£ö[39m Loading configuration
+[33mΓ¥»[39m Resolving make targets
+ΓÇ║ Making for the following targets: 
+[32mΓ£ö[39m Resolving make targets
+[33mΓ¥»[39m Running package command
+[33mΓ¥»[39m Preparing to package application
+[32mΓ£ö[39m Preparing to package application
+[33mΓ¥»[39m Running packaging hooks
+[33mΓ¥»[39m Running generateAssets hook
+[32mΓ£ö[39m Running generateAssets hook
+[33mΓ¥»[39m Running prePackage hook
+[33mΓ¥»[39m [plugin-webpack] Preparing webpack bundles
+[33mΓ¥»[39m Preparing native dependencies for x64
+[32mΓ£ö[39m Preparing native dependencies
+[33mΓ¥»[39m Building webpack bundles
+Γ£û Building webpack bundles [FAILED: Compilation errors in the renderer: asset main_window/preload.js 1.42 KiB [emitted] [minimized] (name: main_window) 1 related asset
+orphan modules 42 bytes [orphan] 1 module
+runtime modules 0 bytes 1 module
+./public/electron/preload.ts + 1 modules 2.39 KiB [not cacheable] [built] [code generated]
+webpack 5.104.1 compiled successfully in 6918 ms
+
+assets by status 3.83 KiB [cached] 2 assets
+runtime modules 0 bytes 1 module
+
+ERROR in main_window
+Module not found: Error: Can't resolve './src/renderer.ts' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app'
+resolve './src/renderer.ts' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app'
+  using description file: E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\package.json (relative path: .)
+    Field 'browser' doesn't contain a valid alias configuration
+    using description file: E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\package.json (relative path: ./src/renderer.ts)
+      no extension
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts doesn't exist
+      .js
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.js doesn't exist
+      .ts
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.ts doesn't exist
+      .jsx
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.jsx doesn't exist
+      .tsx
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.tsx doesn't exist
+      .css
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.css doesn't exist
+      .json
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.json doesn't exist
+      as directory
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts doesn't exist
+
+ERROR in Error: Child compilation failed:
+  Module not found: Error: Can't resolve 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-a  pp\src\index.html' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app'
+  ModuleNotFoundError: Module not found: Error: Can't resolve 'E:\DEVELOPMENTS\F  LASH_DEVS\SEMS\sems-app\src\index.html' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\se  ms-app'
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Compi  lation.js:2065:28
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1028:13
+      at eval (eval at create (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:10:1)
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:429:22
+      at eval (eval at create (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:9:1)
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:614:22
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:180:10
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:884:25
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1113:8
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1242:5
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\neo-async\async.j  s:6883:13
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1225:45
+      at finishWithoutResolve (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\enhanced-resolve\lib\Resolver.js:568:11)
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\enhanced-resolve\  lib\Resolver.js:657:14
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\enhanced-resolve\  lib\Resolver.js:718:5
+      at eval (eval at create (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)
+  
+  - Compilation.js:2065 
+    [sems-app]/[webpack]/lib/Compilation.js:2065:28
+  
+  - NormalModuleFactory.js:1028 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1028:13
+  
+  
+  - NormalModuleFactory.js:429 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:429:22
+  
+  
+  - NormalModuleFactory.js:614 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:614:22
+  
+  - NormalModuleFactory.js:180 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:180:10
+  
+  - NormalModuleFactory.js:884 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:884:25
+  
+  - NormalModuleFactory.js:1113 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1113:8
+  
+  - NormalModuleFactory.js:1242 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1242:5
+  
+  - async.js:6883 
+    [sems-app]/[neo-async]/async.js:6883:13
+  
+  - NormalModuleFactory.js:1225 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1225:45
+  
+  - Resolver.js:568 finishWithoutResolve
+    [sems-app]/[enhanced-resolve]/lib/Resolver.js:568:11
+  
+  - Resolver.js:657 
+    [sems-app]/[enhanced-resolve]/lib/Resolver.js:657:14
+  
+  - Resolver.js:718 
+    [sems-app]/[enhanced-resolve]/lib/Resolver.js:718:5
+  
+  
+  - child-compiler.js:211 
+    [sems-app]/[html-webpack-plugin]/lib/child-compiler.js:211:18
+  
+  - Compiler.js:648 finalCallback
+    [sems-app]/[webpack]/lib/Compiler.js:648:5
+  
+  - Compiler.js:684 
+    [sems-app]/[webpack]/lib/Compiler.js:684:11
+  
+  - Compiler.js:1378 
+    [sems-app]/[webpack]/lib/Compiler.js:1378:17
+  
+  
+  - task_queues:105 process.processTicksAndRejections
+    node:internal/process/task_queues:105:5
+
+1 ERROR in child compilations (Use 'stats.children: true' resp. '--stats-children' for more details)
+webpack 5.104.1 compiled with 3 errors in 6970 ms]
+Γ£û [plugin-webpack] Preparing webpack bundles [FAILED: Compilation errors in the renderer: asset main_window/preload.js 1.42 KiB [emitted] [minimized] (name: main_window) 1 related asset
+orphan modules 42 bytes [orphan] 1 module
+runtime modules 0 bytes 1 module
+./public/electron/preload.ts + 1 modules 2.39 KiB [not cacheable] [built] [code generated]
+webpack 5.104.1 compiled successfully in 6918 ms
+
+assets by status 3.83 KiB [cached] 2 assets
+runtime modules 0 bytes 1 module
+
+ERROR in main_window
+Module not found: Error: Can't resolve './src/renderer.ts' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app'
+resolve './src/renderer.ts' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app'
+  using description file: E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\package.json (relative path: .)
+    Field 'browser' doesn't contain a valid alias configuration
+    using description file: E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\package.json (relative path: ./src/renderer.ts)
+      no extension
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts doesn't exist
+      .js
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.js doesn't exist
+      .ts
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.ts doesn't exist
+      .jsx
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.jsx doesn't exist
+      .tsx
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.tsx doesn't exist
+      .css
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.css doesn't exist
+      .json
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.json doesn't exist
+      as directory
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts doesn't exist
+
+ERROR in Error: Child compilation failed:
+  Module not found: Error: Can't resolve 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-a  pp\src\index.html' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app'
+  ModuleNotFoundError: Module not found: Error: Can't resolve 'E:\DEVELOPMENTS\F  LASH_DEVS\SEMS\sems-app\src\index.html' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\se  ms-app'
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Compi  lation.js:2065:28
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1028:13
+      at eval (eval at create (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:10:1)
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:429:22
+      at eval (eval at create (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:9:1)
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:614:22
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:180:10
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:884:25
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1113:8
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1242:5
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\neo-async\async.j  s:6883:13
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1225:45
+      at finishWithoutResolve (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\enhanced-resolve\lib\Resolver.js:568:11)
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\enhanced-resolve\  lib\Resolver.js:657:14
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\enhanced-resolve\  lib\Resolver.js:718:5
+      at eval (eval at create (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)
+  
+  - Compilation.js:2065 
+    [sems-app]/[webpack]/lib/Compilation.js:2065:28
+  
+  - NormalModuleFactory.js:1028 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1028:13
+  
+  
+  - NormalModuleFactory.js:429 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:429:22
+  
+  
+  - NormalModuleFactory.js:614 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:614:22
+  
+  - NormalModuleFactory.js:180 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:180:10
+  
+  - NormalModuleFactory.js:884 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:884:25
+  
+  - NormalModuleFactory.js:1113 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1113:8
+  
+  - NormalModuleFactory.js:1242 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1242:5
+  
+  - async.js:6883 
+    [sems-app]/[neo-async]/async.js:6883:13
+  
+  - NormalModuleFactory.js:1225 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1225:45
+  
+  - Resolver.js:568 finishWithoutResolve
+    [sems-app]/[enhanced-resolve]/lib/Resolver.js:568:11
+  
+  - Resolver.js:657 
+    [sems-app]/[enhanced-resolve]/lib/Resolver.js:657:14
+  
+  - Resolver.js:718 
+    [sems-app]/[enhanced-resolve]/lib/Resolver.js:718:5
+  
+  
+  - child-compiler.js:211 
+    [sems-app]/[html-webpack-plugin]/lib/child-compiler.js:211:18
+  
+  - Compiler.js:648 finalCallback
+    [sems-app]/[webpack]/lib/Compiler.js:648:5
+  
+  - Compiler.js:684 
+    [sems-app]/[webpack]/lib/Compiler.js:684:11
+  
+  - Compiler.js:1378 
+    [sems-app]/[webpack]/lib/Compiler.js:1378:17
+  
+  
+  - task_queues:105 process.processTicksAndRejections
+    node:internal/process/task_queues:105:5
+
+1 ERROR in child compilations (Use 'stats.children: true' resp. '--stats-children' for more details)
+webpack 5.104.1 compiled with 3 errors in 6970 ms]
+Γ£û Running prePackage hook [FAILED: Compilation errors in the renderer: asset main_window/preload.js 1.42 KiB [emitted] [minimized] (name: main_window) 1 related asset
+orphan modules 42 bytes [orphan] 1 module
+runtime modules 0 bytes 1 module
+./public/electron/preload.ts + 1 modules 2.39 KiB [not cacheable] [built] [code generated]
+webpack 5.104.1 compiled successfully in 6918 ms
+
+assets by status 3.83 KiB [cached] 2 assets
+runtime modules 0 bytes 1 module
+
+ERROR in main_window
+Module not found: Error: Can't resolve './src/renderer.ts' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app'
+resolve './src/renderer.ts' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app'
+  using description file: E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\package.json (relative path: .)
+    Field 'browser' doesn't contain a valid alias configuration
+    using description file: E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\package.json (relative path: ./src/renderer.ts)
+      no extension
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts doesn't exist
+      .js
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.js doesn't exist
+      .ts
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.ts doesn't exist
+      .jsx
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.jsx doesn't exist
+      .tsx
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.tsx doesn't exist
+      .css
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.css doesn't exist
+      .json
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.json doesn't exist
+      as directory
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts doesn't exist
+
+ERROR in Error: Child compilation failed:
+  Module not found: Error: Can't resolve 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-a  pp\src\index.html' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app'
+  ModuleNotFoundError: Module not found: Error: Can't resolve 'E:\DEVELOPMENTS\F  LASH_DEVS\SEMS\sems-app\src\index.html' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\se  ms-app'
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Compi  lation.js:2065:28
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1028:13
+      at eval (eval at create (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:10:1)
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:429:22
+      at eval (eval at create (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:9:1)
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:614:22
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:180:10
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:884:25
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1113:8
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1242:5
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\neo-async\async.j  s:6883:13
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1225:45
+      at finishWithoutResolve (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\enhanced-resolve\lib\Resolver.js:568:11)
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\enhanced-resolve\  lib\Resolver.js:657:14
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\enhanced-resolve\  lib\Resolver.js:718:5
+      at eval (eval at create (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)
+  
+  - Compilation.js:2065 
+    [sems-app]/[webpack]/lib/Compilation.js:2065:28
+  
+  - NormalModuleFactory.js:1028 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1028:13
+  
+  
+  - NormalModuleFactory.js:429 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:429:22
+  
+  
+  - NormalModuleFactory.js:614 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:614:22
+  
+  - NormalModuleFactory.js:180 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:180:10
+  
+  - NormalModuleFactory.js:884 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:884:25
+  
+  - NormalModuleFactory.js:1113 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1113:8
+  
+  - NormalModuleFactory.js:1242 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1242:5
+  
+  - async.js:6883 
+    [sems-app]/[neo-async]/async.js:6883:13
+  
+  - NormalModuleFactory.js:1225 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1225:45
+  
+  - Resolver.js:568 finishWithoutResolve
+    [sems-app]/[enhanced-resolve]/lib/Resolver.js:568:11
+  
+  - Resolver.js:657 
+    [sems-app]/[enhanced-resolve]/lib/Resolver.js:657:14
+  
+  - Resolver.js:718 
+    [sems-app]/[enhanced-resolve]/lib/Resolver.js:718:5
+  
+  
+  - child-compiler.js:211 
+    [sems-app]/[html-webpack-plugin]/lib/child-compiler.js:211:18
+  
+  - Compiler.js:648 finalCallback
+    [sems-app]/[webpack]/lib/Compiler.js:648:5
+  
+  - Compiler.js:684 
+    [sems-app]/[webpack]/lib/Compiler.js:684:11
+  
+  - Compiler.js:1378 
+    [sems-app]/[webpack]/lib/Compiler.js:1378:17
+  
+  
+  - task_queues:105 process.processTicksAndRejections
+    node:internal/process/task_queues:105:5
+
+1 ERROR in child compilations (Use 'stats.children: true' resp. '--stats-children' for more details)
+webpack 5.104.1 compiled with 3 errors in 6970 ms]
+Γ£û Running packaging hooks [FAILED: Compilation errors in the renderer: asset main_window/preload.js 1.42 KiB [emitted] [minimized] (name: main_window) 1 related asset
+orphan modules 42 bytes [orphan] 1 module
+runtime modules 0 bytes 1 module
+./public/electron/preload.ts + 1 modules 2.39 KiB [not cacheable] [built] [code generated]
+webpack 5.104.1 compiled successfully in 6918 ms
+
+assets by status 3.83 KiB [cached] 2 assets
+runtime modules 0 bytes 1 module
+
+ERROR in main_window
+Module not found: Error: Can't resolve './src/renderer.ts' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app'
+resolve './src/renderer.ts' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app'
+  using description file: E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\package.json (relative path: .)
+    Field 'browser' doesn't contain a valid alias configuration
+    using description file: E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\package.json (relative path: ./src/renderer.ts)
+      no extension
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts doesn't exist
+      .js
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.js doesn't exist
+      .ts
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.ts doesn't exist
+      .jsx
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.jsx doesn't exist
+      .tsx
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.tsx doesn't exist
+      .css
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.css doesn't exist
+      .json
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.json doesn't exist
+      as directory
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts doesn't exist
+
+ERROR in Error: Child compilation failed:
+  Module not found: Error: Can't resolve 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-a  pp\src\index.html' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app'
+  ModuleNotFoundError: Module not found: Error: Can't resolve 'E:\DEVELOPMENTS\F  LASH_DEVS\SEMS\sems-app\src\index.html' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\se  ms-app'
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Compi  lation.js:2065:28
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1028:13
+      at eval (eval at create (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:10:1)
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:429:22
+      at eval (eval at create (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:9:1)
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:614:22
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:180:10
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:884:25
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1113:8
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1242:5
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\neo-async\async.j  s:6883:13
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1225:45
+      at finishWithoutResolve (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\enhanced-resolve\lib\Resolver.js:568:11)
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\enhanced-resolve\  lib\Resolver.js:657:14
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\enhanced-resolve\  lib\Resolver.js:718:5
+      at eval (eval at create (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)
+  
+  - Compilation.js:2065 
+    [sems-app]/[webpack]/lib/Compilation.js:2065:28
+  
+  - NormalModuleFactory.js:1028 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1028:13
+  
+  
+  - NormalModuleFactory.js:429 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:429:22
+  
+  
+  - NormalModuleFactory.js:614 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:614:22
+  
+  - NormalModuleFactory.js:180 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:180:10
+  
+  - NormalModuleFactory.js:884 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:884:25
+  
+  - NormalModuleFactory.js:1113 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1113:8
+  
+  - NormalModuleFactory.js:1242 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1242:5
+  
+  - async.js:6883 
+    [sems-app]/[neo-async]/async.js:6883:13
+  
+  - NormalModuleFactory.js:1225 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1225:45
+  
+  - Resolver.js:568 finishWithoutResolve
+    [sems-app]/[enhanced-resolve]/lib/Resolver.js:568:11
+  
+  - Resolver.js:657 
+    [sems-app]/[enhanced-resolve]/lib/Resolver.js:657:14
+  
+  - Resolver.js:718 
+    [sems-app]/[enhanced-resolve]/lib/Resolver.js:718:5
+  
+  
+  - child-compiler.js:211 
+    [sems-app]/[html-webpack-plugin]/lib/child-compiler.js:211:18
+  
+  - Compiler.js:648 finalCallback
+    [sems-app]/[webpack]/lib/Compiler.js:648:5
+  
+  - Compiler.js:684 
+    [sems-app]/[webpack]/lib/Compiler.js:684:11
+  
+  - Compiler.js:1378 
+    [sems-app]/[webpack]/lib/Compiler.js:1378:17
+  
+  
+  - task_queues:105 process.processTicksAndRejections
+    node:internal/process/task_queues:105:5
+
+1 ERROR in child compilations (Use 'stats.children: true' resp. '--stats-children' for more details)
+webpack 5.104.1 compiled with 3 errors in 6970 ms]
+Γ£û Running package command [FAILED: Compilation errors in the renderer: asset main_window/preload.js 1.42 KiB [emitted] [minimized] (name: main_window) 1 related asset
+orphan modules 42 bytes [orphan] 1 module
+runtime modules 0 bytes 1 module
+./public/electron/preload.ts + 1 modules 2.39 KiB [not cacheable] [built] [code generated]
+webpack 5.104.1 compiled successfully in 6918 ms
+
+assets by status 3.83 KiB [cached] 2 assets
+runtime modules 0 bytes 1 module
+
+ERROR in main_window
+Module not found: Error: Can't resolve './src/renderer.ts' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app'
+resolve './src/renderer.ts' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app'
+  using description file: E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\package.json (relative path: .)
+    Field 'browser' doesn't contain a valid alias configuration
+    using description file: E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\package.json (relative path: ./src/renderer.ts)
+      no extension
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts doesn't exist
+      .js
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.js doesn't exist
+      .ts
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.ts doesn't exist
+      .jsx
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.jsx doesn't exist
+      .tsx
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.tsx doesn't exist
+      .css
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.css doesn't exist
+      .json
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.json doesn't exist
+      as directory
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts doesn't exist
+
+ERROR in Error: Child compilation failed:
+  Module not found: Error: Can't resolve 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-a  pp\src\index.html' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app'
+  ModuleNotFoundError: Module not found: Error: Can't resolve 'E:\DEVELOPMENTS\F  LASH_DEVS\SEMS\sems-app\src\index.html' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\se  ms-app'
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Compi  lation.js:2065:28
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1028:13
+      at eval (eval at create (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:10:1)
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:429:22
+      at eval (eval at create (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:9:1)
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:614:22
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:180:10
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:884:25
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1113:8
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1242:5
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\neo-async\async.j  s:6883:13
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1225:45
+      at finishWithoutResolve (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\enhanced-resolve\lib\Resolver.js:568:11)
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\enhanced-resolve\  lib\Resolver.js:657:14
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\enhanced-resolve\  lib\Resolver.js:718:5
+      at eval (eval at create (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)
+  
+  - Compilation.js:2065 
+    [sems-app]/[webpack]/lib/Compilation.js:2065:28
+  
+  - NormalModuleFactory.js:1028 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1028:13
+  
+  
+  - NormalModuleFactory.js:429 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:429:22
+  
+  
+  - NormalModuleFactory.js:614 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:614:22
+  
+  - NormalModuleFactory.js:180 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:180:10
+  
+  - NormalModuleFactory.js:884 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:884:25
+  
+  - NormalModuleFactory.js:1113 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1113:8
+  
+  - NormalModuleFactory.js:1242 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1242:5
+  
+  - async.js:6883 
+    [sems-app]/[neo-async]/async.js:6883:13
+  
+  - NormalModuleFactory.js:1225 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1225:45
+  
+  - Resolver.js:568 finishWithoutResolve
+    [sems-app]/[enhanced-resolve]/lib/Resolver.js:568:11
+  
+  - Resolver.js:657 
+    [sems-app]/[enhanced-resolve]/lib/Resolver.js:657:14
+  
+  - Resolver.js:718 
+    [sems-app]/[enhanced-resolve]/lib/Resolver.js:718:5
+  
+  
+  - child-compiler.js:211 
+    [sems-app]/[html-webpack-plugin]/lib/child-compiler.js:211:18
+  
+  - Compiler.js:648 finalCallback
+    [sems-app]/[webpack]/lib/Compiler.js:648:5
+  
+  - Compiler.js:684 
+    [sems-app]/[webpack]/lib/Compiler.js:684:11
+  
+  - Compiler.js:1378 
+    [sems-app]/[webpack]/lib/Compiler.js:1378:17
+  
+  
+  - task_queues:105 process.processTicksAndRejections
+    node:internal/process/task_queues:105:5
+
+1 ERROR in child compilations (Use 'stats.children: true' resp. '--stats-children' for more details)
+webpack 5.104.1 compiled with 3 errors in 6970 ms]
+
+An unhandled rejection has occurred inside Forge:
+Error: Compilation errors in the renderer: asset main_window/preload.js 1.42 KiB [emitted] [minimized] (name: main_window) 1 related asset
+orphan modules 42 bytes [orphan] 1 module
+runtime modules 0 bytes 1 module
+./public/electron/preload.ts + 1 modules 2.39 KiB [not cacheable] [built] [code generated]
+webpack 5.104.1 compiled successfully in 6918 ms
+
+assets by status 3.83 KiB [cached] 2 assets
+runtime modules 0 bytes 1 module
+
+ERROR in main_window
+Module not found: Error: Can't resolve './src/renderer.ts' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app'
+resolve './src/renderer.ts' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app'
+  using description file: E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\package.json (relative path: .)
+    Field 'browser' doesn't contain a valid alias configuration
+    using description file: E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\package.json (relative path: ./src/renderer.ts)
+      no extension
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts doesn't exist
+      .js
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.js doesn't exist
+      .ts
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.ts doesn't exist
+      .jsx
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.jsx doesn't exist
+      .tsx
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.tsx doesn't exist
+      .css
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.css doesn't exist
+      .json
+        Field 'browser' doesn't contain a valid alias configuration
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts.json doesn't exist
+      as directory
+        E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\src\renderer.ts doesn't exist
+
+ERROR in Error: Child compilation failed:
+  Module not found: Error: Can't resolve 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-a  pp\src\index.html' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app'
+  ModuleNotFoundError: Module not found: Error: Can't resolve 'E:\DEVELOPMENTS\F  LASH_DEVS\SEMS\sems-app\src\index.html' in 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\se  ms-app'
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Compi  lation.js:2065:28
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1028:13
+      at eval (eval at create (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:10:1)
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:429:22
+      at eval (eval at create (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:9:1)
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:614:22
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:180:10
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:884:25
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1113:8
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1242:5
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\neo-async\async.j  s:6883:13
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\webpack\lib\Norma  lModuleFactory.js:1225:45
+      at finishWithoutResolve (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\enhanced-resolve\lib\Resolver.js:568:11)
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\enhanced-resolve\  lib\Resolver.js:657:14
+      at E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\enhanced-resolve\  lib\Resolver.js:718:5
+      at eval (eval at create (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_mod  ules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)
+  
+  - Compilation.js:2065 
+    [sems-app]/[webpack]/lib/Compilation.js:2065:28
+  
+  - NormalModuleFactory.js:1028 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1028:13
+  
+  
+  - NormalModuleFactory.js:429 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:429:22
+  
+  
+  - NormalModuleFactory.js:614 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:614:22
+  
+  - NormalModuleFactory.js:180 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:180:10
+  
+  - NormalModuleFactory.js:884 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:884:25
+  
+  - NormalModuleFactory.js:1113 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1113:8
+  
+  - NormalModuleFactory.js:1242 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1242:5
+  
+  - async.js:6883 
+    [sems-app]/[neo-async]/async.js:6883:13
+  
+  - NormalModuleFactory.js:1225 
+    [sems-app]/[webpack]/lib/NormalModuleFactory.js:1225:45
+  
+  - Resolver.js:568 finishWithoutResolve
+    [sems-app]/[enhanced-resolve]/lib/Resolver.js:568:11
+  
+  - Resolver.js:657 
+    [sems-app]/[enhanced-resolve]/lib/Resolver.js:657:14
+  
+  - Resolver.js:718 
+    [sems-app]/[enhanced-resolve]/lib/Resolver.js:718:5
+  
+  
+  - child-compiler.js:211 
+    [sems-app]/[html-webpack-plugin]/lib/child-compiler.js:211:18
+  
+  - Compiler.js:648 finalCallback
+    [sems-app]/[webpack]/lib/Compiler.js:648:5
+  
+  - Compiler.js:684 
+    [sems-app]/[webpack]/lib/Compiler.js:684:11
+  
+  - Compiler.js:1378 
+    [sems-app]/[webpack]/lib/Compiler.js:1378:17
+  
+  
+  - task_queues:105 process.processTicksAndRejections
+    node:internal/process/task_queues:105:5
+
+1 ERROR in child compilations (Use 'stats.children: true' resp. '--stats-children' for more details)
+webpack 5.104.1 compiled with 3 errors in 6970 ms
+at WebpackPlugin.compileRenderers (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\@electron-forge\plugin-webpack\dist\WebpackPlugin.js:183:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async _Task.task [as taskFn] (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\@electron-forge\plugin-webpack\dist\WebpackPlugin.js:431:33)
+    at async _Task.run (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\listr2\dist\index.cjs:2063:11)
+[?25h

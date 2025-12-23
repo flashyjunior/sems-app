@@ -7,17 +7,20 @@ import { WebpackPlugin } from '@electron-forge/plugin-webpack';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
 
-import mainConfig from './webpack.main.config';
-import rendererConfig from './webpack.renderer.config';
+import { mainConfig } from './webpack.main.config';
+import { rendererConfig } from './webpack.renderer.config';
 
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
     icon: './public/icon',
+    author: 'SEMS Team',
+    description: 'Simple Effective Medicines System - Pharmacy Management System',
   },
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({
+      authors: 'SEMS Team',
       certificateFile: process.env.CERTIFICATE_FILE,
       certificatePassword: process.env.CERTIFICATE_PASSWORD,
     }),
@@ -38,7 +41,7 @@ const config: ForgeConfig = {
         entryPoints: [
           {
             html: './src/index.html',
-            js: './src/renderer.ts',
+            js: './src/index.ts',
             name: 'main_window',
             preload: {
               js: './public/electron/preload.ts',
@@ -52,7 +55,6 @@ const config: ForgeConfig = {
       [FuseV1Options.RunAsNode]: false,
       [FuseV1Options.EnableCookieEncryption]: true,
       [FuseV1Options.EnableNodeCliInspectArguments]: false,
-      [FuseV1Options.EnableV8CodeCaching]: true,
     }),
   ],
 };

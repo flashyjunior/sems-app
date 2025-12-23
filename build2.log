@@ -1,0 +1,67 @@
+[33mΓ¥»[39m Checking your system
+[33mΓ¥»[39m Checking package manager version
+[32mΓ£ö[39m Found npm@11.5.1
+[32mΓ£ö[39m Checking your system
+[?25h[33mΓ¥»[39m Loading configuration
+[32mΓ£ö[39m Loading configuration
+[33mΓ¥»[39m Resolving make targets
+ΓÇ║ Making for the following targets: 
+[32mΓ£ö[39m Resolving make targets
+[33mΓ¥»[39m Running package command
+[33mΓ¥»[39m Preparing to package application
+[32mΓ£ö[39m Preparing to package application
+[33mΓ¥»[39m Running packaging hooks
+[33mΓ¥»[39m Running generateAssets hook
+[32mΓ£ö[39m Running generateAssets hook
+[33mΓ¥»[39m Running prePackage hook
+[33mΓ¥»[39m [plugin-webpack] Preparing webpack bundles
+[33mΓ¥»[39m Preparing native dependencies for x64
+[32mΓ£ö[39m Preparing native dependencies
+[33mΓ¥»[39m Building webpack bundles
+[32mΓ£ö[39m Building webpack bundles
+[32mΓ£ö[39m [plugin-webpack] Preparing webpack bundles
+[32mΓ£ö[39m Running prePackage hook
+[32mΓ£ö[39m Running packaging hooks
+[33mΓ¥»[39m Packaging application
+ΓÇ║ Determining targets...
+[33mΓ¥»[39m Packaging for x64 on win32
+[33mΓ¥»[39m Copying files
+[33mΓ¥»[39m Preparing native dependencies
+[33mΓ¥»[39m Finalizing package
+[32mΓ£ö[39m Copying files
+[32mΓ£ö[39m Preparing native dependencies
+[32mΓ£ö[39m Finalizing package
+[32mΓ£ö[39m Packaging for x64 on win32
+[32mΓ£ö[39m Packaging application
+[33mΓ¥»[39m Running postPackage hook
+[32mΓ£ö[39m Running postPackage hook
+[32mΓ£ö[39m Running package command
+[33mΓ¥»[39m Running preMake hook
+[32mΓ£ö[39m Running preMake hook
+[33mΓ¥»[39m Making distributables
+[33mΓ¥»[39m Making a squirrel distributable for win32/x64
+Γ£û Making a squirrel distributable for win32/x64 [FAILED: Failed with exit code: 1
+Output:
+Attempting to build package from 'sems_app.nuspec'.
+Authors is required.
+Description is required.
+]
+Γ£û Making distributables [FAILED: Failed with exit code: 1
+Output:
+Attempting to build package from 'sems_app.nuspec'.
+Authors is required.
+Description is required.
+]
+
+An unhandled rejection has occurred inside Forge:
+Error: Failed with exit code: 1
+Output:
+Attempting to build package from 'sems_app.nuspec'.
+Authors is required.
+Description is required.
+at ChildProcess.<anonymous> (E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\node_modules\electron-winstaller\lib\spawn-promise.js:48:24)
+    at ChildProcess.emit (node:events:508:28)
+    at ChildProcess.emit (node:domain:489:12)
+    at maybeClose (node:internal/child_process:1101:16)
+    at ChildProcess._handle.onexit (node:internal/child_process:305:5)
+[?25h

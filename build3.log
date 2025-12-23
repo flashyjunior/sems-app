@@ -1,0 +1,41 @@
+[33mΓ¥»[39m Checking your system
+[33mΓ¥»[39m Checking package manager version
+[32mΓ£ö[39m Found npm@11.5.1
+[32mΓ£ö[39m Checking your system
+[?25h[33mΓ¥»[39m Loading configuration
+[32mΓ£ö[39m Loading configuration
+[33mΓ¥»[39m Resolving make targets
+ΓÇ║ Making for the following targets: 
+[32mΓ£ö[39m Resolving make targets
+[33mΓ¥»[39m Running package command
+[33mΓ¥»[39m Preparing to package application
+[32mΓ£ö[39m Preparing to package application
+[33mΓ¥»[39m Running packaging hooks
+[33mΓ¥»[39m Running generateAssets hook
+[32mΓ£ö[39m Running generateAssets hook
+[33mΓ¥»[39m Running prePackage hook
+[33mΓ¥»[39m [plugin-webpack] Preparing webpack bundles
+[33mΓ¥»[39m Preparing native dependencies for x64
+[32mΓ£ö[39m Preparing native dependencies
+[33mΓ¥»[39m Building webpack bundles
+[32mΓ£ö[39m Building webpack bundles
+[32mΓ£ö[39m [plugin-webpack] Preparing webpack bundles
+[32mΓ£ö[39m Running prePackage hook
+[32mΓ£ö[39m Running packaging hooks
+[33mΓ¥»[39m Packaging application
+ΓÇ║ Determining targets...
+[33mΓ¥»[39m Packaging for x64 on win32
+[33mΓ¥»[39m Copying files
+[33mΓ¥»[39m Preparing native dependencies
+[33mΓ¥»[39m Finalizing package
+Γ£û Copying files [FAILED: EBUSY: resource busy or locked, rmdir 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\out\sems-app-win32-x64']
+Γ£û Preparing native dependencies [FAILED: EBUSY: resource busy or locked, rmdir 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\out\sems-app-win32-x64']
+Γ£û Finalizing package [FAILED: EBUSY: resource busy or locked, rmdir 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\out\sems-app-win32-x64']
+Γ£û Packaging for x64 on win32 [FAILED: EBUSY: resource busy or locked, rmdir 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\out\sems-app-win32-x64']
+Γ£û Packaging application [FAILED: EBUSY: resource busy or locked, rmdir 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\out\sems-app-win32-x64']
+Γ£û Running package command [FAILED: EBUSY: resource busy or locked, rmdir 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\out\sems-app-win32-x64']
+
+An unhandled rejection has occurred inside Forge:
+Error: EBUSY: resource busy or locked, rmdir 'E:\DEVELOPMENTS\FLASH_DEVS\SEMS\sems-app\out\sems-app-win32-x64'
+
+[?25h

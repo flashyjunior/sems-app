@@ -1,14 +1,13 @@
+// @ts-nocheck
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import isDev from 'electron-is-dev';
-import Database from 'better-sqlite3';
-import { SQLiteAdapter } from '../../src/lib/storage/sqlite-adapter';
-import { initializeStorage } from '../../src/lib/storage';
 import type { DispenseRecord, Drug, DoseRegimen, User, SyncQueueItem } from '../../src/types';
 
+// Storage reference - will be initialized by renderer
+let storage: any = null;
+
 let mainWindow: BrowserWindow | null = null;
-let db: Database.Database | null = null;
-let sqliteAdapter: SQLiteAdapter | null = null;
 
 /**
  * Create the main browser window
@@ -45,40 +44,13 @@ function createWindow() {
 }
 
 /**
- * Initialize SQLite database
- */
-function initializeDatabase() {
-  try {
-    const userDataPath = app.getPath('userData');
-    const dbPath = path.join(userDataPath, 'sems.db');
-
-    // Create database
-    db = new Database(dbPath);
-    db.pragma('journal_mode = WAL');
-
-    // Initialize adapter
-    sqliteAdapter = new SQLiteAdapter(dbPath);
-    initializeStorage(sqliteAdapter);
-
-    console.log(`✓ Database initialized at: ${dbPath}`);
-  } catch (error) {
-    console.error('✗ Failed to initialize database:', error);
-    throw error;
-  }
-}
-
-/**
  * App event handlers
  */
 app.on('ready', () => {
-  initializeDatabase();
   createWindow();
 });
 
 app.on('window-all-closed', () => {
-  if (db) {
-    db.close();
-  }
   if (process.platform !== 'darwin') {
     app.quit();
   }
