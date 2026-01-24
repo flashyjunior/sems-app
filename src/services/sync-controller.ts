@@ -79,6 +79,11 @@ export class SyncController {
         authToken: this.options.authToken ? this.options.authToken.substring(0, 20) + '...' : 'MISSING',
       });
       
+      // First, pull data from cloud to client (drugs, regimens, system settings, etc.)
+      console.log('[SyncController] Starting pull data from cloud...');
+      await this.pullDataToClient();
+      console.log('[SyncController] Pull data from cloud completed');
+      
       const result = await syncManager.syncNow({
         apiBaseUrl: this.options.apiBaseUrl,
         authToken: this.options.authToken,
