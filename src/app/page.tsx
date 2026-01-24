@@ -50,7 +50,7 @@ export default function Home() {
 
   return (
     <>
-      <FirstLaunchSetup onComplete={() => setShowFirstLaunch(false)} />
+      {showFirstLaunch && <FirstLaunchSetup onComplete={() => setShowFirstLaunch(false)} />}
       <DatabaseInitializer />
       
       {!isAuthenticated ? (
