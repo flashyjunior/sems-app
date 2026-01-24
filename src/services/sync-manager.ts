@@ -804,8 +804,12 @@ export class SyncManager {
         }
       );
 
-      if (response.data) {
-        const settings = response.data.data || response.data;
+      logInfo('System settings API response received', { status: response.status, hasData: !!response.data });
+
+      if (response.data && response.data.data) {
+        const settings = response.data.data;
+        
+        logInfo('System settings data found, storing to IndexedDB', { facilityName: settings.facilityName });
         
         // Remove the numeric id if it exists, use fixed 'system-settings' id
         const { id, ...settingsData } = settings;
@@ -815,14 +819,20 @@ export class SyncManager {
           ...settingsData,
           id: 'system-settings',
         });
-        logInfo('Pulled system settings to IndexedDB', { settings: settingsData });
+        logInfo('Successfully pulled system settings to IndexedDB', { settingsKeys: Object.keys(settingsData) });
         return { pulled: true };
+      } else if (response.data && response.data.success === true && !response.data.data) {
+        logInfo('System settings endpoint returned success but with null data');
+        return { pulled: false };
       }
 
-      logInfo('No system settings data received');
+      logInfo('No system settings data received from API');
       return { pulled: false };
     } catch (error) {
-      logError('Failed to pull system settings', error instanceof Error ? error.message : String(error));
+      logError('Failed to pull system settings', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       return { pulled: false };
     }
   }
@@ -995,6 +1005,58 @@ export class SyncManager {
     }
 
     return { synced, failed };
+  }
+
+  /**
+   * Pull SMTP settings from cloud to IndexedDB
+   */
+  async pullSMTPSettings(options: SyncOptions): Promise<{ pulled: boolean }> {
+    try {
+      logInfo('Starting SMTP settings pull from cloud');
+
+      const response = await axios.get(
+        `${options.apiBaseUrl}/api/sync/pull-smtp`,
+        {
+          headers: {
+            'Authorization': `Bearer ${options.authToken}`,
+          },
+        }
+      );
+
+      logInfo('SMTP settings API response received', { status: response.status, hasData: !!response.data });
+
+      if (response.data && response.data.data) {
+        const settings = response.data.data;
+        
+        logInfo('SMTP settings data found, storing to IndexedDB', { host: settings.host });
+        
+        // Save to IndexedDB with fixed ID for singleton pattern
+        await db.smtpSettings.put({
+          ...settings,
+          id: 'smtp-settings',
+        });
+        
+        // Also save to localStorage for backward compatibility
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('sems_smtp_settings', JSON.stringify(settings));
+        }
+        
+        logInfo('Successfully pulled SMTP settings to IndexedDB and localStorage');
+        return { pulled: true };
+      } else if (response.data && response.data.success === true && !response.data.data) {
+        logInfo('SMTP settings endpoint returned success but with null data');
+        return { pulled: false };
+      }
+
+      logInfo('No SMTP settings data received from API');
+      return { pulled: false };
+    } catch (error) {
+      logError('Failed to pull SMTP settings', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+      return { pulled: false };
+    }
   }
 }
 

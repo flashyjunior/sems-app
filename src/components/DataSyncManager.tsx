@@ -17,6 +17,7 @@ export function DataSyncManager() {
     doseRegimens: number;
     printerSettings: number;
     printTemplates: number;
+    systemSettings: number;
     smtpSettings: number;
     dispenseRecords: number;
     tickets: number;
@@ -42,6 +43,7 @@ export function DataSyncManager() {
         printerSettings: 0,
         printTemplates: 0,
         roles: 0,
+        systemSettings: 0,
         smtpSettings: 0,
         dispenseRecords: 0,
         tickets: 0,
@@ -183,35 +185,29 @@ export function DataSyncManager() {
         console.error('Error syncing print templates:', err);
       }
 
-      // 6. Sync SMTP Settings
+      // 6. Sync System Settings
       try {
-        const smtpResponse = await fetch(`${apiBaseUrl}/api/system-settings`, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
+        const systemSettingsResult = await syncManager.pullSystemSettings({
+          apiBaseUrl,
+          authToken,
         });
+        stats.systemSettings = systemSettingsResult.pulled ? 1 : 0;
+      } catch (err) {
+        console.error('Error syncing system settings:', err);
+      }
 
-        if (smtpResponse.ok) {
-          const smtpData = await smtpResponse.json();
-          const settings = smtpData.data || smtpData;
-          if (settings) {
-            try {
-              // Store SMTP settings in a settings object or table if available
-              // For now, we'll store it in the app store or local storage
-              if (typeof window !== 'undefined' && localStorage) {
-                localStorage.setItem('sems_smtp_settings', JSON.stringify(settings));
-              }
-              stats.smtpSettings = 1; // Mark as synced
-            } catch (err) {
-              console.error('Error saving SMTP settings:', err);
-            }
-          }
-        }
+      // 7. Sync SMTP Settings
+      try {
+        const smtpSettingsResult = await syncManager.pullSMTPSettings({
+          apiBaseUrl,
+          authToken,
+        });
+        stats.smtpSettings = smtpSettingsResult.pulled ? 1 : 0;
       } catch (err) {
         console.error('Error syncing SMTP settings:', err);
       }
 
-      // 7. Sync Dispense Records
+      // 8. Sync Dispense Records
       try {
         const dispenseResult = await syncManager.pullDispenseRecords({
           apiBaseUrl,
@@ -222,7 +218,7 @@ export function DataSyncManager() {
         console.error('Error syncing dispense records:', err);
       }
 
-      // 8. Sync Tickets
+      // 9. Sync Tickets
       try {
         const ticketsResult = await syncManager.pullTickets({
           apiBaseUrl,
@@ -235,7 +231,7 @@ export function DataSyncManager() {
 
       setSyncStats(stats);
       setSuccess(
-        `✅ Sync complete! Roles: ${stats.roles}, Users: ${stats.users}, Drugs: ${stats.drugs}, Doses: ${stats.doseRegimens}, Printers: ${stats.printerSettings}, Templates: ${stats.printTemplates}, SMTP: ${stats.smtpSettings}, Dispense: ${stats.dispenseRecords}, Tickets: ${stats.tickets}`
+        `✅ Sync complete! Roles: ${stats.roles}, Users: ${stats.users}, Drugs: ${stats.drugs}, Doses: ${stats.doseRegimens}, Printers: ${stats.printerSettings}, Templates: ${stats.printTemplates}, System: ${stats.systemSettings}, SMTP: ${stats.smtpSettings}, Dispense: ${stats.dispenseRecords}, Tickets: ${stats.tickets}`
       );
       setTimeout(() => setSuccess(null), 8000);
     } catch (err) {
@@ -282,6 +278,8 @@ export function DataSyncManager() {
             <p>📋 Doses: {syncStats.doseRegimens}</p>
             <p>🖨️ Printers: {syncStats.printerSettings}</p>
             <p>🏷️ Templates: {syncStats.printTemplates}</p>
+            <p>⚙️ System: {syncStats.systemSettings}</p>
+            <p>📧 SMTP: {syncStats.smtpSettings}</p>
             <p>📊 Dispense: {syncStats.dispenseRecords}</p>
             <p>🎫 Tickets: {syncStats.tickets}</p>
           </div>

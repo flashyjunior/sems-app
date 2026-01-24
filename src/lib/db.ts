@@ -12,6 +12,7 @@ import type {
   UserProfile,
   PrinterSettings,
   SystemSettings,
+  SMTPSettings,
   Ticket,
   TicketNote,
   TempDrug,
@@ -33,6 +34,7 @@ export class SEMSDB extends Dexie {
   userProfiles!: Table<UserProfile>;
   printerSettings!: Table<PrinterSettings>;
   systemSettings!: Table<SystemSettings>;
+  smtpSettings!: Table<SMTPSettings>;
   tickets!: Table<Ticket>;
   ticketNotes!: Table<TicketNote>;
   tempDrugs!: Table<TempDrug>;
@@ -54,6 +56,7 @@ export class SEMSDB extends Dexie {
       userProfiles: 'id, userId',
       printerSettings: 'id, isDefault',
       systemSettings: 'id',
+      smtpSettings: 'id',
     });
 
     // Version 2: Add ticket tables
@@ -72,6 +75,7 @@ export class SEMSDB extends Dexie {
         userProfiles: 'id, userId',
         printerSettings: 'id, isDefault',
         systemSettings: 'id',
+        smtpSettings: 'id',
         tickets: 'id, ticketNumber, userId, synced',
         ticketNotes: 'id, ticketId, synced',
       })
@@ -96,6 +100,7 @@ export class SEMSDB extends Dexie {
         userProfiles: 'id, userId',
         printerSettings: 'id, isDefault',
         systemSettings: 'id',
+        smtpSettings: 'id',
         tickets: 'id, ticketNumber, userId, synced',
         ticketNotes: 'id, ticketId, synced',
         tempDrugs: 'id, genericName, status, createdAt',
