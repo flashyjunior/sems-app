@@ -37,6 +37,17 @@ export function LoginForm() {
     >
       <div className="w-full max-w-md relative z-10">
         <div className="bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-8 border border-white/20">
+          {/* Logo */}
+          {process.env.NEXT_PUBLIC_LOGIN_LOGO && (
+            <div className="flex justify-center mb-6">
+              <img
+                src={process.env.NEXT_PUBLIC_LOGIN_LOGO}
+                alt="SEMS Logo"
+                className="h-16 w-auto"
+              />
+            </div>
+          )}
+
           <h1 className="text-3xl font-bold text-gray-900 mb-2">SEMS</h1>
           <p className="text-gray-600 mb-8">
             Smart Dispensing System
@@ -65,14 +76,14 @@ export function LoginForm() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                PIN
+                Password
               </label>
               <input
                 type="password"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
                 className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter your PIN"
+                placeholder="Enter your password"
                 required
               />
             </div>
@@ -85,10 +96,6 @@ export function LoginForm() {
               {loading ? 'Logging in...' : 'Login'}
             </button>
           </form>
-
-          <p className="mt-6 text-xs text-gray-500 text-center">
-            For demo: username="pharmacist" PIN="1234"
-          </p>
         </div>
       </div>
     </div>
