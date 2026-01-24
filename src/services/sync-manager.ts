@@ -806,18 +806,23 @@ export class SyncManager {
 
       if (response.data) {
         const settings = response.data.data || response.data;
+        
+        // Remove the numeric id if it exists, use fixed 'system-settings' id
+        const { id, ...settingsData } = settings;
+        
         // Save to IndexedDB with fixed ID for singleton pattern
         await db.systemSettings.put({
-          ...settings,
+          ...settingsData,
           id: 'system-settings',
         });
-        logInfo('Pulled system settings to IndexedDB');
+        logInfo('Pulled system settings to IndexedDB', { settings: settingsData });
         return { pulled: true };
       }
 
+      logInfo('No system settings data received');
       return { pulled: false };
     } catch (error) {
-      logError('Failed to pull system settings', error instanceof Error ? error : new Error(String(error)));
+      logError('Failed to pull system settings', error instanceof Error ? error.message : String(error));
       return { pulled: false };
     }
   }
