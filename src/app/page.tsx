@@ -21,7 +21,7 @@ export default function Home() {
   const logout = useAppStore((s) => s.logout);
   const syncInProgress = useAppStore((s) => s.syncConfig?.isSyncing || false);
   const [currentView, setCurrentView] = useState<'dashboard' | 'dispense' | 'settings' | 'tickets' | 'pending-drugs'>('dashboard');
-  const [showFirstLaunch, setShowFirstLaunch] = useState(true);
+  const [showFirstLaunch, setShowFirstLaunch] = useState(false);
   
   const isAdmin = user?.role === 'admin';
 
