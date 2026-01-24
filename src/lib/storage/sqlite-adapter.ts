@@ -175,6 +175,48 @@ export class SQLiteAdapter implements StorageAdapter {
       CREATE INDEX IF NOT EXISTS idx_alerts_timestamp ON alerts(timestamp);
     `);
 
+    // Tickets table
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS tickets (
+        id TEXT PRIMARY KEY,
+        ticketNumber TEXT UNIQUE NOT NULL,
+        userId TEXT NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        category TEXT,
+        priority TEXT,
+        status TEXT DEFAULT 'open',
+        attachments TEXT,
+        synced BOOLEAN DEFAULT 0,
+        syncError TEXT,
+        syncRetries INTEGER DEFAULT 0,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        syncedAt DATETIME
+      );
+      CREATE INDEX IF NOT EXISTS idx_tickets_user_id ON tickets(userId);
+      CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status);
+      CREATE INDEX IF NOT EXISTS idx_tickets_synced ON tickets(synced);
+    `);
+
+    // Ticket Notes table
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS ticket_notes (
+        id TEXT PRIMARY KEY,
+        ticketId TEXT NOT NULL,
+        userId TEXT NOT NULL,
+        content TEXT NOT NULL,
+        isAdminNote BOOLEAN DEFAULT 0,
+        synced BOOLEAN DEFAULT 0,
+        syncError TEXT,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(ticketId) REFERENCES tickets(id),
+        FOREIGN KEY(userId) REFERENCES users(id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_ticket_notes_ticket_id ON ticket_notes(ticketId);
+      CREATE INDEX IF NOT EXISTS idx_ticket_notes_synced ON ticket_notes(synced);
+    `);
+
     // Print Templates table
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS print_templates (
@@ -796,6 +838,163 @@ export class SQLiteAdapter implements StorageAdapter {
     await this.setSyncMetadata('lastSyncTime', time);
   }
 
+  // ============ Tickets ============
+  async getTicket(id: string): Promise<any | undefined> {
+    const stmt = this.db.prepare('SELECT * FROM tickets WHERE id = ?');
+    const row = stmt.get(id) as any;
+    if (!row) return undefined;
+    return {
+      ...row,
+      attachments: row.attachments ? JSON.parse(row.attachments) : [],
+      createdAt: new Date(row.createdAt).getTime(),
+      updatedAt: new Date(row.updatedAt).getTime(),
+      syncedAt: row.syncedAt ? new Date(row.syncedAt).getTime() : undefined,
+    };
+  }
+
+  async getTicketsByUser(userId: string): Promise<any[]> {
+    const stmt = this.db.prepare('SELECT * FROM tickets WHERE userId = ? ORDER BY createdAt DESC');
+    const rows = stmt.all(userId) as any[];
+    return rows.map((row) => ({
+      ...row,
+      attachments: row.attachments ? JSON.parse(row.attachments) : [],
+      createdAt: new Date(row.createdAt).getTime(),
+      updatedAt: new Date(row.updatedAt).getTime(),
+      syncedAt: row.syncedAt ? new Date(row.syncedAt).getTime() : undefined,
+    }));
+  }
+
+  async getTicketByNumber(ticketNumber: string): Promise<any | undefined> {
+    const stmt = this.db.prepare('SELECT * FROM tickets WHERE ticketNumber = ?');
+    const row = stmt.get(ticketNumber) as any;
+    if (!row) return undefined;
+    return {
+      ...row,
+      attachments: row.attachments ? JSON.parse(row.attachments) : [],
+      createdAt: new Date(row.createdAt).getTime(),
+      updatedAt: new Date(row.updatedAt).getTime(),
+      syncedAt: row.syncedAt ? new Date(row.syncedAt).getTime() : undefined,
+    };
+  }
+
+  async getUnsyncedTickets(): Promise<any[]> {
+    const stmt = this.db.prepare('SELECT * FROM tickets WHERE synced = 0 ORDER BY createdAt ASC');
+    const rows = stmt.all() as any[];
+    return rows.map((row) => ({
+      ...row,
+      attachments: row.attachments ? JSON.parse(row.attachments) : [],
+      createdAt: new Date(row.createdAt).getTime(),
+      updatedAt: new Date(row.updatedAt).getTime(),
+      syncedAt: row.syncedAt ? new Date(row.syncedAt).getTime() : undefined,
+    }));
+  }
+
+  async saveTicket(ticket: any): Promise<void> {
+    const stmt = this.db.prepare(`
+      INSERT OR REPLACE INTO tickets (
+        id, ticketNumber, userId, title, description, category, priority, status,
+        attachments, synced, syncError, syncRetries, createdAt, updatedAt, syncedAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    stmt.run(
+      ticket.id,
+      ticket.ticketNumber,
+      ticket.userId,
+      ticket.title,
+      ticket.description,
+      ticket.category,
+      ticket.priority,
+      ticket.status || 'open',
+      ticket.attachments ? JSON.stringify(ticket.attachments) : null,
+      ticket.synced ? 1 : 0,
+      ticket.syncError || null,
+      ticket.syncRetries || 0,
+      new Date(ticket.createdAt || Date.now()).toISOString(),
+      new Date(ticket.updatedAt || Date.now()).toISOString(),
+      ticket.syncedAt ? new Date(ticket.syncedAt).toISOString() : null
+    );
+  }
+
+  async updateTicket(id: string, updates: any): Promise<void> {
+    const ticket = await this.getTicket(id);
+    if (!ticket) throw new Error(`Ticket ${id} not found`);
+    
+    const updated = {
+      ...ticket,
+      ...updates,
+      updatedAt: Date.now(),
+    };
+    await this.saveTicket(updated);
+  }
+
+  async deleteTicket(id: string): Promise<void> {
+    const stmt = this.db.prepare('DELETE FROM tickets WHERE id = ?');
+    stmt.run(id);
+  }
+
+  // ============ Ticket Notes ============
+  async getTicketNote(id: string): Promise<any | undefined> {
+    const stmt = this.db.prepare('SELECT * FROM ticket_notes WHERE id = ?');
+    const row = stmt.get(id) as any;
+    if (!row) return undefined;
+    return {
+      ...row,
+      createdAt: new Date(row.createdAt).getTime(),
+    };
+  }
+
+  async getTicketNotes(ticketId: string): Promise<any[]> {
+    const stmt = this.db.prepare('SELECT * FROM ticket_notes WHERE ticketId = ? ORDER BY createdAt DESC');
+    const rows = stmt.all(ticketId) as any[];
+    return rows.map((row) => ({
+      ...row,
+      createdAt: new Date(row.createdAt).getTime(),
+    }));
+  }
+
+  async getUnsyncedTicketNotes(): Promise<any[]> {
+    const stmt = this.db.prepare('SELECT * FROM ticket_notes WHERE synced = 0 ORDER BY createdAt ASC');
+    const rows = stmt.all() as any[];
+    return rows.map((row) => ({
+      ...row,
+      createdAt: new Date(row.createdAt).getTime(),
+    }));
+  }
+
+  async saveTicketNote(note: any): Promise<void> {
+    const stmt = this.db.prepare(`
+      INSERT OR REPLACE INTO ticket_notes (
+        id, ticketId, userId, content, isAdminNote, synced, syncError, createdAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    stmt.run(
+      note.id,
+      note.ticketId,
+      note.userId,
+      note.content,
+      note.isAdminNote ? 1 : 0,
+      note.synced ? 1 : 0,
+      note.syncError || null,
+      new Date(note.createdAt || Date.now()).toISOString()
+    );
+  }
+
+  async updateTicketNote(id: string, updates: any): Promise<void> {
+    const note = await this.getTicketNote(id);
+    if (!note) throw new Error(`Ticket note ${id} not found`);
+    
+    const updated = {
+      ...note,
+      ...updates,
+    };
+    await this.saveTicketNote(updated);
+  }
+
+  async deleteTicketNote(id: string): Promise<void> {
+    const stmt = this.db.prepare('DELETE FROM ticket_notes WHERE id = ?');
+    stmt.run(id);
+  }
+
   // ============ Utility ============
   async clear(): Promise<void> {
     // Delete all data from all tables
@@ -808,6 +1007,8 @@ export class SQLiteAdapter implements StorageAdapter {
       DELETE FROM sync_queue;
       DELETE FROM inventory;
       DELETE FROM alerts;
+      DELETE FROM tickets;
+      DELETE FROM ticket_notes;
       DELETE FROM print_templates;
       DELETE FROM user_profiles;
       DELETE FROM printer_settings;

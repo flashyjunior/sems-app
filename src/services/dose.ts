@@ -98,12 +98,16 @@ export class DoseCalculationService {
     // Parse expressions like "5 mg/kg", "10-20 mg", "500 mg"
     const mgPerKgMatch = expression.match(/(\d+(?:\.\d+)?)\s*mg\/kg/i);
     if (mgPerKgMatch) {
-      return parseFloat(mgPerKgMatch[1]) * weight;
+      const result = parseFloat(mgPerKgMatch[1]) * weight;
+      // Round to 2 decimal places to avoid floating-point precision issues
+      return Math.round(result * 100) / 100;
     }
 
     const fixedDoseMatch = expression.match(/(\d+(?:\.\d+)?)\s*mg/i);
     if (fixedDoseMatch) {
-      return parseFloat(fixedDoseMatch[1]);
+      const result = parseFloat(fixedDoseMatch[1]);
+      // Round to 2 decimal places to avoid floating-point precision issues
+      return Math.round(result * 100) / 100;
     }
 
     return 0;

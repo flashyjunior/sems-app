@@ -55,6 +55,9 @@ model User {
   activityLogs      ActivityLog[]
   dispenseRecords   DispenseRecord[]
   apiKeys           ApiKey[]
+  tickets           Ticket[]
+  ticketNotes       TicketNote[]
+  ticketNotifications TicketNotification[]
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
 
@@ -148,6 +151,7 @@ model DispenseRecord {
   userId          Int
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   patientName     String?
+  patientPhoneNumber String?
   patientAge      Int?
   patientWeight   Float?
   drugId          String
@@ -240,4 +244,134 @@ model PrintTemplate {
 
   @@index([name])
   @@index([isDefault])
+}
+
+// Support Tickets
+model Ticket {
+  id              String   @id @default(cuid())
+  ticketNumber    String   @unique
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title           String
+  description     String   @db.Text
+  category        String   @default("general") // technical, feature-request, bug-report, general, urgent
+  priority        String   @default("medium") // low, medium, high, critical
+  status          String   @default("open") // open, in-progress, resolved, closed, on-hold
+  attachments     String? // JSON array of attachment URLs
+  notes           TicketNote[]
+  notifications   TicketNotification[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  resolvedAt      DateTime?
+  closedAt        DateTime?
+
+  @@index([userId])
+  @@index([status])
+  @@index([priority])
+  @@index([ticketNumber])
+}
+
+// Ticket Notes/Comments
+model TicketNote {
+  id              String   @id @default(cuid())
+  ticketId        String
+  ticket          Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  content         String   @db.Text
+  isAdminNote     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  @@index([ticketId])
+  @@index([userId])
+}
+
+// Ticket Notifications
+model TicketNotification {
+  id              String   @id @default(cuid())
+  ticketId        String
+  ticket          Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type            String   @default("ticket-updated") // ticket-created, ticket-updated, ticket-resolved, ticket-closed, admin-response
+  message         String   @db.Text
+  read            Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+  @@index([ticketId])
+  @@index([read])
+}
+
+// SMTP Settings
+model SMTPSettings {
+  id              String   @id @default(cuid())
+  host            String
+  port            Int
+  secure          Boolean  @default(true)
+  username        String
+  password        String   // Should be encrypted in production
+  fromEmail       String
+  fromName        String
+  adminEmail      String
+  replyToEmail    String?
+  enabled         Boolean  @default(false)
+  testStatus      String? // pending, success, failed
+  lastTestedAt    DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Temporary Drugs - Pending admin approval
+model TempDrug {
+  id                  String   @id @default(cuid())
+  genericName         String
+  tradeName           String[] // JSON array of trade names
+  strength            String
+  route               String   @default("oral")
+  category            String
+  stgReference        String?
+  contraindications   String[] // JSON array
+  pregnancyCategory   String?  // A, B, C, D, X
+  warnings            String[] // JSON array
+  createdByPharmacistId String?
+  status              String   @default("pending") // pending, approved, rejected
+  approvedByAdminId   String?
+  approvedAt          DateTime?
+  rejectionReason     String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([genericName])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Temporary Dose Regimens - Pending admin approval
+model TempDoseRegimen {
+  id              String  @id @default(cuid())
+  tempDrugId      String
+  drugId          String? // Reference to original drug if editing existing
+  ageMin          Int?
+  ageMax          Int?
+  weightMin       Float?
+  weightMax       Float?
+  ageGroup        String  @default("adult") // adult, pediatric, neonatal
+  doseMg          String
+  frequency       String
+  duration        String
+  maxDoseMgDay    String?
+  route           String  @default("oral")
+  instructions    String?
+  createdByPharmacistId String?
+  status          String  @default("pending") // pending, approved, rejected
+  approvedByAdminId   String?
+  approvedAt      DateTime?
+  rejectionReason String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([tempDrugId])
+  @@index([status])
+  @@index([createdAt])
 }

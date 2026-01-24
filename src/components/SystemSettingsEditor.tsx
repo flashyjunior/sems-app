@@ -67,6 +67,31 @@ export function SystemSettingsEditor({ onBack }: SystemSettingsEditorProps) {
       setError(null);
       setSuccess(false);
 
+      // Get auth token from localStorage
+      const authToken = typeof window !== 'undefined' 
+        ? localStorage.getItem('authToken')
+        : null;
+
+      if (!authToken) {
+        throw new Error('Authentication token not found. Please log in again.');
+      }
+
+      // Save to cloud API first (cloud database)
+      const response = await fetch('/api/system-settings', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `HTTP ${response.status}: Failed to save settings`);
+      }
+
+      // After successful cloud save, update local database
       if (!settings) {
         await settingsService.createSystemSettings(formData);
       } else {

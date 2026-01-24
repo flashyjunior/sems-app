@@ -26,6 +26,21 @@ interface CreateUserForm {
   roleId?: number;
 }
 
+interface EditUserForm {
+  id: number;
+  email: string;
+  fullName: string;
+  licenseNumber: string;
+  specialization?: string;
+  roleId?: number;
+  isActive: boolean;
+}
+
+interface Role {
+  id: number;
+  name: string;
+}
+
 interface AdminUsersManagerProps {
   onBack?: () => void;
 }
@@ -36,11 +51,14 @@ interface AdminUsersManagerProps {
  */
 export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'users' | 'roles' | 'drugs' | 'regimens'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'roles'>('users');
   const [users, setUsers] = useState<User[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [editingUserId, setEditingUserId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<EditUserForm | null>(null);
   const [formData, setFormData] = useState<CreateUserForm>({
     email: '',
     fullName: '',
@@ -79,6 +97,132 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
       const msg = err instanceof Error ? err.message : 'Error fetching users';
       setError(msg);
       console.error('Error fetching users:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch roles from PostgreSQL
+  const fetchRoles = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/roles`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setRoles(data.data || []);
+      }
+    } catch (err) {
+      console.error('Error fetching roles:', err);
+    }
+  };
+
+  // Start editing a user
+  const handleEditUser = (u: User) => {
+    setEditingUserId(u.id);
+    setEditForm({
+      id: u.id,
+      email: u.email,
+      fullName: u.fullName,
+      licenseNumber: u.licenseNumber,
+      specialization: u.specialization,
+      roleId: u.roleId || 1,
+      isActive: u.isActive,
+    });
+  };
+
+  // Cancel editing
+  const handleCancelEdit = () => {
+    setEditingUserId(null);
+    setEditForm(null);
+  };
+
+  // Save user changes
+  const handleSaveUser = async () => {
+    if (!editForm) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/users/${editForm.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({
+            email: editForm.email,
+            fullName: editForm.fullName,
+            licenseNumber: editForm.licenseNumber,
+            specialization: editForm.specialization,
+            roleId: editForm.roleId,
+            isActive: editForm.isActive,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to update user');
+      }
+
+      setSuccess(`User "${editForm.fullName}" updated successfully`);
+      setEditingUserId(null);
+      setEditForm(null);
+
+      // Refresh user list
+      await fetchUsers();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error updating user';
+      setError(msg);
+      console.error('Error updating user:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Delete user
+  const handleDeleteUser = async (userId: number, userName: string) => {
+    if (!confirm(`Are you sure you want to delete "${userName}"? This cannot be undone.`)) {
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/users/${userId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to delete user');
+      }
+
+      setSuccess(`User "${userName}" deleted successfully`);
+
+      // Refresh user list
+      await fetchUsers();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error deleting user';
+      setError(msg);
+      console.error('Error deleting user:', err);
     } finally {
       setLoading(false);
     }
@@ -191,6 +335,7 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
   useEffect(() => {
     if (isOpen && authToken) {
       fetchUsers();
+      fetchRoles();
     }
   }, [isOpen, authToken]);
 
@@ -243,26 +388,6 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
                 }`}
               >
                 Roles
-              </button>
-              <button
-                onClick={() => setActiveTab('drugs')}
-                className={`px-4 py-2 font-medium whitespace-nowrap ${
-                  activeTab === 'drugs'
-                    ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Drugs
-              </button>
-              <button
-                onClick={() => setActiveTab('regimens')}
-                className={`px-4 py-2 font-medium whitespace-nowrap ${
-                  activeTab === 'regimens'
-                    ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Dose Regimens
               </button>
             </div>
 
@@ -384,37 +509,160 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
                   ) : users.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">No users found</div>
                   ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead className="bg-gray-100">
-                          <tr>
-                            <th className="px-4 py-2 text-left font-semibold">Email</th>
-                            <th className="px-4 py-2 text-left font-semibold">Full Name</th>
-                            <th className="px-4 py-2 text-left font-semibold">License</th>
-                            <th className="px-4 py-2 text-left font-semibold">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {users.map((u) => (
-                            <tr key={u.id} className="border-b hover:bg-gray-50">
-                              <td className="px-4 py-2">{u.email}</td>
-                              <td className="px-4 py-2">{u.fullName}</td>
-                              <td className="px-4 py-2 text-xs text-gray-600">{u.licenseNumber}</td>
-                              <td className="px-4 py-2">
-                                <span
-                                  className={`px-2 py-1 rounded text-xs font-medium ${
-                                    u.isActive
-                                      ? 'bg-green-100 text-green-800'
-                                      : 'bg-red-100 text-red-800'
-                                  }`}
+                    <div className="space-y-3">
+                      {users.map((u) => (
+                        <div key={u.id} className="border border-gray-200 rounded-lg p-4 bg-white">
+                          {editingUserId === u.id && editForm ? (
+                            // Edit Mode
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Email
+                                  </label>
+                                  <input
+                                    type="email"
+                                    value={editForm.email}
+                                    onChange={(e) =>
+                                      setEditForm({ ...editForm, email: e.target.value })
+                                    }
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Full Name
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={editForm.fullName}
+                                    onChange={(e) =>
+                                      setEditForm({ ...editForm, fullName: e.target.value })
+                                    }
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    License Number
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={editForm.licenseNumber}
+                                    onChange={(e) =>
+                                      setEditForm({ ...editForm, licenseNumber: e.target.value })
+                                    }
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Role
+                                  </label>
+                                  <select
+                                    value={editForm.roleId || 1}
+                                    onChange={(e) =>
+                                      setEditForm({ ...editForm, roleId: parseInt(e.target.value) })
+                                    }
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                  >
+                                    {roles.map((r) => (
+                                      <option key={r.id} value={r.id}>
+                                        {r.name.charAt(0).toUpperCase() + r.name.slice(1)}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Specialization
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={editForm.specialization || ''}
+                                    onChange={(e) =>
+                                      setEditForm({ ...editForm, specialization: e.target.value })
+                                    }
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Status
+                                  </label>
+                                  <select
+                                    value={editForm.isActive ? 'active' : 'inactive'}
+                                    onChange={(e) =>
+                                      setEditForm({
+                                        ...editForm,
+                                        isActive: e.target.value === 'active',
+                                      })
+                                    }
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                  >
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={handleSaveUser}
+                                  disabled={loading}
+                                  className="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium text-sm transition-colors"
                                 >
-                                  {u.isActive ? 'Active' : 'Inactive'}
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                                  {loading ? 'Saving...' : '✓ Save'}
+                                </button>
+                                <button
+                                  onClick={handleCancelEdit}
+                                  disabled={loading}
+                                  className="flex-1 px-3 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 disabled:opacity-50 font-medium text-sm transition-colors"
+                                >
+                                  ✕ Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            // View Mode
+                            <div>
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex-1">
+                                  <h4 className="font-semibold text-gray-900">{u.fullName}</h4>
+                                  <p className="text-sm text-gray-600">{u.email}</p>
+                                  <div className="mt-2 flex gap-2 flex-wrap">
+                                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                      {u.licenseNumber}
+                                    </span>
+                                    <span
+                                      className={`text-xs px-2 py-1 rounded font-medium ${
+                                        u.isActive
+                                          ? 'bg-green-100 text-green-800'
+                                          : 'bg-red-100 text-red-800'
+                                      }`}
+                                    >
+                                      {u.isActive ? 'Active' : 'Inactive'}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex gap-2 pt-3 border-t border-gray-200">
+                                <button
+                                  onClick={() => handleEditUser(u)}
+                                  className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm transition-colors"
+                                >
+                                  ✏️ Edit
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteUser(u.id, u.fullName)}
+                                  className="flex-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium text-sm transition-colors"
+                                >
+                                  🗑️ Delete
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -424,16 +672,6 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
             {/* Roles Tab */}
             {activeTab === 'roles' && (
               <RoleManagement />
-            )}
-
-            {/* Drugs Tab */}
-            {activeTab === 'drugs' && (
-              <DrugManagement />
-            )}
-
-            {/* Dose Regimens Tab */}
-            {activeTab === 'regimens' && (
-              <DoseRegimenManagement />
             )}
 
             <div className="mt-6 pt-4 border-t border-gray-200">

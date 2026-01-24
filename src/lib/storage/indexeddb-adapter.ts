@@ -1,4 +1,4 @@
-import Dexie, { Table } from 'dexie';
+import { Table } from 'dexie';
 import type {
   User,
   Role,
@@ -12,15 +12,19 @@ import type {
   UserProfile,
   PrinterSettings,
   SystemSettings,
+  Ticket,
+  TicketNote,
 } from '@/types';
 import type { StorageAdapter } from './interface';
+import { db, type SEMSDB } from '@/lib/db';
 
 /**
  * IndexedDB implementation of StorageAdapter
  * Used for web browsers and Tauri app
+ * Uses the shared SEMSDB instance from @/lib/db
  */
 export class IndexedDBAdapter implements StorageAdapter {
-  private db: Dexie;
+  private db: SEMSDB;
   private userTable!: Table<User>;
   private roleTable!: Table<Role>;
   private drugTable!: Table<Drug>;
@@ -33,26 +37,13 @@ export class IndexedDBAdapter implements StorageAdapter {
   private userProfileTable!: Table<UserProfile>;
   private printerSettingsTable!: Table<PrinterSettings>;
   private systemSettingsTable!: Table<SystemSettings>;
+  private ticketTable!: Table<Ticket>;
+  private ticketNoteTable!: Table<TicketNote>;
   private syncMetadataTable!: Table<{ key: string; value: unknown }>;
 
-  constructor(dbName: string = 'SEMSDB') {
-    this.db = new Dexie(dbName);
-
-    this.db.version(1).stores({
-      users: 'id, username',
-      roles: 'id, name',
-      drugs: 'id, genericName, tradeName',
-      doseRegimens: 'id, drugId, ageGroup',
-      dispenseRecords: 'id, pharmacistId, timestamp, synced',
-      syncQueue: 'id, record.id',
-      inventory: 'id, drugId, expiryDate',
-      alerts: 'id, timestamp',
-      syncMetadata: 'key',
-      printTemplates: 'id, isDefault, createdAt',
-      userProfiles: 'id, userId',
-      printerSettings: 'id, isDefault',
-      systemSettings: 'id',
-    });
+  constructor() {
+    // Use the shared SEMSDB instance (already configured with v1 and v2 schemas)
+    this.db = db;
 
     // Initialize table references
     this.userTable = this.db.table('users');
@@ -67,6 +58,8 @@ export class IndexedDBAdapter implements StorageAdapter {
     this.userProfileTable = this.db.table('userProfiles');
     this.printerSettingsTable = this.db.table('printerSettings');
     this.systemSettingsTable = this.db.table('systemSettings');
+    this.ticketTable = this.db.table('tickets');
+    this.ticketNoteTable = this.db.table('ticketNotes');
     this.syncMetadataTable = this.db.table('syncMetadata');
   }
 
@@ -353,6 +346,64 @@ export class IndexedDBAdapter implements StorageAdapter {
 
   async setLastSyncTime(time: number): Promise<void> {
     await this.setSyncMetadata('lastSyncTime', time);
+  }
+
+  // ============ Tickets ============
+  async getTicket(id: string): Promise<Ticket | undefined> {
+    return await this.ticketTable.get(id);
+  }
+
+  async getTicketsByUser(userId: string): Promise<Ticket[]> {
+    return await this.ticketTable.where('userId').equals(userId).toArray();
+  }
+
+  async getTicketByNumber(ticketNumber: string): Promise<Ticket | undefined> {
+    return await this.ticketTable.where('ticketNumber').equals(ticketNumber).first();
+  }
+
+  async getUnsyncedTickets(): Promise<Ticket[]> {
+    return await this.ticketTable.where('synced').equals(0).toArray();
+  }
+
+  async saveTicket(ticket: Ticket): Promise<void> {
+    await this.ticketTable.put(ticket);
+  }
+
+  async updateTicket(id: string, updates: Partial<Ticket>): Promise<void> {
+    const ticket = await this.ticketTable.get(id);
+    if (!ticket) throw new Error(`Ticket ${id} not found`);
+    await this.ticketTable.update(id, { ...updates, updatedAt: Date.now() });
+  }
+
+  async deleteTicket(id: string): Promise<void> {
+    await this.ticketTable.delete(id);
+  }
+
+  // ============ Ticket Notes ============
+  async getTicketNote(id: string): Promise<TicketNote | undefined> {
+    return await this.ticketNoteTable.get(id);
+  }
+
+  async getTicketNotes(ticketId: string): Promise<TicketNote[]> {
+    return await this.ticketNoteTable.where('ticketId').equals(ticketId).toArray();
+  }
+
+  async getUnsyncedTicketNotes(): Promise<TicketNote[]> {
+    return await this.ticketNoteTable.where('synced').equals(0).toArray();
+  }
+
+  async saveTicketNote(note: TicketNote): Promise<void> {
+    await this.ticketNoteTable.put(note);
+  }
+
+  async updateTicketNote(id: string, updates: Partial<TicketNote>): Promise<void> {
+    const note = await this.ticketNoteTable.get(id);
+    if (!note) throw new Error(`Ticket note ${id} not found`);
+    await this.ticketNoteTable.update(id, updates);
+  }
+
+  async deleteTicketNote(id: string): Promise<void> {
+    await this.ticketNoteTable.delete(id);
   }
 
   // ============ Utility ============

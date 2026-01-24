@@ -6,7 +6,7 @@ let storageInstance: StorageAdapter | null = null;
 
 /**
  * Get the current storage adapter instance
- * Returns IndexedDBAdapter by default on web/Tauri
+ * Returns IndexedDBAdapter by default on web/Tauri (uses shared SEMSDB instance)
  * Can be replaced with SQLiteAdapter on Electron
  */
 export function getStorage(): StorageAdapter {
@@ -18,14 +18,14 @@ export function getStorage(): StorageAdapter {
 
 /**
  * Initialize the storage adapter
- * By default, uses IndexedDBAdapter
+ * By default, uses IndexedDBAdapter which uses the shared SEMSDB instance
  * Call setStorage() to use a different adapter
  */
 export function initializeStorage(adapter?: StorageAdapter): void {
   if (adapter) {
     storageInstance = adapter;
   } else {
-    storageInstance = new IndexedDBAdapter('SEMSDB');
+    storageInstance = new IndexedDBAdapter();
   }
 }
 

@@ -1,0 +1,30 @@
+
+> sems-app@0.1.0 start
+> next start
+
+   ▲ Next.js 16.0.10
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.56.1:3000
+
+ ✓ Starting...
+ ✓ Ready in 528ms
+[2025-12-25T07:17:50.491Z] INFO: Authenticating user {
+  "email": "admin@sems.local"
+}
+[2025-12-25T07:17:50.494Z] INFO: Prisma client initialized successfully
+[2025-12-25T07:17:50.709Z] INFO: User found, comparing passwords {
+  "email": "admin@sems.local",
+  "userId": 1
+}
+[2025-12-25T07:17:50.814Z] INFO: Password comparison result {
+  "email": "admin@sems.local",
+  "isValid": true
+}
+[2025-12-25T07:17:50.831Z] INFO: User authenticated successfully {
+  "userId": 1,
+  "email": "admin@sems.local"
+}
+[2025-12-25T07:17:50.849Z] INFO: User login successful {
+  "userId": 1,
+  "email": "admin@sems.local"
+}

@@ -4,6 +4,7 @@ import {
   listDispenseRecords,
   getDispenseByExternalId,
   getDispenseStats,
+  updateDispenseRecord,
 } from '@/services/dispense.service';
 import { dispenseCreateSchema, paginationSchema } from '@/lib/validations';
 import { withAuth } from '@/lib/auth-middleware';
@@ -85,8 +86,30 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
       }
 
       if (existing) {
+        // Check if isActive status has changed (record was canceled/activated)
+        const hasStatusChange = existing.isActive !== (validation.data.isActive !== false);
+        
+        if (hasStatusChange && validation.data.isActive !== undefined) {
+          // Update the isActive status
+          try {
+            const updated = await updateDispenseRecord(existing.id, { isActive: validation.data.isActive });
+            const response = NextResponse.json(
+              {
+                success: true,
+                message: 'Dispense record updated',
+                record: updated,
+              },
+              { status: 200 }
+            );
+            return setCORSHeaders(response, req.headers.get('origin') || undefined);
+          } catch (updateError) {
+            logError('Error updating dispense status', updateError);
+          }
+        }
+
         const response = NextResponse.json(
           {
+            success: true,
             message: 'Dispense record already exists',
             record: existing,
           },
@@ -175,9 +198,85 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
         { status: 201 }
       );
       return setCORSHeaders(response, req.headers.get('origin') || undefined);
+    } else if (req.method === 'PUT') {
+      // Update existing dispense record
+      const body = await req.json();
+      const { id, isActive } = body;
+
+      logInfo('PUT request received', { id, isActive, bodyKeys: Object.keys(body) });
+
+      if (!id) {
+        logError('PUT request missing ID', { body });
+        return setCORSHeaders(
+          NextResponse.json(
+            { error: 'Dispense record ID is required' },
+            { status: 400 }
+          ),
+          req.headers.get('origin') || undefined
+        );
+      }
+
+      try {
+        const prisma = (await import('@/lib/prisma')).default;
+        // Convert id to number since it comes from sync manager as numeric ID
+        const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
+        
+        logInfo('PUT numericId conversion', { originalId: id, numericId, isNaN: isNaN(numericId) });
+
+        if (isNaN(numericId)) {
+          logError('PUT received invalid ID', { originalId: id, numericId });
+          return setCORSHeaders(
+            NextResponse.json(
+              { error: 'Dispense record ID must be a valid number' },
+              { status: 400 }
+            ),
+            req.headers.get('origin') || undefined
+          );
+        }
+
+        const record = await prisma.dispenseRecord.findFirst({
+          where: { id: numericId },
+        });
+
+        if (!record) {
+          logInfo('PUT record not found', { numericId });
+          return setCORSHeaders(
+            NextResponse.json(
+              { error: 'Dispense record not found' },
+              { status: 404 }
+            ),
+            req.headers.get('origin') || undefined
+          );
+        }
+
+        const updated = await updateDispenseRecord(numericId, { isActive });
+
+        const response = NextResponse.json(
+          {
+            success: true,
+            message: 'Dispense record updated',
+            record: updated,
+          },
+          { status: 200 }
+        );
+        return setCORSHeaders(response, req.headers.get('origin') || undefined);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        logError('Error updating dispense record', error);
+        return setCORSHeaders(
+          NextResponse.json(
+            { error: 'Failed to update dispense record', details: errorMessage },
+            { status: 500 }
+          ),
+          req.headers.get('origin') || undefined
+        );
+      }
     } else {
       return setCORSHeaders(
-        NextResponse.json({ error: 'Method not allowed' }, { status: 405 }),
+        NextResponse.json(
+          { error: 'Method not allowed' },
+          { status: 405 }
+        ),
         req.headers.get('origin') || undefined
       );
     }
@@ -217,6 +316,7 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
 
 export const GET = withAuth(handler);
 export const POST = withAuth(handler);
+export const PUT = withAuth(handler);
 export const OPTIONS = (req: NextRequest) => {
   const corsResponse = handleCORS(req);
   return corsResponse || new NextResponse(null, { status: 204 });

@@ -15,7 +15,7 @@ interface SyncControlProps {
  * Sync Control Component - Allows manual sync and configuration
  */
 export function SyncControl({
-  apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
+  apiBaseUrl: propApiUrl = '',
   authToken = '',
   className = '',
 }: SyncControlProps) {
@@ -26,6 +26,16 @@ export function SyncControl({
   const [error, setError] = useState<string | null>(null);
   const [unsyncedCount, setUnsyncedCount] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [apiBaseUrl, setApiBaseUrl] = useState(propApiUrl);
+
+  // Initialize API URL from localStorage or environment
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedUrl = localStorage.getItem('sems_api_url');
+      const url = savedUrl || propApiUrl || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      setApiBaseUrl(url);
+    }
+  }, [propApiUrl]);
 
   // Initialize sync controller on mount
   useEffect(() => {
@@ -74,6 +84,11 @@ export function SyncControl({
       
       // Refresh sync status in navbar
       syncService.refreshStatus();
+      
+      // Notify all components that sync completed so they can refresh
+      useAppStore.setState((state) => ({
+        syncCompletedCounter: state.syncCompletedCounter + 1,
+      }));
       
       // Clear result after 5 seconds
       setTimeout(() => setManualSyncResult(null), 5000);

@@ -1,0 +1,101 @@
+
+> sems-app@0.1.0 build
+> next build
+
+   Γû▓ Next.js 16.0.10 (Turbopack)
+   - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+Turbopack build encountered 1 warnings:
+./src/lib/tauri-db.ts:19:35
+Module not found: Can't resolve '@tauri-apps/api/core'
+  17 |       try {
+  18 |         // @ts-expect-error - Tauri API not available in web context
+> 19 |         const tauriModule = await import('@tauri-apps/api/core');
+     |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  20 |         this.invoke = tauriModule.invoke;
+  21 |         this.isInTauri = true;
+  22 |       } catch (e) {
+
+
+
+Import traces:
+  Client Component Browser:
+    ./src/lib/tauri-db.ts [Client Component Browser]
+    ./src/services/sync-manager.ts [Client Component Browser]
+    ./src/services/sync-controller.ts [Client Component Browser]
+    ./src/components/SyncStatus.tsx [Client Component Browser]
+    ./src/components/Navbar.tsx [Client Component Browser]
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/lib/tauri-db.ts [Client Component SSR]
+    ./src/services/sync-manager.ts [Client Component SSR]
+    ./src/services/sync-controller.ts [Client Component SSR]
+    ./src/components/SyncStatus.tsx [Client Component SSR]
+    ./src/components/Navbar.tsx [Client Component SSR]
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ Γ£ô Compiled successfully in 7.3s
+   Running TypeScript ...
+   Collecting page data using 11 workers ...
+   Generating static pages using 11 workers (0/31) ...
+   Generating static pages using 11 workers (7/31) 
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /_not-found. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+   Generating static pages using 11 workers (15/31) 
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /dose-regimens. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+   Generating static pages using 11 workers (23/31) 
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /drugs. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ΓÜá Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ Γ£ô Generating static pages using 11 workers (31/31) in 1389.9ms
+   Finalizing page optimization ...
+
+Route (app)
+Γöî Γùï /
+Γö£ Γùï /_not-found
+Γö£ ╞Æ /api/audit-logs
+Γö£ ╞Æ /api/auth/login
+Γö£ ╞Æ /api/auth/token
+Γö£ ╞Æ /api/dispenses
+Γö£ ╞Æ /api/dispenses/stats
+Γö£ ╞Æ /api/dose-regimens
+Γö£ ╞Æ /api/dose-regimens/[id]
+Γö£ ╞Æ /api/drugs
+Γö£ ╞Æ /api/drugs/[id]
+Γö£ ╞Æ /api/health/database
+Γö£ ╞Æ /api/printer-settings
+Γö£ ╞Æ /api/roles
+Γö£ ╞Æ /api/settings/smtp
+Γö£ ╞Æ /api/settings/smtp/test
+Γö£ ╞Æ /api/sync/pull-dose-regimens
+Γö£ ╞Æ /api/sync/pull-drugs
+Γö£ ╞Æ /api/sync/pull-print-templates
+Γö£ ╞Æ /api/sync/pull-printer-settings
+Γö£ ╞Æ /api/sync/pull-roles
+Γö£ ╞Æ /api/sync/pull-users
+Γö£ ╞Æ /api/sync/status
+Γö£ ╞Æ /api/system-settings
+Γö£ ╞Æ /api/system-settings/get
+Γö£ ╞Æ /api/templates
+Γö£ ╞Æ /api/tickets
+Γö£ ╞Æ /api/tickets/[id]
+Γö£ ╞Æ /api/tickets/[id]/notes
+Γö£ ╞Æ /api/user-profile
+Γö£ ╞Æ /api/users
+Γö£ ╞Æ /api/users/[id]
+Γö£ Γùï /dose-regimens
+Γöö Γùï /drugs
+
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+

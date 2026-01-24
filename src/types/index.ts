@@ -77,11 +77,14 @@ export interface DoseCalculation {
   stgCitation: string;
   warnings: string[];
   requiresPinConfirm: boolean;
+  pregnancyStatus?: 'yes' | 'no' | 'unknown';
+  allergies?: string[];
 }
 
 // Patient Input Types
 export interface PatientInput {
   name?: string;
+  phoneNumber?: string;
   age: number;
   weight: number;
   pregnancyStatus?: 'yes' | 'no' | 'unknown';
@@ -95,8 +98,9 @@ export interface DispenseRecord {
   pharmacistId: string;
   pharmacistName?: string;
   patientName?: string;
-  patientAge: number;
-  patientWeight: number;
+  patientPhoneNumber?: string;
+  patientAge: number | null;
+  patientWeight: number | null;
   drugId: string;
   drugName: string;
   dose: DoseCalculation;
@@ -104,6 +108,7 @@ export interface DispenseRecord {
   printedAt?: number;
   syncedAt?: number;
   synced: boolean;
+  isActive?: boolean;
   deviceId: string;
   auditLog: AuditLogEntry[];
 }
@@ -113,6 +118,52 @@ export interface AuditLogEntry {
   action: string;
   actor: string;
   details?: Record<string, unknown>;
+}
+
+// Temporary Drug - Pending admin approval
+export interface TempDrug {
+  id: string;
+  genericName: string;
+  tradeName: string[];
+  strength: string;
+  route: 'oral' | 'iv' | 'im' | 'subcutaneous' | 'topical' | 'inhalation';
+  category: string;
+  stgReference: string;
+  contraindications: string[];
+  pregnancyCategory?: 'A' | 'B' | 'C' | 'D' | 'X';
+  warnings?: string[];
+  createdByPharmacistId?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  approvedByAdminId?: string;
+  approvedAt?: number;
+  rejectionReason?: string;
+  createdAt?: number;
+  updatedAt?: number;
+}
+
+// Temporary Dose Regimen - Pending admin approval
+export interface TempDrugRegimen {
+  id: string;
+  tempDrugId: string;
+  drugId?: string; // Reference to original drug if editing existing
+  ageMin?: number;
+  ageMax?: number;
+  weightMin?: number;
+  weightMax?: number;
+  ageGroup: 'adult' | 'pediatric' | 'neonatal';
+  doseMg: string;
+  frequency: string;
+  duration: string;
+  maxDoseMgDay?: string;
+  route: string;
+  instructions?: string;
+  createdByPharmacistId?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  approvedByAdminId?: string;
+  approvedAt?: number;
+  rejectionReason?: string;
+  createdAt?: number;
+  updatedAt?: number;
 }
 
 // Sync Types
@@ -196,6 +247,75 @@ export interface UserProfile {
   defaultDoseUnit: 'mg' | 'mcg' | 'mmol' | 'ml';
   autoLock: boolean;
   autoLockMinutes: number;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export type TicketStatus = 'open' | 'in-progress' | 'resolved' | 'closed' | 'on-hold';
+export type TicketPriority = 'low' | 'medium' | 'high' | 'critical';
+export type TicketCategory = 'technical' | 'feature-request' | 'bug-report' | 'general' | 'urgent';
+
+export interface TicketAttachment {
+  name: string;
+  data: string; // base64 encoded
+  type: string;
+  size: number;
+}
+
+export interface Ticket {
+  id: string;
+  ticketNumber: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  title: string;
+  description: string;
+  category: TicketCategory;
+  priority: TicketPriority;
+  status: TicketStatus;
+  attachments?: TicketAttachment[];
+  createdAt: number;
+  updatedAt: number;
+  resolvedAt?: number;
+  closedAt?: number;
+  notes?: TicketNote[];
+}
+
+export interface TicketNote {
+  id: string;
+  ticketId: string;
+  authorId: string;
+  authorName: string;
+  content: string;
+  isAdminNote: boolean;
+  createdAt: number;
+}
+
+export interface TicketNotification {
+  id: string;
+  ticketId: string;
+  userId: string;
+  type: 'ticket-created' | 'ticket-updated' | 'ticket-resolved' | 'ticket-closed' | 'admin-response';
+  message: string;
+  read: boolean;
+  createdAt: number;
+}
+
+// SMTP Settings
+export interface SMTPSettings {
+  id: string;
+  host: string;
+  port: number;
+  secure: boolean; // TLS
+  username: string;
+  password: string; // encrypted
+  fromEmail: string;
+  fromName: string;
+  adminEmail: string;
+  replyToEmail?: string;
+  enabled: boolean;
+  testStatus?: 'pending' | 'success' | 'failed';
+  lastTestedAt?: number;
   createdAt: number;
   updatedAt: number;
 }

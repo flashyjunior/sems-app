@@ -1,0 +1,835 @@
+
+> sems-app@0.1.0 build
+> next build
+
+   Γû▓ Next.js 16.0.10 (Turbopack)
+   - Environments: .env
+
+   Creating an optimized production build ...
+Turbopack build encountered 1 warnings:
+./src/lib/tauri-db.ts:19:35
+Module not found: Can't resolve '@tauri-apps/api/core'
+  17 |       try {
+  18 |         // @ts-expect-error - Tauri API not available in web context
+> 19 |         const tauriModule = await import('@tauri-apps/api/core');
+     |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  20 |         this.invoke = tauriModule.invoke;
+  21 |         this.isInTauri = true;
+  22 |       } catch (e) {
+
+
+
+Import traces:
+  Client Component Browser:
+    ./src/lib/tauri-db.ts [Client Component Browser]
+    ./src/services/sync-manager.ts [Client Component Browser]
+    ./src/services/sync-controller.ts [Client Component Browser]
+    ./src/components/SyncStatus.tsx [Client Component Browser]
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/lib/tauri-db.ts [Client Component SSR]
+    ./src/services/sync-manager.ts [Client Component SSR]
+    ./src/services/sync-controller.ts [Client Component SSR]
+    ./src/components/SyncStatus.tsx [Client Component SSR]
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+
+> Build error occurred
+Error: Turbopack build failed with 2 errors:
+./src/components/DispenseRecordsViewer.tsx:257:5
+Parsing ecmascript source code failed
+  255 |
+  256 |   if (loading) {
+> 257 |     return <div className="text-gray-600">Loading records...</div>;
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  258 |   }
+  259 |
+  260 |   return (
+
+Return statement is not allowed here
+
+Import traces:
+  Client Component Browser:
+    ./src/components/DispenseRecordsViewer.tsx [Client Component Browser]
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/DispenseRecordsViewer.tsx [Client Component SSR]
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+./src/components/DispenseRecordsViewer.tsx:260:3
+Parsing ecmascript source code failed
+  258 |   }
+  259 |
+> 260 |   return (
+      |   ^^^^^^^^
+> 261 |     <div className="space-y-6">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 262 |       {/* Header */}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 263 |       <div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 264 |         <h2 className="text-3xl font-bold text-gray-900">Dispense Records</h2>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 265 |         <p className="text-gray-600 mt-1">View and manage all dispensed records</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 266 |       </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 267 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 268 |       {/* Filter Tabs */}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 269 |       <div className="flex gap-2 border-b border-gray-200">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 270 |         {(['all', 'synced', 'pending'] as const).map((tab) => (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 271 |           <button
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 272 |             key={tab}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 273 |             onClick={() => setFilter(tab)}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 274 |             className={`px-4 py-2 font-medium transition ${
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 275 |               filter === tab
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 276 |                 ? 'border-b-2 border-blue-600 text-blue-600'
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 277 |                 : 'text-gray-600 hover:text-gray-900'
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 278 |             }`}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 279 |           >
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 280 |             {tab.charAt(0).toUpperCase() + tab.slice(1)}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 281 |             {tab === 'all' && ` (${records.length})`}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 282 |             {tab === 'synced' && ` (${records.filter(r => r.synced).length})`}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 283 |             {tab === 'pending' && ` (${records.filter(r => !r.synced).length})`}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 284 |           </button>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 285 |         ))}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 286 |       </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 287 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 288 |       {/* Search and Date Filters */}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 289 |       <div className="bg-white rounded-lg shadow p-4 space-y-4">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 290 |         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 291 |           {/* Search Box */}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 292 |           <div className="lg:col-span-2">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 293 |             <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 294 |             <div className="relative">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 295 |               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 296 |               <input
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 297 |                 type="text"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 298 |                 placeholder="Patient, drug, pharmacist, ID..."
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 299 |                 value={searchText}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 300 |                 onChange={(e) => setSearchText(e.target.value)}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 301 |                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 302 |               />
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 303 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 304 |           </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 305 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 306 |           {/* Start Date */}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 307 |           <div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 308 |             <label className="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 309 |             <input
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 310 |               type="date"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 311 |               value={startDate}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 312 |               onChange={(e) => setStartDate(e.target.value)}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 313 |               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 314 |             />
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 315 |           </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 316 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 317 |           {/* End Date */}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 318 |           <div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 319 |             <label className="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 320 |             <input
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 321 |               type="date"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 322 |               value={endDate}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 323 |               onChange={(e) => setEndDate(e.target.value)}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 324 |               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 325 |             />
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 326 |           </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 327 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 328 |           {/* View Button */}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 329 |           <div className="flex items-end">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 330 |             <button
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 331 |               onClick={loadRecords}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 332 |               disabled={loading}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 333 |               className="w-full flex items-center justify-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition text-sm"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 334 |               title="Apply filters and view results"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 335 |             >
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 336 |               <Eye className="w-4 h-4" />
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 337 |               {loading ? 'Loading...' : 'View'}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 338 |             </button>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 339 |           </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 340 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 341 |           {/* Export Button */}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 342 |           <div className="flex items-end">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 343 |             <button
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 344 |               onClick={handleExportExcel}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 345 |               disabled={exporting || records.length === 0}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 346 |               className="w-full flex items-center justify-center gap-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition text-sm"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 347 |               title="Export filtered records to Excel"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 348 |             >
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 349 |               <FileDown className="w-4 h-4" />
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 350 |               {exporting ? 'Exporting...' : 'Export'}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 351 |             </button>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 352 |           </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 353 |         </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 354 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 355 |         {/* Filter Summary */}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 356 |         {(searchText || startDate || endDate) && (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 357 |           <div className="flex items-center gap-2 text-sm text-gray-600 pt-2 border-t border-gray-200 flex-wrap">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 358 |             <span className="font-medium">Active Filters:</span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 359 |             {searchText && <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">Search: {searchText}</span>}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 360 |             {startDate && <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">From: {startDate}</span>}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 361 |             {endDate && <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">To: {endDate}</span>}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 362 |             <button
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 363 |               onClick={() => {
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 364 |                 setSearchText('');
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 365 |                 setStartDate('');
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 366 |                 setEndDate('');
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 367 |               }}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 368 |               className="text-blue-600 hover:text-blue-800 font-medium ml-auto"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 369 |             >
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 370 |               Clear Filters
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 371 |             </button>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 372 |           </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 373 |         )}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 374 |       </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 375 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 376 |       {/* Records Table */}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 377 |       {records.length === 0 ? (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 378 |         <div className="bg-gray-50 rounded-lg p-8 text-center text-gray-600">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 379 |           No {filter !== 'all' ? filter : ''} records found
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 380 |         </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 381 |       ) : (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 382 |         <div className="bg-white rounded-lg shadow overflow-hidden">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 383 |           <div className="overflow-x-auto">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 384 |             <table className="w-full">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 385 |               <thead className="bg-gray-50 border-b border-gray-200">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 386 |                 <tr>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 387 |                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Date</th>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 388 |                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Time</th>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 389 |                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Patient</th>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 390 |                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Drug</th>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 391 |                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Dose</th>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 392 |                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 393 |                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Actions</th>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 394 |                 </tr>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 395 |               </thead>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 396 |               <tbody className="divide-y divide-gray-200">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 397 |                 {paginatedRecords.map((record) => (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 398 |                   <tr key={record.id} className="hover:bg-gray-50">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 399 |                     <td className="px-6 py-4 text-sm text-gray-900 font-medium">{formatDate(record.timestamp)}</td>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 400 |                     <td className="px-6 py-4 text-sm text-gray-900">{formatTime(record.timestamp)}</td>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 401 |                     <td className="px-6 py-4 text-sm text-gray-900">{record.patientName}</td>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 402 |                     <td className="px-6 py-4 text-sm text-gray-900">{record.drugName}</td>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 403 |                     <td className="px-6 py-4 text-sm text-gray-900">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 404 |                       {record.dose?.doseMg || 'N/A'} mg
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 405 |                     </td>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 406 |                     <td className="px-6 py-4 text-sm">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 407 |                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 408 |                         record.synced
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 409 |                           ? 'bg-green-100 text-green-800'
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 410 |                           : 'bg-yellow-100 text-yellow-800'
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 411 |                       }`}>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 412 |                         {record.synced ? 'Γ£ô Synced' : 'ΓÅ│ Pending'}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 413 |                       </span>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 414 |                     </td>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 415 |                     <td className="px-6 py-4 text-sm">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 416 |                       <div className="flex gap-2">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 417 |                         <button
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 418 |                           onClick={() => setSelectedRecord(record)}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 419 |                           className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 420 |                           title="View"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 421 |                         >
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 422 |                           <Eye className="w-4 h-4" />
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 423 |                         </button>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 424 |                         <button
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 425 |                           onClick={() => handlePrint(record)}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 426 |                           className="p-2 text-green-600 hover:bg-green-50 rounded"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 427 |                           title="Print"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 428 |                         >
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 429 |                           <Printer className="w-4 h-4" />
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 430 |                         </button>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 431 |                         <button
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 432 |                           onClick={() => handleCancelRecord(record.id)}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 433 |                           className="p-2 text-orange-600 hover:bg-orange-50 rounded"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 434 |                           title="Cancel Record"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 435 |                         >
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 436 |                           <XCircle className="w-4 h-4" />
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 437 |                         </button>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 438 |                       </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 439 |                     </td>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 440 |                   </tr>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 441 |                 ))}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 442 |               </tbody>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 443 |             </table>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 444 |           </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 445 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 446 |           {/* Pagination Controls */}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 447 |           <div className="bg-white border-t border-gray-200 px-6 py-4 flex items-center justify-between">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 448 |             <div className="text-sm text-gray-600">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 449 |               Showing <span className="font-medium">{records.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}</span> to <span className="font-medium">{Math.min(currentPage * pageSize, records.length)}</span> of <span className="font-medium">{records.length}</span> records
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 450 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 451 |             
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 452 |             <div className="flex items-center gap-2">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 453 |               <button
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 454 |                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 455 |                 disabled={currentPage === 1}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 456 |                 className="p-2 text-gray-600 hover:bg-gray-100 disabled:text-gray-300 disabled:cursor-not-allowed rounded transition"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 457 |                 title="Previous page"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 458 |               >
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 459 |                 <ChevronLeft className="w-4 h-4" />
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 460 |               </button>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 461 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 462 |               <div className="flex items-center gap-1">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 463 |                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 464 |                   <button
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 465 |                     key={page}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 466 |                     onClick={() => setCurrentPage(page)}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 467 |                     className={`px-3 py-1 rounded transition text-sm ${
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 468 |                       currentPage === page
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 469 |                         ? 'bg-blue-600 text-white font-medium'
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 470 |                         : 'text-gray-700 hover:bg-gray-100'
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 471 |                     }`}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 472 |                   >
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 473 |                     {page}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 474 |                   </button>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 475 |                 ))}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 476 |               </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 477 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 478 |               <button
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 479 |                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 480 |                 disabled={currentPage === totalPages}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 481 |                 className="p-2 text-gray-600 hover:bg-gray-100 disabled:text-gray-300 disabled:cursor-not-allowed rounded transition"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 482 |                 title="Next page"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 483 |               >
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 484 |                 <ChevronRight className="w-4 h-4" />
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 485 |               </button>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 486 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 487 |               <select
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 488 |                 value={pageSize}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 489 |                 onChange={(e) => {
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 490 |                   setPageSize(parseInt(e.target.value));
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 491 |                   setCurrentPage(1);
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 492 |                 }}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 493 |                 className="ml-4 px-3 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 494 |               >
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 495 |                 <option value="5">5 per page</option>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 496 |                 <option value="10">10 per page</option>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 497 |                 <option value="25">25 per page</option>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 498 |                 <option value="50">50 per page</option>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 499 |               </select>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 500 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 501 |           </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 502 |         </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 503 |       )}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 504 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 505 |       {/* Detail Modal */}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 506 |       {selectedRecord && (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 507 |         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 508 |           <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 509 |             <div className="sticky top-0 bg-gray-50 border-b px-6 py-4 flex justify-between items-center">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 510 |               <h3 className="text-lg font-semibold text-gray-900">Dispense Record Details</h3>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 511 |               <button
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 512 |                 onClick={() => setSelectedRecord(null)}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 513 |                 className="text-gray-500 hover:text-gray-700"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 514 |               >
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 515 |                 Γ£ò
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 516 |               </button>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 517 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 518 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 519 |             <div className="p-6 space-y-4">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 520 |               <div className="grid grid-cols-2 gap-4">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 521 |                 <div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 522 |                   <label className="text-sm font-medium text-gray-600">Date</label>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 523 |                   <p className="text-gray-900 font-medium">{formatDate(selectedRecord.timestamp)}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 524 |                 </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 525 |                 <div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 526 |                   <label className="text-sm font-medium text-gray-600">Time</label>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 527 |                   <p className="text-gray-900 font-medium">{formatTime(selectedRecord.timestamp)}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 528 |                 </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 529 |                 <div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 530 |                   <label className="text-sm font-medium text-gray-600">Sync Status</label>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 531 |                   <p className={`font-medium ${selectedRecord.synced ? 'text-green-700' : 'text-yellow-700'}`}>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 532 |                     {selectedRecord.synced ? 'Γ£ô Synced to Cloud' : 'ΓÅ│ Pending Sync'}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 533 |                   </p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 534 |                 </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 535 |                 <div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 536 |                   <label className="text-sm font-medium text-gray-600">Patient Name</label>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 537 |                   <p className="text-gray-900">{selectedRecord.patientName}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 538 |                 </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 539 |                 <div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 540 |                   <label className="text-sm font-medium text-gray-600">Age</label>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 541 |                   <p className="text-gray-900">{selectedRecord.patientAge} years</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 542 |                 </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 543 |                 <div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 544 |                   <label className="text-sm font-medium text-gray-600">Weight</label>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 545 |                   <p className="text-gray-900">{selectedRecord.patientWeight} kg</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 546 |                 </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 547 |                 <div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 548 |                   <label className="text-sm font-medium text-gray-600">Drug</label>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 549 |                   <p className="text-gray-900">{selectedRecord.drugName}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 550 |                 </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 551 |                 <div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 552 |                   <label className="text-sm font-medium text-gray-600">Dose</label>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 553 |                   <p className="text-gray-900">{selectedRecord.dose?.doseMg || 'N/A'} mg</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 554 |                 </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 555 |                 <div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 556 |                   <label className="text-sm font-medium text-gray-600">Route</label>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 557 |                   <p className="text-gray-900">{selectedRecord.dose?.route || 'N/A'}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 558 |                 </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 559 |                 <div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 560 |                   <label className="text-sm font-medium text-gray-600">Frequency</label>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 561 |                   <p className="text-gray-900">{selectedRecord.dose?.frequency || 'N/A'}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 562 |                 </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 563 |                 <div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 564 |                   <label className="text-sm font-medium text-gray-600">Duration</label>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 565 |                   <p className="text-gray-900">{selectedRecord.dose?.duration || 'N/A'}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 566 |                 </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 567 |                 <div className="col-span-2">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 568 |                   <label className="text-sm font-medium text-gray-600">Instructions</label>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 569 |                   <p className="text-gray-900">{selectedRecord.dose?.instructions || 'N/A'}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 570 |                 </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 571 |                 <div className="col-span-2">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 572 |                   <label className="text-sm font-medium text-gray-600">Warnings</label>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 573 |                   <p className="text-gray-900">{selectedRecord.dose?.warnings?.join(', ') || 'N/A'}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 574 |                 </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 575 |               </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 576 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 577 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 578 |             <div className="bg-gray-50 border-t px-6 py-4 flex gap-2 justify-end">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 579 |               <button
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 580 |                 onClick={() => handlePrint(selectedRecord)}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 581 |                 className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 582 |               >
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 583 |                 <Printer className="w-4 h-4" />
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 584 |                 Print
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 585 |               </button>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 586 |               <button
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 587 |                 onClick={() => setSelectedRecord(null)}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 588 |                 className="px-4 py-2 bg-gray-300 text-gray-900 rounded-lg hover:bg-gray-400"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 589 |               >
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 590 |                 Close
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 591 |               </button>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 592 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 593 |           </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 594 |         </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 595 |       )}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 596 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 597 |       {/* Confirm Dialog */}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 598 |       {confirmDialog.isOpen && (
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 599 |         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 600 |           <div className="bg-white rounded-lg shadow-lg max-w-md w-full">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 601 |             <div className="border-b border-gray-200 px-6 py-4">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 602 |               <h3 className="text-lg font-semibold text-gray-900">{confirmDialog.title}</h3>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 603 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 604 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 605 |             <div className="px-6 py-6">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 606 |               <p className="text-gray-700 text-base">{confirmDialog.message}</p>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 607 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 608 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 609 |             <div className="border-t border-gray-200 px-6 py-4 flex gap-3 justify-end">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 610 |               <button
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 611 |                 onClick={() => setConfirmDialog({ isOpen: false, title: '', message: '' })}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 612 |                 className="px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition font-medium"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 613 |               >
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 614 |                 Cancel
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 615 |               </button>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 616 |               <button
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 617 |                 onClick={() => {
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 618 |                   if (confirmDialog.onConfirm) {
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 619 |                     confirmDialog.onConfirm();
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 620 |                   }
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 621 |                 }}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 622 |                 className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium"
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 623 |               >
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 624 |                 Cancel Record
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 625 |               </button>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 626 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 627 |           </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 628 |         </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 629 |       )}
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 630 |     </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 631 |   );
+      | ^^^^^
+  632 | }
+  633 |
+
+Return statement is not allowed here
+
+Import traces:
+  Client Component Browser:
+    ./src/components/DispenseRecordsViewer.tsx [Client Component Browser]
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/DispenseRecordsViewer.tsx [Client Component SSR]
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+    at <unknown> (./src/components/DispenseRecordsViewer.tsx:257:5)
+    at <unknown> (./src/components/DispenseRecordsViewer.tsx:260:3)

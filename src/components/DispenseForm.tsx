@@ -7,6 +7,7 @@ import { printService } from '@/services/print';
 import { syncService } from '@/services/sync';
 import { db, addDispenseRecord } from '@/lib/db';
 import { DrugSearch } from './DrugSearch';
+import { DrugVariantsSelector } from './DrugVariantsSelector';
 import { ChevronDown } from 'lucide-react';
 import type { Drug, PatientInput, DispenseRecord } from '@/types';
 
@@ -15,6 +16,7 @@ interface DispenseFormProps {
 }
 
 export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
+  const [dispensingMode, setDispensingMode] = useState<'mode-select' | 'classic' | 'variants'>('variants');
   const [selectedDrug, setSelectedDrug] = useState<Drug | null>(null);
   const [patientData, setPatientData] = useState<PatientInput>({
     age: 0,
@@ -27,20 +29,21 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
   const [error, setError] = useState('');
   const [matchingPatients, setMatchingPatients] = useState<Array<{
     name: string;
+    phoneNumber?: string;
     age: number;
     weight: number;
     pregnancyStatus: 'yes' | 'no' | 'unknown';
   }>>([]);
   const [showPatientDropdown, setShowPatientDropdown] = useState(false);
-
   const currentPatient = useAppStore((s) => s.currentPatient);
   const setCurrentPatient = useAppStore((s) => s.setCurrentPatient);
   const setCurrentDose = useAppStore((s) => s.setCurrentDose);
   const user = useAppStore((s) => s.user);
   const clearWorkflow = useAppStore((s) => s.clearWorkflow);
   const addRecentDispense = useAppStore((s) => s.addRecentDispense);
+  const notifyRecordSaved = useAppStore((s) => s.notifyRecordSaved);
 
-  // Search for matching patients by name
+  // Search for matching patients by name or phone number
   const searchPatients = async (searchTerm: string) => {
     if (!searchTerm.trim()) {
       setMatchingPatients([]);
@@ -51,6 +54,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
       const allRecords = await db.dispenseRecords.toArray();
       const uniquePatients = new Map<string, {
         name: string;
+        phoneNumber?: string;
         age: number;
         weight: number;
         pregnancyStatus: 'yes' | 'no' | 'unknown';
@@ -58,17 +62,20 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
       }>();
 
       allRecords.forEach((record) => {
-        if (record.patientName) {
-          const lowerName = record.patientName.toLowerCase();
+        if (record.patientName || record.patientPhoneNumber) {
           const searchLower = searchTerm.toLowerCase();
+          const nameLower = (record.patientName || '').toLowerCase();
+          const phoneLower = (record.patientPhoneNumber || '').toLowerCase();
           
-          // Match if the patient name contains the search term
-          if (lowerName.includes(searchLower)) {
+          // Match if the patient name or phone number contains the search term
+          if (nameLower.includes(searchLower) || phoneLower.includes(searchLower)) {
             // Use patient name as key to get the most recent entry
-            const existingPatient = uniquePatients.get(record.patientName);
+            const patientKey = record.patientName || record.patientPhoneNumber || 'unknown';
+            const existingPatient = uniquePatients.get(patientKey);
             if (!existingPatient || (record.timestamp || 0) > (existingPatient.timestamp || 0)) {
-              uniquePatients.set(record.patientName, {
-                name: record.patientName,
+              uniquePatients.set(patientKey, {
+                name: record.patientName || '',
+                phoneNumber: record.patientPhoneNumber || '',
                 age: record.patientAge || 0,
                 weight: record.patientWeight || 0,
                 pregnancyStatus: 'unknown',
@@ -95,6 +102,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
     setPatientData({
       ...patientData,
       name: patient.name,
+      phoneNumber: patient.phoneNumber,
       age: patient.age,
       weight: patient.weight,
       pregnancyStatus: patient.pregnancyStatus,
@@ -114,11 +122,14 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
 
     try {
       // Print label
-      const printSuccess = await printService.printLabel(
+      const printResult = await printService.printLabel(
         dose,
         patientData,
         user.username
       );
+
+      const printSuccess = printResult.success;
+      const receiptTimestamp = printResult.timestamp;
 
       if (!printSuccess) {
         console.warn('Print failed but continuing with record save');
@@ -126,13 +137,14 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
 
       // Create dispense record
       const record: DispenseRecord = {
-        id: `dispense-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        timestamp: Date.now(),
+        id: `dispense-${receiptTimestamp}-${Math.random().toString(36).substr(2, 9)}`,
+        timestamp: receiptTimestamp,
         pharmacistId: user.id,
         pharmacistName: user.username,
         patientName: patientData.name || 'Unknown',
-        patientAge: patientData.age,
-        patientWeight: patientData.weight,
+        patientPhoneNumber: patientData.phoneNumber || undefined,
+        patientAge: patientData.age || null,
+        patientWeight: patientData.weight || null,
         drugId: selectedDrug.id,
         drugName: dose.drugName,
         dose,
@@ -156,6 +168,9 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
       // Add to recent dispenses
       addRecentDispense(record);
 
+      // Notify that a record was saved so UI refreshes
+      notifyRecordSaved();
+
       // Notify sync service of status change so navbar updates
       syncService.refreshStatus();
 
@@ -175,8 +190,8 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
   };
 
   const handleCalculateDose = async () => {
-    if (!selectedDrug || !patientData.age || !patientData.weight) {
-      setError('Please select a drug and enter patient age and weight');
+    if (!selectedDrug) {
+      setError('Please select a drug');
       return;
     }
 
@@ -184,22 +199,60 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
     setError('');
 
     try {
-      const calculated = await doseCalculationService.calculateDose(
-        selectedDrug.id,
-        patientData
-      );
-
-      if (!calculated) {
-        setError(
-          `No dosing information available for ${selectedDrug.genericName} at age ${patientData.age} and weight ${patientData.weight}kg. ` +
-          'This patient may fall outside the defined treatment guidelines or the database may need to be re-initialized.'
+      // If age and weight are provided, calculate the dose
+      if (patientData.age && patientData.weight) {
+        const calculated = await doseCalculationService.calculateDose(
+          selectedDrug.id,
+          patientData
         );
-        return;
-      }
 
-      setDose(calculated);
-      setCurrentPatient(patientData);
-      setCurrentDose(calculated);
+        if (!calculated) {
+          setError(
+            `No dosing information available for ${selectedDrug.genericName} at age ${patientData.age} and weight ${patientData.weight}kg. ` +
+            'This patient may fall outside the defined treatment guidelines or the database may need to be re-initialized.'
+          );
+          setLoading(false);
+          return;
+        }
+
+        setDose(calculated);
+        setCurrentPatient(patientData);
+        setCurrentDose(calculated);
+      } else {
+        // If age and weight are not provided, create a basic dose object for manual entry
+        // But try to fetch instructions from available regimens in the system
+        let defaultInstructions = '';
+        try {
+          const regimens = await db.doseRegimens
+            .where('drugId')
+            .equals(selectedDrug.id)
+            .toArray();
+          
+          if (regimens.length > 0) {
+            // Use instructions from the first available regimen as a template
+            defaultInstructions = regimens[0].instructions || '';
+          }
+        } catch (err) {
+          console.warn('Could not fetch regimen instructions:', err);
+        }
+
+        const manualDose = {
+          drugId: selectedDrug.id,
+          drugName: selectedDrug.genericName,
+          strength: selectedDrug.strength,
+          doseMg: 0,
+          frequency: '',
+          duration: '',
+          route: selectedDrug.route,
+          instructions: defaultInstructions,
+          stgCitation: `STG ${selectedDrug.stgReference}`,
+          warnings: [],
+          requiresPinConfirm: false,
+        };
+        setDose(manualDose);
+        setCurrentPatient(patientData);
+        setCurrentDose(manualDose);
+      }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err);
       
@@ -223,19 +276,20 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
 
   if (dose) {
     return (
-      <div className="bg-white rounded-lg shadow-lg p-6 space-y-6">
+      <div className="bg-white rounded-lg shadow-lg p-4 space-y-3">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">
-            Dose Calculation
+          <h3 className="text-base font-semibold text-gray-900">
+            Dose Calculation - Review & Edit
           </h3>
+          <p className="text-xs text-gray-600 mt-0.5">Edit fields as needed, field captions are for reference only</p>
         </div>
 
-        {dose.warnings.length > 0 && (
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-            <div className="font-semibold text-yellow-900 mb-2">Warnings</div>
-            <ul className="list-disc pl-5 space-y-1">
-              {dose.warnings.map((w: string, i: number) => (
-                <li key={i} className="text-sm text-yellow-800">
+        {(dose?.warnings?.length || 0) > 0 && (
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3">
+            <div className="font-semibold text-yellow-900 text-sm mb-1">Warnings</div>
+            <ul className="list-disc pl-5 space-y-0.5">
+              {dose?.warnings?.map((w: string, i: number) => (
+                <li key={i} className="text-xs text-yellow-800">
                   {w}
                 </li>
               ))}
@@ -243,68 +297,350 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
           </div>
         )}
 
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+        <div className="border border-gray-200 rounded-lg p-3 space-y-2.5">
+          {/* Drug Name - Editable */}
           <div>
-            <div className="text-sm text-gray-600">Drug</div>
-            <div className="text-2xl font-bold text-gray-900">
-              {dose.drugName} {dose.strength}
+            <label className="block text-xs font-bold text-gray-700 mb-0.5">Drug Name</label>
+            <input
+              type="text"
+              value={`${dose?.drugName || ''} ${dose?.strength || ''}`.trim()}
+              onChange={(e) => {
+                const parts = e.target.value.split(' ');
+                const strength = parts[parts.length - 1];
+                const drugName = parts.slice(0, -1).join(' ');
+                setDose({ ...dose, drugName: drugName || dose?.drugName, strength: strength || dose?.strength, warnings: dose?.warnings || [] });
+              }}
+              className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Dose & Frequency */}
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-0.5">Dose (mg)</label>
+              <input
+                type="number"
+                value={dose?.doseMg || ''}
+                onChange={(e) => setDose({ ...dose, doseMg: parseFloat(e.target.value) || 0, warnings: dose?.warnings || [] })}
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                step="0.1"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-0.5">Frequency</label>
+              <input
+                type="text"
+                value={dose?.frequency || ''}
+                onChange={(e) => setDose({ ...dose, frequency: e.target.value, warnings: dose?.warnings || [] })}
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="e.g., TDS"
+              />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          {/* Route & Duration */}
+          <div className="grid grid-cols-2 gap-2">
             <div>
-              <div className="text-sm text-gray-600">Dose</div>
-              <div className="text-xl font-semibold text-gray-900">
-                {dose.doseMg} mg
-              </div>
+              <label className="block text-xs font-bold text-gray-700 mb-0.5">Route</label>
+              <input
+                type="text"
+                value={dose?.route || ''}
+                onChange={(e) => setDose({ ...dose, route: e.target.value, warnings: dose?.warnings || [] })}
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="e.g., oral"
+              />
             </div>
             <div>
-              <div className="text-sm text-gray-600">Frequency</div>
-              <div className="text-xl font-semibold text-gray-900">
-                {dose.frequency}
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <div className="text-sm text-gray-600">Route</div>
-              <div className="text-lg font-semibold text-gray-900">
-                {dose.route}
-              </div>
-            </div>
-            <div>
-              <div className="text-sm text-gray-600">Duration</div>
-              <div className="text-lg font-semibold text-gray-900">
-                {dose.duration}
-              </div>
+              <label className="block text-xs font-bold text-gray-700 mb-0.5">Duration</label>
+              <input
+                type="text"
+                value={dose?.duration || ''}
+                onChange={(e) => setDose({ ...dose, duration: e.target.value, warnings: dose?.warnings || [] })}
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="e.g., 7 days"
+              />
             </div>
           </div>
 
-          <div className="pt-2 border-t border-blue-200">
-            <div className="text-xs text-gray-600">{dose.stgCitation}</div>
+          {/* Instructions - Reduced height */}
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-0.5">Instructions</label>
+            <textarea
+              value={dose?.instructions || ''}
+              onChange={(e) => setDose({ ...dose, instructions: e.target.value, warnings: dose?.warnings || [] })}
+              className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Special instructions"
+              rows={1}
+            />
+          </div>
+
+          {/* STG Citation - Read-only */}
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-0.5">STG Ref</label>
+            <div className="px-3 py-1.5 bg-gray-50 border border-gray-300 rounded-lg text-xs text-gray-900">
+              {dose.stgCitation}
+            </div>
+          </div>
+
+          {/* Patient Info - Read-only */}
+          <div className="border-t pt-2 mt-2">
+            <p className="text-xs font-semibold text-gray-700 mb-1.5">Patient</p>
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              <div className="px-2 py-1.5 bg-gray-50 border border-gray-300 rounded-lg">
+                <div className="text-gray-600">Name</div>
+                <div className="font-medium text-gray-900">{patientData.name || 'N/A'}</div>
+              </div>
+              <div className="px-2 py-1.5 bg-gray-50 border border-gray-300 rounded-lg">
+                <div className="text-gray-600">Age</div>
+                <div className="font-medium text-gray-900">{patientData.age}y</div>
+              </div>
+              <div className="px-2 py-1.5 bg-gray-50 border border-gray-300 rounded-lg">
+                <div className="text-gray-600">Weight</div>
+                <div className="font-medium text-gray-900">{patientData.weight}kg</div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <button
             onClick={() => {
               setSelectedDrug(null);
               setDose(null);
               setError('');
             }}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 font-medium"
           >
             Back
           </button>
           <button
             onClick={handlePrintAndComplete}
             disabled={loading}
-            className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg font-semibold"
+            className="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg text-sm font-semibold"
           >
             {loading ? 'Processing...' : 'Print & Complete'}
           </button>
         </div>
+      </div>
+    );
+  }
+
+  // Mode selection screen
+  if (dispensingMode === 'mode-select') {
+    return (
+      <div className="bg-white rounded-lg shadow-lg p-6 space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Choose Dispensing Method</h2>
+          <p className="text-gray-600 text-sm mt-2">Select how you want to dispense medication to the patient</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Classic Method */}
+          <button
+            onClick={() => {
+              setDispensingMode('classic');
+              setPatientData({
+                age: 0,
+                weight: 0,
+                pregnancyStatus: 'no',
+                allergies: [],
+              });
+            }}
+            className="p-6 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
+          >
+            <h3 className="font-semibold text-lg text-gray-900 mb-2">Classic Method</h3>
+            <p className="text-sm text-gray-600">
+              Search for a drug, enter patient details, and calculate dose based on age/weight
+            </p>
+            <div className="mt-4 text-xs text-gray-500">
+              ✓ Detailed calculation
+              <br />
+              ✓ Patient age & weight required
+              <br />
+              ✓ Full customization
+            </div>
+          </button>
+
+          {/* Drug Variants Method */}
+          <button
+            onClick={() => {
+              setDispensingMode('variants');
+              setPatientData({
+                age: 0,
+                weight: 0,
+                pregnancyStatus: 'no',
+                allergies: [],
+              });
+            }}
+            className="p-6 border-2 border-green-300 rounded-lg hover:border-green-600 hover:bg-green-50 transition-all text-left"
+          >
+            <h3 className="font-semibold text-lg text-gray-900 mb-2">Quick Variants Method</h3>
+            <p className="text-sm text-gray-600">
+              Search for a drug variant, auto-fill from database, print directly or edit before saving
+            </p>
+            <div className="mt-4 text-xs text-gray-500">
+              ✓ Quick selection
+              <br />
+              ✓ Pre-configured doses
+              <br />
+              ✓ Auto-print option
+            </div>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Drug Variants dispensing mode
+  if (dispensingMode === 'variants') {
+    return (
+      <div className="space-y-4">
+        {/* Patient Info Section */}
+        <div className="bg-white rounded-lg shadow-lg p-3">
+          <h3 className="text-sm font-semibold text-gray-900 mb-2">Patient Information</h3>
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="relative">
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Patient Name
+                </label>
+                <input
+                  type="text"
+                  value={patientData.name || ''}
+                  onChange={(e) => handlePatientNameChange(e.target.value)}
+                  onFocus={() => patientData.name && matchingPatients.length > 0 && setShowPatientDropdown(true)}
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Type patient name to search..."
+                  autoComplete="off"
+                />
+                
+                {/* Patient dropdown */}
+                {showPatientDropdown && matchingPatients.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+                    <div className="max-h-48 overflow-y-auto">
+                      {matchingPatients.map((patient, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => selectPatient(patient)}
+                          className="w-full text-left px-2 py-2 hover:bg-blue-50 border-b border-gray-100 last:border-b-0 transition-colors text-sm"
+                        >
+                          <div className="font-medium text-gray-900">{patient.name || patient.phoneNumber}</div>
+                          <div className="text-xs text-gray-600">
+                            {patient.phoneNumber && <span>Phone: {patient.phoneNumber} | </span>}
+                            Age: {patient.age}y | Weight: {patient.weight}kg
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  value={patientData.phoneNumber || ''}
+                  onChange={(e) => {
+                    setPatientData({ ...patientData, phoneNumber: e.target.value });
+                    searchPatients(e.target.value);
+                  }}
+                  onFocus={() => patientData.phoneNumber && matchingPatients.length > 0 && setShowPatientDropdown(true)}
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Search by phone number..."
+                  autoComplete="off"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Age (years)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="150"
+                  value={patientData.age || ''}
+                  onChange={(e) =>
+                    setPatientData({
+                      ...patientData,
+                      age: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Age"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Weight (kg)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  value={patientData.weight || ''}
+                  onChange={(e) =>
+                    setPatientData({
+                      ...patientData,
+                      weight: parseFloat(e.target.value) || 0,
+                    })
+                  }
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Weight"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Pregnancy Status
+                </label>
+                <select
+                  value={patientData.pregnancyStatus || 'unknown'}
+                  onChange={(e) =>
+                    setPatientData({
+                      ...patientData,
+                      pregnancyStatus: e.target.value as any,
+                    })
+                  }
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="unknown">Unknown</option>
+                  <option value="yes">Pregnant</option>
+                  <option value="no">Not Pregnant</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Drug Variant Selector */}
+        <DrugVariantsSelector 
+          patientData={patientData}
+          onComplete={() => {
+            setPatientData({
+              age: 0,
+              weight: 0,
+              pregnancyStatus: 'no',
+              allergies: [],
+            });
+            onDispenseComplete();
+          }}
+          onBack={() => {
+            // Reset and close the dispense form
+            setPatientData({
+              age: 0,
+              weight: 0,
+              pregnancyStatus: 'no',
+              allergies: [],
+            });
+            onDispenseComplete();
+          }}
+        />
       </div>
     );
   }
@@ -328,53 +664,72 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
           <div className="font-semibold text-gray-900">
             {selectedDrug.genericName} {selectedDrug.strength}
           </div>
-          <div className="text-sm text-gray-600">
-            {selectedDrug.tradeName.join(', ')}
-          </div>
+          <div className="text-sm text-gray-600 mt-1">{selectedDrug.category}</div>
         </div>
       )}
 
       <div className="space-y-4">
-        <div className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Patient Name (Optional)
-          </label>
-          <input
-            type="text"
-            value={patientData.name || ''}
-            onChange={(e) => handlePatientNameChange(e.target.value)}
-            onFocus={() => patientData.name && matchingPatients.length > 0 && setShowPatientDropdown(true)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            placeholder="Type patient name to search..."
-            autoComplete="off"
-          />
-          
-          {/* Patient dropdown */}
-          {showPatientDropdown && matchingPatients.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
-              <div className="max-h-48 overflow-y-auto">
-                {matchingPatients.map((patient, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => selectPatient(patient)}
-                    className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-b-0 transition-colors"
-                  >
-                    <div className="font-medium text-gray-900">{patient.name}</div>
-                    <div className="text-sm text-gray-600">
-                      Age: {patient.age}y | Weight: {patient.weight}kg
-                    </div>
-                  </button>
-                ))}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="relative">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Patient Name
+            </label>
+            <input
+              type="text"
+              value={patientData.name || ''}
+              onChange={(e) => handlePatientNameChange(e.target.value)}
+              onFocus={() => patientData.name && matchingPatients.length > 0 && setShowPatientDropdown(true)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Type patient name to search..."
+              autoComplete="off"
+            />
+            
+            {/* Patient dropdown */}
+            {showPatientDropdown && matchingPatients.length > 0 && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+                <div className="max-h-48 overflow-y-auto">
+                  {matchingPatients.map((patient, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => selectPatient(patient)}
+                      className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-b-0 transition-colors"
+                    >
+                      <div className="font-medium text-gray-900">{patient.name || patient.phoneNumber}</div>
+                      <div className="text-sm text-gray-600">
+                        {patient.phoneNumber && <span>Phone: {patient.phoneNumber} | </span>}
+                        Age: {patient.age}y | Weight: {patient.weight}kg
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              value={patientData.phoneNumber || ''}
+              onChange={(e) => {
+                setPatientData({ ...patientData, phoneNumber: e.target.value });
+                searchPatients(e.target.value);
+              }}
+              onFocus={() => patientData.phoneNumber && matchingPatients.length > 0 && setShowPatientDropdown(true)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Search by phone number..."
+              autoComplete="off"
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Age (years) *
+              Age (years)
             </label>
             <input
               type="number"
@@ -393,7 +748,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Weight (kg) *
+              Weight (kg)
             </label>
             <input
               type="number"
@@ -438,7 +793,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
         disabled={loading || !selectedDrug}
         className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-2 px-4 rounded-lg transition"
       >
-        {loading ? 'Calculating...' : 'Calculate Dose'}
+        {loading ? 'Processing...' : 'Proceed'}
       </button>
     </div>
   );

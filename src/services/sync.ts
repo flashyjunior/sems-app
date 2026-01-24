@@ -30,12 +30,36 @@ export class SyncService {
 
   async getSyncStatus(): Promise<SyncStatus> {
     // Check both syncQueue and unsynced dispenseRecords
-    const syncQueueItems = await db.syncQueue.toArray();
+    let syncQueueItems = await db.syncQueue.toArray();
     const allDispenseRecords = await db.dispenseRecords.toArray();
     const unsyncedRecords = allDispenseRecords.filter(record => !record.synced);
     
-    // Use the maximum count between the two (they should be in sync, but this handles edge cases)
-    const pendingCount = Math.max(syncQueueItems.length, unsyncedRecords.length);
+    // Clean up orphaned queue items (records that no longer exist or are synced)
+    const orphanedQueueIds: string[] = [];
+    for (const queueItem of syncQueueItems) {
+      const recordId = queueItem.id?.replace('sync-', '');
+      const record = allDispenseRecords.find(r => r.id === recordId);
+      if (!record || record.synced) {
+        orphanedQueueIds.push(queueItem.id);
+      }
+    }
+    
+    // Delete orphaned items
+    if (orphanedQueueIds.length > 0) {
+      console.log('[getSyncStatus] Cleaning up orphaned queue items:', orphanedQueueIds);
+      for (const id of orphanedQueueIds) {
+        try {
+          await db.syncQueue.delete(id);
+        } catch (e) {
+          console.warn('[getSyncStatus] Failed to delete queue item:', id, e);
+        }
+      }
+      // Refresh queue items after cleanup
+      syncQueueItems = await db.syncQueue.toArray();
+    }
+    
+    // Use the actual unsynced count, not queue count
+    const pendingCount = unsyncedRecords.length;
     const errors = syncQueueItems.filter((p) => p.error);
 
     if (pendingCount > 0 || allDispenseRecords.length > 0) {
@@ -44,6 +68,7 @@ export class SyncService {
         syncedCount: allDispenseRecords.filter(r => r.synced).length,
         unsyncedCount: unsyncedRecords.length,
         syncQueueItems: syncQueueItems.length,
+        orphanedQueueItemsDeleted: orphanedQueueIds.length,
         pendingCount,
         unsyncedRecordsDetails: unsyncedRecords.map(r => ({ id: r.id, synced: r.synced, patientName: r.patientName })),
       });

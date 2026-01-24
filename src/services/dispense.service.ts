@@ -1,3 +1,5 @@
+'use server';
+
 import prisma from '@/lib/prisma';
 import { logError, logInfo } from '@/lib/logger';
 import { DispenseCreate, DispenseUpdate } from '@/lib/validations';
@@ -51,6 +53,7 @@ export const createDispenseRecord = async (userId: number, data: DispenseCreate)
         userId,
         externalId: data.externalId,
         patientName: data.patientName,
+        patientPhoneNumber: data.patientPhoneNumber,
         patientAge: data.patientAge,
         patientWeight: data.patientWeight,
         drugId: data.drugId,
@@ -222,6 +225,7 @@ export const updateDispenseRecord = async (id: number, data: DispenseUpdate) => 
       where: { id },
       data: {
         patientName: data.patientName,
+        patientPhoneNumber: data.patientPhoneNumber,
         patientAge: data.patientAge,
         patientWeight: data.patientWeight,
         printedAt: data.printedAt ? new Date(data.printedAt) : undefined,

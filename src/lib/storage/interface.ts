@@ -11,6 +11,8 @@ import type {
   UserProfile,
   PrinterSettings,
   SystemSettings,
+  Ticket,
+  TicketNote,
 } from '@/types';
 
 /**
@@ -131,6 +133,23 @@ export interface StorageAdapter {
   setSyncMetadata(key: string, value: unknown): Promise<void>;
   getLastSyncTime(): Promise<number | null>;
   setLastSyncTime(time: number): Promise<void>;
+
+  // ============ Tickets ============
+  getTicket(id: string): Promise<Ticket | undefined>;
+  getTicketsByUser(userId: string): Promise<Ticket[]>;
+  getTicketByNumber(ticketNumber: string): Promise<Ticket | undefined>;
+  getUnsyncedTickets(): Promise<Ticket[]>;
+  saveTicket(ticket: Ticket): Promise<void>;
+  updateTicket(id: string, updates: Partial<Ticket>): Promise<void>;
+  deleteTicket(id: string): Promise<void>;
+
+  // ============ Ticket Notes ============
+  getTicketNote(id: string): Promise<TicketNote | undefined>;
+  getTicketNotes(ticketId: string): Promise<TicketNote[]>;
+  getUnsyncedTicketNotes(): Promise<TicketNote[]>;
+  saveTicketNote(note: TicketNote): Promise<void>;
+  updateTicketNote(id: string, updates: Partial<TicketNote>): Promise<void>;
+  deleteTicketNote(id: string): Promise<void>;
 
   // ============ Utility ============
   clear(): Promise<void>;

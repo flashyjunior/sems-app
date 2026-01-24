@@ -39,6 +39,10 @@ interface AppState {
   // Sync status
   syncStatus: SyncStatus | null;
   setSyncStatus: (status: SyncStatus) => void;
+  syncCompletedCounter: number;
+  notifySyncCompleted: () => void;
+  recordSavedCounter: number;
+  notifyRecordSaved: () => void;
 
   // Sync configuration
   syncConfig: SyncConfig;
@@ -50,6 +54,10 @@ interface AppState {
   alerts: AlertMessage[];
   addAlert: (alert: AlertMessage) => void;
   removeAlert: (alertId: string) => void;
+
+  // Ticket navigation
+  selectedTicketId: string | null;
+  setSelectedTicketId: (ticketId: string | null) => void;
 
   // Recent dispenses
   recentDispenses: DispenseRecord[];
@@ -91,6 +99,18 @@ export const useAppStore = create<AppState>((set, get) => ({
   syncStatus: null,
   setSyncStatus: (status) => set({ syncStatus: status }),
 
+  syncCompletedCounter: 0,
+  notifySyncCompleted: () =>
+    set((state) => ({
+      syncCompletedCounter: state.syncCompletedCounter + 1,
+    })),
+
+  recordSavedCounter: 0,
+  notifyRecordSaved: () =>
+    set((state) => ({
+      recordSavedCounter: state.recordSavedCounter + 1,
+    })),
+
   // Sync configuration
   syncConfig: {
     enabled: true,
@@ -130,6 +150,11 @@ export const useAppStore = create<AppState>((set, get) => ({
       alerts: state.alerts.filter((a) => a.id !== alertId),
     }));
   },
+
+  // Ticket navigation
+  selectedTicketId: null,
+  setSelectedTicketId: (ticketId) =>
+    set({ selectedTicketId: ticketId }),
 
   // Recent dispenses
   recentDispenses: [],

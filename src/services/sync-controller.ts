@@ -74,10 +74,27 @@ export class SyncController {
     useAppStore.setState({ syncConfig: { isSyncing: true } as any });
 
     try {
+      console.log('[SyncController] Triggering manual sync with:', {
+        apiBaseUrl: this.options.apiBaseUrl,
+        authToken: this.options.authToken ? this.options.authToken.substring(0, 20) + '...' : 'MISSING',
+      });
+      
       const result = await syncManager.syncNow({
         apiBaseUrl: this.options.apiBaseUrl,
         authToken: this.options.authToken,
       });
+
+      // Also sync temporary drugs and regimens
+      console.log('[SyncController] Starting temp tables sync...');
+      const tempResult = await syncManager.syncTempTables({
+        apiBaseUrl: this.options.apiBaseUrl,
+        authToken: this.options.authToken,
+      });
+      console.log('[SyncController] Temp tables sync result:', tempResult);
+
+      // Combine results
+      const totalSynced = result.synced + tempResult.synced;
+      const totalFailed = result.failed + tempResult.failed;
 
       // Update sync stats
       const stats = await syncManager.getSyncStats();
@@ -89,8 +106,9 @@ export class SyncController {
         } as any,
       });
 
-      logInfo(`Manual sync completed: ${result.synced} synced, ${result.failed} failed`);
-      return result;
+      console.log('[SyncController] Manual sync completed:', { totalSynced, totalFailed, dispenses: result, temp: tempResult });
+      logInfo(`Manual sync completed: ${totalSynced} synced, ${totalFailed} failed (dispenses: ${result.synced}/${result.failed}, temp: ${tempResult.synced}/${tempResult.failed})`);
+      return { synced: totalSynced, failed: totalFailed };
     } catch (error) {
       logError('Manual sync failed', error);
       useAppStore.setState({ syncConfig: { isSyncing: false } as any });
@@ -184,6 +202,52 @@ export class SyncController {
     } catch (error) {
       logError('Failed to get sync stats', error);
       return null;
+    }
+  }
+
+  /**
+   * Pull cloud data (dispense records, tickets) to client
+   */
+  async pullDataToClient(): Promise<void> {
+    if (!this.options) {
+      throw new Error('Sync controller not initialized');
+    }
+
+    try {
+      logInfo('Starting data pull from cloud');
+      useAppStore.setState((state) => ({
+        syncConfig: {
+          ...state.syncConfig,
+          isSyncing: true,
+        },
+      }));
+
+      // Pull dispense records
+      const dispenseResult = await syncManager.pullDispenseRecords(this.options);
+      logInfo(`Pulled ${dispenseResult.pulled} dispense records`);
+
+      // Pull drugs and dose regimens (includes newly approved drugs)
+      const drugsResult = await syncManager.pullDrugsAndRegimens(this.options);
+      logInfo(`Pulled ${drugsResult.drugs} drugs and ${drugsResult.regimens} dose regimens`);
+
+      // Pull tickets
+      const ticketsResult = await syncManager.pullTickets(this.options);
+      logInfo(`Pulled ${ticketsResult.pulled} tickets`);
+
+      // Pull system settings
+      const settingsResult = await syncManager.pullSystemSettings(this.options);
+      logInfo(`Pulled system settings: ${settingsResult.pulled ? 'success' : 'failed'}`);
+
+      logInfo('Data pull completed successfully');
+    } catch (error) {
+      logError('Failed to pull data from cloud', error);
+    } finally {
+      useAppStore.setState((state) => ({
+        syncConfig: {
+          ...state.syncConfig,
+          isSyncing: false,
+        },
+      }));
     }
   }
 

@@ -12,9 +12,13 @@ export const userCreateSchema = z.object({
 });
 
 export const userUpdateSchema = z.object({
+  email: z.string().email('Invalid email format').optional(),
   fullName: z.string().min(2, 'Full name must be at least 2 characters').optional(),
+  licenseNumber: z.string().min(3, 'License number must be at least 3 characters').optional(),
   phone: z.string().optional(),
   specialization: z.string().optional(),
+  roleId: z.number().positive('Role ID must be positive').optional(),
+  isActive: z.boolean().optional(),
   theme: z.enum(['auto', 'light', 'dark']).optional(),
   language: z.enum(['en', 'fr', 'es']).optional(),
   defaultDoseUnit: z.enum(['mg', 'mcg', 'g', 'ml', 'units']).optional(),
@@ -101,21 +105,24 @@ export const paginationSchema = z.object({
 export const dispenseCreateSchema = z.object({
   externalId: z.string().min(1, 'Dispense ID is required'),
   patientName: z.string().optional(),
-  patientAge: z.number().positive().optional(),
-  patientWeight: z.number().positive().optional(),
+  patientPhoneNumber: z.string().optional(),
+  patientAge: z.number().optional(),
+  patientWeight: z.number().optional(),
   drugId: z.string().min(1, 'Drug ID is required'),
   drugName: z.string().min(1, 'Drug name is required'),
   dose: z.record(z.string(), z.any()),
   safetyAcknowledgements: z.array(z.string()).default([]),
   deviceId: z.string().min(1, 'Device ID is required'),
   printedAt: z.number().optional(),
+  isActive: z.boolean().optional(),
   auditLog: z.array(z.record(z.string(), z.any())).optional(),
 });
 
 export const dispenseUpdateSchema = z.object({
   patientName: z.string().optional(),
-  patientAge: z.number().positive().optional(),
-  patientWeight: z.number().positive().optional(),
+  patientPhoneNumber: z.string().optional(),
+  patientAge: z.number().optional(),
+  patientWeight: z.number().optional(),
   printedAt: z.number().optional(),
   isActive: z.boolean().optional(),
 });

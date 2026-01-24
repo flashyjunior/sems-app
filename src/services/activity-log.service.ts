@@ -1,3 +1,5 @@
+'use server';
+
 import prisma from '@/lib/prisma';
 import { logError, logInfo } from '@/lib/logger';
 

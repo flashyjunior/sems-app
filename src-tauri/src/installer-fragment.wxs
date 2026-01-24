@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <StandardDirectory Id="ProgramFilesFolder">
+      <Directory Id="INSTALLFOLDER" Name="SEMS">
+        <!-- Source files needed for npm install and build -->
+        <Component Id="PackageJsonComponent" Guid="*">
+          <File Id="PackageJson" Name="package.json" Source="..\..\package.json" KeyPath="yes" />
+        </Component>
+        
+        <Component Id="PackageLockComponent" Guid="*">
+          <File Id="PackageLock" Name="package-lock.json" Source="..\..\package-lock.json" KeyPath="yes" />
+        </Component>
+        
+        <!-- prisma configuration -->
+        <Component Id="PrismaComponent" Guid="*">
+          <File Id="PrismaSchema" Name="schema.prisma" Source="..\..\prisma\schema.prisma" KeyPath="yes" />
+        </Component>
+
+        <!-- tsconfig and build configs -->
+        <Component Id="TsconfigComponent" Guid="*">
+          <File Id="Tsconfig" Name="tsconfig.json" Source="..\..\tsconfig.json" KeyPath="yes" />
+        </Component>
+
+        <Component Id="NextConfigComponent" Guid="*">
+          <File Id="NextConfig" Name="next.config.js" Source="..\..\next.config.js" KeyPath="yes" />
+        </Component>
+
+        <!-- src directory -->
+        <Directory Id="SrcFolder" Name="src">
+          <Component Id="SrcComponent" Guid="*">
+            <File Id="SrcMarker" Name=".gitkeep" Source=".gitkeep" KeyPath="yes" />
+          </Component>
+        </Directory>
+
+        <!-- public directory -->
+        <Directory Id="PublicFolder" Name="public">
+          <Component Id="PublicComponent" Guid="*">
+            <File Id="PublicMarker" Name=".gitkeep" Source=".gitkeep" KeyPath="yes" />
+          </Component>
+        </Directory>
+
+        <!-- prisma directory -->
+        <Directory Id="PrismaFolder" Name="prisma">
+          <Component Id="PrismaFolderComponent" Guid="*">
+            <File Id="PrismaMarker" Name=".gitkeep" Source=".gitkeep" KeyPath="yes" />
+          </Component>
+        </Directory>
+      </Directory>
+    </StandardDirectory>
+  </Fragment>
+</Wix>

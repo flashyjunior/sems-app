@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { settingsService } from "@/services/settings";
 import { withAuth } from "@/lib/auth-middleware";
 import { setCORSHeaders, handleCORS } from "@/lib/cors";
 import { withRateLimit, getClientIP } from "@/lib/rate-limit";
 import { createActivityLog } from "@/services/activity-log.service";
 import { logInfo, logError } from "@/lib/logger";
 import { AuthenticatedRequest } from "@/lib/auth-middleware";
+import prisma from "@/lib/prisma";
 
 async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
   const corsResponse = handleCORS(req);
@@ -18,17 +18,29 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
     if (req.method === "GET") {
       let printers;
       if (printerId) {
-        const printer = await settingsService.getPrinterSettings(printerId);
+        const printer = await prisma.printerSettings.findUnique({
+          where: { id: printerId },
+        });
         printers = printer ? [printer] : [];
       } else {
-        printers = await settingsService.getAllPrinterSettings();
+        printers = await prisma.printerSettings.findMany();
       }
 
       const response = NextResponse.json({ success: true, data: printers }, { status: 200 });
       return setCORSHeaders(response, req.headers.get("origin") || undefined);
     } else if (req.method === "POST") {
       const body = await req.json();
-      const printer = await settingsService.createPrinterSettings(body);
+      const printer = await prisma.printerSettings.create({
+        data: {
+          name: body.name,
+          address: body.address,
+          port: body.port,
+          protocol: body.protocol,
+          isDefault: body.isDefault || false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      });
 
       await createActivityLog(
         req.user!.userId,

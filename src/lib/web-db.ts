@@ -29,6 +29,7 @@ export class WebDatabase {
         id,
         pharmacistId: record.pharmacistId || 'unknown',
         patientName: record.patientName,
+        patientPhoneNumber: record.patientPhoneNumber,
         patientAge: record.patientAge,
         patientWeight: record.patientWeight,
         drugId: record.drugId,
@@ -74,6 +75,7 @@ export class WebDatabase {
         id: record.id,
         external_id: record.id,
         patient_name: record.patientName,
+        patient_phone_number: record.patientPhoneNumber,
         patient_age: record.patientAge,
         patient_weight: record.patientWeight,
         drug_id: record.drugId,
@@ -84,6 +86,7 @@ export class WebDatabase {
         device_id: record.deviceId,
         pharmacist_id: record.pharmacistId,
         created_at: record.timestamp,
+        isActive: record.isActive !== undefined ? record.isActive : true,
       }));
     } catch (error) {
       console.error('Error fetching unsynced records from IndexedDB', error);

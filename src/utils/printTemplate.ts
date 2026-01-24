@@ -169,7 +169,7 @@ export function generatePharmacyLabelHTML(data: PrintLabelData): string {
         <div class="section">
           <div class="field">
             <strong>Dose:</strong>
-            <span class="field-value label-value">${escapeHtml(String(data.doseMg))} mg</span>
+            <span class="field-value label-value">${escapeHtml(String(data.doseMg.toFixed(2)))} mg</span>
           </div>
         </div>
 

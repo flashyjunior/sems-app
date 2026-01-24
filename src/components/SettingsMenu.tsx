@@ -13,6 +13,7 @@ import {
   Pill,
   Beaker,
   AlertCircle,
+  CheckCircle,
 } from 'lucide-react';
 import { useAppStore } from '@/store/app';
 import { TemplateEditor } from './TemplateEditor';
@@ -24,8 +25,11 @@ import { AdminUsersManager } from './AdminUsersManager';
 import { DispenseRecordsViewer } from './DispenseRecordsViewer';
 import { DataSyncManager } from './DataSyncManager';
 import { LogsViewer } from './LogsViewer';
+import { SyncSettings } from './SyncSettings';
+import { SMTPSettingsComponent } from './SMTPSettings';
+import { PendingDrugsManager } from './PendingDrugsManager';
 
-type SettingsSection = 'menu' | 'templates' | 'profile' | 'printers' | 'system' | 'admin-users' | 'records' | 'sync' | 'logs';
+type SettingsSection = 'menu' | 'templates' | 'profile' | 'printers' | 'system' | 'admin-users' | 'records' | 'sync' | 'sync-config' | 'logs' | 'smtp' | 'pending-drugs';
 
 export function SettingsMenu() {
   const [currentSection, setCurrentSection] = useState<SettingsSection>('menu');
@@ -82,6 +86,20 @@ export function SettingsMenu() {
     );
   }
 
+  if (currentSection === 'sync-config') {
+    return (
+      <div>
+        <button
+          onClick={handleBack}
+          className="mb-4 px-4 py-2 text-blue-600 hover:text-blue-800 font-medium"
+        >
+          ← Back
+        </button>
+        <SyncSettings />
+      </div>
+    );
+  }
+
   if (currentSection === 'logs') {
     return (
       <div>
@@ -102,6 +120,22 @@ export function SettingsMenu() {
     );
   }
 
+  if (currentSection === 'smtp') {
+    return (
+      <div>
+        <button
+          onClick={handleBack}
+          className="mb-4 px-4 py-2 text-blue-600 hover:text-blue-800 font-medium"
+        >
+          ← Back
+        </button>
+        <SMTPSettingsComponent />
+      </div>
+    );
+  }
+  if (currentSection === 'pending-drugs') {
+    return <PendingDrugsManager onBack={handleBack} />;
+  }
   return (
     <div className="space-y-6">
       {/* Settings Header */}
@@ -140,6 +174,21 @@ export function SettingsMenu() {
             <p className="text-sm text-gray-700 mt-1">Sync drugs, doses, printers & templates</p>
           </div>
           <ChevronRight className="w-5 h-5 text-cyan-600 flex-shrink-0 mt-1" />
+        </button>
+
+        {/* Sync Configuration */}
+        <button
+          onClick={() => setCurrentSection('sync-config')}
+          className="flex items-start gap-4 p-6 border-2 border-teal-500 bg-gradient-to-br from-teal-50 to-teal-100 rounded-lg hover:shadow-lg transition-shadow text-left"
+        >
+          <div className="p-3 bg-teal-600 rounded-lg flex-shrink-0">
+            <Building2 className="w-6 h-6 text-white" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-gray-900 text-lg">Sync Configuration</h3>
+            <p className="text-sm text-gray-700 mt-1">Configure API server URL and sync interval</p>
+          </div>
+          <ChevronRight className="w-5 h-5 text-teal-600 flex-shrink-0 mt-1" />
         </button>
 
         {/* Admin Users - Only for Admins */}
@@ -269,6 +318,40 @@ export function SettingsMenu() {
               <p className="text-sm text-gray-600 mt-1">View system logs for troubleshooting</p>
             </div>
             <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0 mt-1" />
+          </button>
+        )}
+
+        {/* SMTP Settings - Admin Only */}
+        {isAdmin && (
+          <button
+            onClick={() => setCurrentSection('smtp')}
+            className="flex items-start gap-4 p-6 border-2 border-green-500 bg-gradient-to-br from-green-50 to-green-100 rounded-lg hover:shadow-lg transition-shadow text-left"
+          >
+            <div className="p-3 bg-green-600 rounded-lg flex-shrink-0">
+              <Settings className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-gray-900 text-lg">Email Configuration</h3>
+              <p className="text-sm text-gray-700 mt-1">Configure SMTP settings for email notifications</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-green-600 flex-shrink-0 mt-1" />
+          </button>
+        )}
+
+        {/* Pending Drug Approvals - Admin Only */}
+        {isAdmin && (
+          <button
+            onClick={() => setCurrentSection('pending-drugs')}
+            className="flex items-start gap-4 p-6 border-2 border-indigo-500 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg hover:shadow-lg transition-shadow text-left"
+          >
+            <div className="p-3 bg-indigo-600 rounded-lg flex-shrink-0">
+              <CheckCircle className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-gray-900 text-lg">Pending Drugs</h3>
+              <p className="text-sm text-gray-700 mt-1">Review and approve drug edits from pharmacists</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-1" />
           </button>
         )}
       </div>

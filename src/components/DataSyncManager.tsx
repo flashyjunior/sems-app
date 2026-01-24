@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { db } from '@/lib/db';
 import { Cloud, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAppStore } from '@/store/app';
+import { syncManager } from '@/services/sync-manager';
 
 export function DataSyncManager() {
   const [loading, setLoading] = useState(false);
@@ -16,6 +17,9 @@ export function DataSyncManager() {
     doseRegimens: number;
     printerSettings: number;
     printTemplates: number;
+    smtpSettings: number;
+    dispenseRecords: number;
+    tickets: number;
   } | null>(null);
   const user = useAppStore((s) => s.user);
 
@@ -38,11 +42,14 @@ export function DataSyncManager() {
         printerSettings: 0,
         printTemplates: 0,
         roles: 0,
+        smtpSettings: 0,
+        dispenseRecords: 0,
+        tickets: 0,
       };
 
       // 1. Sync Roles
       try {
-        const rolesResponse = await fetch(`${apiBaseUrl}/api/sync/pull-roles`, {
+        const rolesResponse = await fetch(`${apiBaseUrl}/api/roles`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
@@ -50,8 +57,9 @@ export function DataSyncManager() {
 
         if (rolesResponse.ok) {
           const rolesData = await rolesResponse.json();
-          if (rolesData.data && rolesData.data.length > 0) {
-            for (const role of rolesData.data) {
+          const roles = rolesData.data || rolesData;
+          if (Array.isArray(roles) && roles.length > 0) {
+            for (const role of roles) {
               try {
                 const existing = await db.roles.get(role.id);
                 if (existing) {
@@ -63,7 +71,7 @@ export function DataSyncManager() {
                 console.error('Error saving role:', err);
               }
             }
-            stats.roles = rolesData.data.length;
+            stats.roles = roles.length;
           }
         }
       } catch (err) {
@@ -72,18 +80,17 @@ export function DataSyncManager() {
 
       // 2. Sync Users
       try {
-        const usersResponse = await fetch(`${apiBaseUrl}/api/sync/pull-users`, {
-          method: 'POST',
+        const usersResponse = await fetch(`${apiBaseUrl}/api/users`, {
           headers: {
-            'Content-Type': 'application/json',
             Authorization: `Bearer ${authToken}`,
           },
         });
 
         if (usersResponse.ok) {
           const usersData = await usersResponse.json();
-          if (usersData.users && usersData.users.length > 0) {
-            for (const u of usersData.users) {
+          const users = usersData.data || usersData;
+          if (Array.isArray(users) && users.length > 0) {
+            for (const u of users) {
               try {
                 const existing = await db.users.get(u.id);
                 if (existing) {
@@ -95,76 +102,28 @@ export function DataSyncManager() {
                 console.error('Error saving user:', err);
               }
             }
-            stats.users = usersData.users.length;
+            stats.users = users.length;
           }
         }
       } catch (err) {
         console.error('Error syncing users:', err);
       }
 
-      // 2. Sync Drugs
+      // 2 & 3. Sync Drugs and Dose Regimens
       try {
-        const drugsResponse = await fetch(`${apiBaseUrl}/api/sync/pull-drugs`, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
+        const drugsRegimensResult = await syncManager.pullDrugsAndRegimens({
+          apiBaseUrl,
+          authToken,
         });
-
-        if (drugsResponse.ok) {
-          const drugsData = await drugsResponse.json();
-          if (drugsData.data && drugsData.data.length > 0) {
-            for (const drug of drugsData.data) {
-              try {
-                const existing = await db.drugs.get(drug.id);
-                if (existing) {
-                  await db.drugs.update(drug.id, drug);
-                } else {
-                  await db.drugs.add(drug);
-                }
-              } catch (err) {
-                console.error('Error saving drug:', err);
-              }
-            }
-            stats.drugs = drugsData.data.length;
-          }
-        }
+        stats.drugs = drugsRegimensResult.drugs;
+        stats.doseRegimens = drugsRegimensResult.regimens;
       } catch (err) {
-        console.error('Error syncing drugs:', err);
-      }
-
-      // 3. Sync Dose Regimens
-      try {
-        const dosesResponse = await fetch(`${apiBaseUrl}/api/sync/pull-dose-regimens`, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
-
-        if (dosesResponse.ok) {
-          const dosesData = await dosesResponse.json();
-          if (dosesData.data && dosesData.data.length > 0) {
-            for (const regimen of dosesData.data) {
-              try {
-                const existing = await db.doseRegimens.get(regimen.id);
-                if (existing) {
-                  await db.doseRegimens.update(regimen.id, regimen);
-                } else {
-                  await db.doseRegimens.add(regimen);
-                }
-              } catch (err) {
-                console.error('Error saving dose regimen:', err);
-              }
-            }
-            stats.doseRegimens = dosesData.data.length;
-          }
-        }
-      } catch (err) {
-        console.error('Error syncing dose regimens:', err);
+        console.error('Error syncing drugs and regimens:', err);
       }
 
       // 4. Sync Printer Settings
       try {
-        const printersResponse = await fetch(`${apiBaseUrl}/api/sync/pull-printer-settings`, {
+        const printersResponse = await fetch(`${apiBaseUrl}/api/printer-settings`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
@@ -172,8 +131,9 @@ export function DataSyncManager() {
 
         if (printersResponse.ok) {
           const printersData = await printersResponse.json();
-          if (printersData.data && printersData.data.length > 0) {
-            for (const printer of printersData.data) {
+          const printers = printersData.data || printersData;
+          if (Array.isArray(printers) && printers.length > 0) {
+            for (const printer of printers) {
               try {
                 const existing = await db.printerSettings.get(printer.id);
                 if (existing) {
@@ -185,7 +145,7 @@ export function DataSyncManager() {
                 console.error('Error saving printer settings:', err);
               }
             }
-            stats.printerSettings = printersData.data.length;
+            stats.printerSettings = printers.length;
           }
         }
       } catch (err) {
@@ -194,7 +154,7 @@ export function DataSyncManager() {
 
       // 5. Sync Print Templates
       try {
-        const templatesResponse = await fetch(`${apiBaseUrl}/api/sync/pull-print-templates`, {
+        const templatesResponse = await fetch(`${apiBaseUrl}/api/templates`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
@@ -202,8 +162,9 @@ export function DataSyncManager() {
 
         if (templatesResponse.ok) {
           const templatesData = await templatesResponse.json();
-          if (templatesData.data && templatesData.data.length > 0) {
-            for (const template of templatesData.data) {
+          const templates = templatesData.data || templatesData;
+          if (Array.isArray(templates) && templates.length > 0) {
+            for (const template of templates) {
               try {
                 const existing = await db.printTemplates.get(template.id);
                 if (existing) {
@@ -215,16 +176,66 @@ export function DataSyncManager() {
                 console.error('Error saving print template:', err);
               }
             }
-            stats.printTemplates = templatesData.data.length;
+            stats.printTemplates = templates.length;
           }
         }
       } catch (err) {
         console.error('Error syncing print templates:', err);
       }
 
+      // 6. Sync SMTP Settings
+      try {
+        const smtpResponse = await fetch(`${apiBaseUrl}/api/system-settings`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        if (smtpResponse.ok) {
+          const smtpData = await smtpResponse.json();
+          const settings = smtpData.data || smtpData;
+          if (settings) {
+            try {
+              // Store SMTP settings in a settings object or table if available
+              // For now, we'll store it in the app store or local storage
+              if (typeof window !== 'undefined' && localStorage) {
+                localStorage.setItem('sems_smtp_settings', JSON.stringify(settings));
+              }
+              stats.smtpSettings = 1; // Mark as synced
+            } catch (err) {
+              console.error('Error saving SMTP settings:', err);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error syncing SMTP settings:', err);
+      }
+
+      // 7. Sync Dispense Records
+      try {
+        const dispenseResult = await syncManager.pullDispenseRecords({
+          apiBaseUrl,
+          authToken,
+        });
+        stats.dispenseRecords = dispenseResult.pulled;
+      } catch (err) {
+        console.error('Error syncing dispense records:', err);
+      }
+
+      // 8. Sync Tickets
+      try {
+        const ticketsResult = await syncManager.pullTickets({
+          apiBaseUrl,
+          authToken,
+        });
+        stats.tickets = ticketsResult.pulled;
+      } catch (err) {
+        console.error('Error syncing tickets:', err);
+      }
+
       setSyncStats(stats);
       setSuccess(
-        `✅ Sync complete! Roles: ${stats.roles}, Users: ${stats.users}, Drugs: ${stats.drugs}, Doses: ${stats.doseRegimens}, Printers: ${stats.printerSettings}, Templates: ${stats.printTemplates}`
+        `✅ Sync complete! Roles: ${stats.roles}, Users: ${stats.users}, Drugs: ${stats.drugs}, Doses: ${stats.doseRegimens}, Printers: ${stats.printerSettings}, Templates: ${stats.printTemplates}, SMTP: ${stats.smtpSettings}, Dispense: ${stats.dispenseRecords}, Tickets: ${stats.tickets}`
       );
       setTimeout(() => setSuccess(null), 8000);
     } catch (err) {
@@ -244,7 +255,7 @@ export function DataSyncManager() {
       </div>
 
       <p className="text-sm text-gray-600 mb-4">
-        Sync users, drugs, dose regimens, printer settings, and print templates from the cloud to your local database.
+        Sync users, drugs, dose regimens, printer settings, print templates, dispense records, and tickets from the cloud to your local database.
       </p>
 
       {error && (
@@ -265,12 +276,14 @@ export function DataSyncManager() {
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-sm text-blue-900 font-medium mb-2">Last Sync Results:</p>
           <div className="grid grid-cols-2 gap-2 text-sm text-blue-800">
-            <p>� Roles: {syncStats.roles}</p>
-            <p>�👥 Users: {syncStats.users}</p>
+            <p>👤 Roles: {syncStats.roles}</p>
+            <p>👥 Users: {syncStats.users}</p>
             <p>💊 Drugs: {syncStats.drugs}</p>
             <p>📋 Doses: {syncStats.doseRegimens}</p>
             <p>🖨️ Printers: {syncStats.printerSettings}</p>
             <p>🏷️ Templates: {syncStats.printTemplates}</p>
+            <p>📊 Dispense: {syncStats.dispenseRecords}</p>
+            <p>🎫 Tickets: {syncStats.tickets}</p>
           </div>
         </div>
       )}

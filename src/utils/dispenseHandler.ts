@@ -18,11 +18,14 @@ export async function completDispense() {
 
   try {
     // Print label
-    const printSuccess = await printService.printLabel(
+    const printResult = await printService.printLabel(
       currentDose,
       currentPatient,
       user.username
     );
+
+    const printSuccess = printResult.success;
+    const receiptTimestamp = printResult.timestamp;
 
     if (!printSuccess) {
       console.warn('Print failed but continuing with record save');
@@ -30,8 +33,8 @@ export async function completDispense() {
 
     // Create dispense record
     const record: DispenseRecord = {
-      id: `dispense-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      timestamp: Date.now(),
+      id: `dispense-${receiptTimestamp}-${Math.random().toString(36).substr(2, 9)}`,
+      timestamp: receiptTimestamp,
       pharmacistId: user.id,
       patientName: currentPatient.name,
       patientAge: currentPatient.age,

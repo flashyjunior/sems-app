@@ -12,6 +12,10 @@ import type {
   UserProfile,
   PrinterSettings,
   SystemSettings,
+  Ticket,
+  TicketNote,
+  TempDrug,
+  TempDrugRegimen,
 } from '@/types';
 
 export class SEMSDB extends Dexie {
@@ -29,6 +33,10 @@ export class SEMSDB extends Dexie {
   userProfiles!: Table<UserProfile>;
   printerSettings!: Table<PrinterSettings>;
   systemSettings!: Table<SystemSettings>;
+  tickets!: Table<Ticket>;
+  ticketNotes!: Table<TicketNote>;
+  tempDrugs!: Table<TempDrug>;
+  tempDrugRegimens!: Table<TempDrugRegimen>;
 
   constructor() {
     super('SEMSDB');
@@ -47,6 +55,56 @@ export class SEMSDB extends Dexie {
       printerSettings: 'id, isDefault',
       systemSettings: 'id',
     });
+
+    // Version 2: Add ticket tables
+    this.version(2)
+      .stores({
+        users: 'id, username',
+        roles: 'id, name',
+        drugs: 'id, genericName, tradeName',
+        doseRegimens: 'id, drugId, ageGroup',
+        dispenseRecords: 'id, pharmacistId, timestamp, synced',
+        syncQueue: 'id, record.id',
+        inventory: 'id, drugId, expiryDate',
+        alerts: 'id, timestamp',
+        syncMetadata: 'key',
+        printTemplates: 'id, isDefault, createdAt',
+        userProfiles: 'id, userId',
+        printerSettings: 'id, isDefault',
+        systemSettings: 'id',
+        tickets: 'id, ticketNumber, userId, synced',
+        ticketNotes: 'id, ticketId, synced',
+      })
+      .upgrade(async (tx) => {
+        // Migration logic: tickets and ticketNotes tables will be created automatically
+        console.log('Database upgraded to version 2 with ticket tables');
+      });
+
+    // Version 3: Add temporary drug tables for admin approval workflow
+    this.version(3)
+      .stores({
+        users: 'id, username',
+        roles: 'id, name',
+        drugs: 'id, genericName, tradeName',
+        doseRegimens: 'id, drugId, ageGroup',
+        dispenseRecords: 'id, pharmacistId, timestamp, synced',
+        syncQueue: 'id, record.id',
+        inventory: 'id, drugId, expiryDate',
+        alerts: 'id, timestamp',
+        syncMetadata: 'key',
+        printTemplates: 'id, isDefault, createdAt',
+        userProfiles: 'id, userId',
+        printerSettings: 'id, isDefault',
+        systemSettings: 'id',
+        tickets: 'id, ticketNumber, userId, synced',
+        ticketNotes: 'id, ticketId, synced',
+        tempDrugs: 'id, genericName, status, createdAt',
+        tempDrugRegimens: 'id, tempDrugId, status, createdAt',
+      })
+      .upgrade(async (tx) => {
+        // Migration logic: temp tables will be created automatically
+        console.log('Database upgraded to version 3 with temporary drug tables');
+      });
   }
 }
 

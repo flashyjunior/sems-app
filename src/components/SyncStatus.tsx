@@ -13,6 +13,7 @@ export function SyncStatus() {
   const [mounted, setMounted] = useState(false);
   const user = useAppStore((s) => s.user);
   const isAdmin = user?.role === 'admin';
+  const syncCompletedCounter = useAppStore((s) => s.syncCompletedCounter);
 
   // Initialize on mount - get token from localStorage
   useEffect(() => {
@@ -31,8 +32,15 @@ export function SyncStatus() {
   // Initialize sync controller when token is available
   useEffect(() => {
     if (authToken && mounted) {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      console.log('[SyncStatus] Initializing sync controller with:', {
+        apiBaseUrl,
+        NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+        authToken: authToken ? authToken.substring(0, 20) + '...' : 'MISSING',
+      });
+      
       syncController.initialize({
-        apiBaseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
+        apiBaseUrl,
         authToken: authToken,
       }).catch(console.error);
     }
@@ -46,6 +54,16 @@ export function SyncStatus() {
     });
     return unsubscribe;
   }, []);
+
+  // Refresh status when sync completes
+  useEffect(() => {
+    if (syncCompletedCounter > 0) {
+      syncService.getSyncStatus().then((syncStatus) => {
+        console.log('SyncStatus refreshed after sync:', syncStatus);
+        setStatus(syncStatus);
+      });
+    }
+  }, [syncCompletedCounter]);
 
   if (!mounted) return null;
 
