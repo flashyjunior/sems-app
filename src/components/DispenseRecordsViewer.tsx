@@ -40,22 +40,20 @@ export function DispenseRecordsViewer() {
   const syncCompletedCounter = useAppStore((state) => state.syncCompletedCounter);
   const recordSavedCounter = useAppStore((state) => state.recordSavedCounter);
 
-  // Fetch facility name on mount
+  // Fetch facility name on mount and when sync completes
   useEffect(() => {
     const fetchFacilityName = async () => {
       try {
-        const response = await fetch('/api/system-settings/get');
-        if (response.ok) {
-          const result = await response.json();
-          const settings = result.data || result;
-          setFacilityName(settings.facilityName || settings.pharmacyName || settings.companyName || 'Licensed Community Pharmacy');
+        const settings = await db.systemSettings.get('system-settings');
+        if (settings) {
+          setFacilityName(settings.facilityName || 'Licensed Community Pharmacy');
         }
       } catch (err) {
         console.warn('Could not fetch facility name:', err);
       }
     };
     fetchFacilityName();
-  }, []);
+  }, [syncCompletedCounter]);
 
   // Debounce search text - waits 500ms after user stops typing
   useEffect(() => {
@@ -175,12 +173,24 @@ export function DispenseRecordsViewer() {
     const rxNumber = (record.timestamp || 0).toString();
     const qrData = `${rxNumber}|${record.drugName}|${record.dose?.strength || 'N/A'}|${record.dose?.doseMg !== undefined ? record.dose.doseMg.toFixed(2) : 'N/A'}|${record.dose?.frequency || 'N/A'}|${record.patientName || 'Unknown'}`;
 
-    // Fetch facility settings
-    const settings = await db.systemSettings.toArray();
-    const facilityName = settings[0]?.facilityName || 'PHARMACY';
-    const facilityAddress = settings[0]?.address || '';
-    const facilityPhone = settings[0]?.phone || '';
-    const facilityEmail = settings[0]?.email || '';
+    // Fetch facility settings - use the singleton pattern with 'system-settings' ID
+    let facilityName = 'PHARMACY';
+    let facilityAddress = '';
+    let facilityPhone = '';
+    let facilityEmail = '';
+    
+    try {
+      // Get the singleton system settings record
+      const settings = await db.systemSettings.get('system-settings');
+      if (settings) {
+        facilityName = settings.facilityName || 'PHARMACY';
+        facilityAddress = settings.address || '';
+        facilityPhone = settings.phone || '';
+        facilityEmail = settings.email || '';
+      }
+    } catch (err) {
+      console.warn('Error fetching system settings:', err);
+    }
 
     // Build facility info HTML for header right section
     const facilityInfoHtml = `
