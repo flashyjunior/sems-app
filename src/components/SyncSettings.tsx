@@ -140,7 +140,7 @@ export function SyncSettings() {
                 value={apiUrl}
                 onChange={(e) => setApiUrl(e.target.value)}
                 placeholder="e.g., http://localhost:3000"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                className="w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm bg-white "
               />
               <div className="flex gap-2">
                 <button
@@ -189,7 +189,7 @@ export function SyncSettings() {
               <select
                 value={autoSyncInterval}
                 onChange={(e) => setAutoSyncInterval(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white "
               >
                 <option value="60">1 minute</option>
                 <option value="180">3 minutes</option>
@@ -228,3 +228,4 @@ export function SyncSettings() {
     </div>
   );
 }
+

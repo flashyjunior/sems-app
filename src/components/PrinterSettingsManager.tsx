@@ -245,7 +245,7 @@ export function PrinterSettingsManager({ onBack }: PrinterSettingsManagerProps) 
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 placeholder="e.g., Main Dispensary Printer"
               />
             </div>
@@ -259,7 +259,7 @@ export function PrinterSettingsManager({ onBack }: PrinterSettingsManagerProps) 
                 name="type"
                 value={formData.type}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               >
                 <option value="thermal">Thermal</option>
                 <option value="inkjet">Inkjet</option>
@@ -278,7 +278,7 @@ export function PrinterSettingsManager({ onBack }: PrinterSettingsManagerProps) 
                 name="paperWidth"
                 value={formData.paperWidth}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               />
             </div>
 
@@ -292,7 +292,7 @@ export function PrinterSettingsManager({ onBack }: PrinterSettingsManagerProps) 
                 name="portName"
                 value={formData.portName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 placeholder="e.g., /dev/ttyUSB0 or COM1"
               />
             </div>
@@ -306,7 +306,7 @@ export function PrinterSettingsManager({ onBack }: PrinterSettingsManagerProps) 
                 name="baudRate"
                 value={formData.baudRate}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               >
                 <option value={9600}>9600</option>
                 <option value={19200}>19200</option>
@@ -327,7 +327,7 @@ export function PrinterSettingsManager({ onBack }: PrinterSettingsManagerProps) 
                 onChange={handleChange}
                 min="1"
                 max="5"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               />
             </div>
 
@@ -500,3 +500,5 @@ export function PrinterSettingsManager({ onBack }: PrinterSettingsManagerProps) 
     </div>
   );
 }
+
+

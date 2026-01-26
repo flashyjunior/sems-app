@@ -179,7 +179,7 @@ export function SMTPSettingsComponent() {
               type="text"
               value={settings.host}
               onChange={(e) => handleInputChange('host', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               placeholder="e.g., smtp.gmail.com"
               required
             />
@@ -196,7 +196,7 @@ export function SMTPSettingsComponent() {
                 type="number"
                 value={settings.port}
                 onChange={(e) => handleInputChange('port', parseInt(e.target.value))}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 placeholder="587"
                 required
               />
@@ -225,7 +225,7 @@ export function SMTPSettingsComponent() {
               type="email"
               value={settings.username}
               onChange={(e) => handleInputChange('username', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               placeholder="your-email@example.com"
               required
             />
@@ -241,7 +241,7 @@ export function SMTPSettingsComponent() {
                 type={showPassword ? 'text' : 'password'}
                 value={settings.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 placeholder="SMTP password or app password"
                 required
               />
@@ -265,7 +265,7 @@ export function SMTPSettingsComponent() {
               type="email"
               value={settings.fromEmail}
               onChange={(e) => handleInputChange('fromEmail', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               placeholder="noreply@example.com"
               required
             />
@@ -281,7 +281,7 @@ export function SMTPSettingsComponent() {
               type="text"
               value={settings.fromName}
               onChange={(e) => handleInputChange('fromName', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               placeholder="SEMS Support"
               required
             />
@@ -296,7 +296,7 @@ export function SMTPSettingsComponent() {
               type="email"
               value={settings.adminEmail}
               onChange={(e) => handleInputChange('adminEmail', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               placeholder="admin@example.com"
               required
             />
@@ -312,7 +312,7 @@ export function SMTPSettingsComponent() {
               type="email"
               value={settings.replyToEmail || ''}
               onChange={(e) => handleInputChange('replyToEmail', e.target.value || null)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               placeholder="support@example.com"
             />
           </div>
@@ -361,7 +361,7 @@ export function SMTPSettingsComponent() {
               value={testEmail}
               onChange={(e) => setTestEmail(e.target.value)}
               placeholder="your-email@example.com"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-6"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-6 text-gray-900 bg-white"
               autoFocus
             />
 
@@ -386,3 +386,6 @@ export function SMTPSettingsComponent() {
     </div>
   );
 }
+
+
+

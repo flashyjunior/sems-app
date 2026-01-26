@@ -148,7 +148,7 @@ export function UserProfileSettings({ onBack, userId }: UserProfileSettingsProps
             name="fullName"
             value={formData.fullName}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             placeholder="Enter your full name"
           />
         </div>
@@ -161,7 +161,7 @@ export function UserProfileSettings({ onBack, userId }: UserProfileSettingsProps
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             placeholder="Enter your email"
           />
         </div>
@@ -174,7 +174,7 @@ export function UserProfileSettings({ onBack, userId }: UserProfileSettingsProps
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             placeholder="Enter your phone number"
           />
         </div>
@@ -187,7 +187,7 @@ export function UserProfileSettings({ onBack, userId }: UserProfileSettingsProps
             name="licenseNumber"
             value={formData.licenseNumber}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             placeholder="Enter your license number"
           />
         </div>
@@ -199,7 +199,7 @@ export function UserProfileSettings({ onBack, userId }: UserProfileSettingsProps
             name="specialization"
             value={formData.specialization}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           >
             <option value="">Select specialization</option>
             <option value="general">General Pharmacist</option>
@@ -216,7 +216,7 @@ export function UserProfileSettings({ onBack, userId }: UserProfileSettingsProps
             name="theme"
             value={formData.theme}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
           >
             <option value="auto">Auto (System)</option>
             <option value="light">Light</option>
@@ -231,7 +231,7 @@ export function UserProfileSettings({ onBack, userId }: UserProfileSettingsProps
             name="language"
             value={formData.language}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
           >
             <option value="en">English</option>
             <option value="fr">Français</option>
@@ -246,7 +246,7 @@ export function UserProfileSettings({ onBack, userId }: UserProfileSettingsProps
             name="defaultDoseUnit"
             value={formData.defaultDoseUnit}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
           >
             <option value="mg">Milligrams (mg)</option>
             <option value="mcg">Micrograms (mcg)</option>
@@ -284,7 +284,7 @@ export function UserProfileSettings({ onBack, userId }: UserProfileSettingsProps
                 onChange={handleChange}
                 min="1"
                 max="120"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               />
             </div>
           )}
@@ -312,3 +312,4 @@ export function UserProfileSettings({ onBack, userId }: UserProfileSettingsProps
     </div>
   );
 }
+

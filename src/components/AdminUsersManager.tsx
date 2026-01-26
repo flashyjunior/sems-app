@@ -420,7 +420,7 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
                           required
                           value={formData.email}
                           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                         />
                       </div>
                       <div>
@@ -434,7 +434,7 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
                           onChange={(e) =>
                             setFormData({ ...formData, licenseNumber: e.target.value })
                           }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                         />
                       </div>
                       <div>
@@ -448,7 +448,7 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
                           onChange={(e) =>
                             setFormData({ ...formData, fullName: e.target.value })
                           }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                         />
                       </div>
                       <div>
@@ -462,7 +462,7 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
                           onChange={(e) =>
                             setFormData({ ...formData, password: e.target.value })
                           }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                         />
                       </div>
                       <div className="col-span-2">
@@ -476,7 +476,7 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
                             setFormData({ ...formData, specialization: e.target.value })
                           }
                           placeholder="e.g., General Practitioner"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                         />
                       </div>
                     </div>
@@ -526,7 +526,7 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
                                     onChange={(e) =>
                                       setEditForm({ ...editForm, email: e.target.value })
                                     }
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900 bg-white"
                                   />
                                 </div>
                                 <div>
@@ -539,7 +539,7 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
                                     onChange={(e) =>
                                       setEditForm({ ...editForm, fullName: e.target.value })
                                     }
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900 bg-white"
                                   />
                                 </div>
                                 <div>
@@ -552,7 +552,7 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
                                     onChange={(e) =>
                                       setEditForm({ ...editForm, licenseNumber: e.target.value })
                                     }
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900 bg-white"
                                   />
                                 </div>
                                 <div>
@@ -564,7 +564,7 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
                                     onChange={(e) =>
                                       setEditForm({ ...editForm, roleId: parseInt(e.target.value) })
                                     }
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900 bg-white"
                                   >
                                     {roles.map((r) => (
                                       <option key={r.id} value={r.id}>
@@ -583,7 +583,7 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
                                     onChange={(e) =>
                                       setEditForm({ ...editForm, specialization: e.target.value })
                                     }
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900 bg-white"
                                   />
                                 </div>
                                 <div>
@@ -598,7 +598,7 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
                                         isActive: e.target.value === 'active',
                                       })
                                     }
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900 bg-white"
                                   >
                                     <option value="active">Active</option>
                                     <option value="inactive">Inactive</option>
@@ -688,3 +688,4 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
     </div>
   );
 }
+

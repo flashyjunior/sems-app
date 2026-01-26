@@ -213,7 +213,7 @@ export function SyncControl({
                   <select
                     value={syncConfig?.intervalSeconds || 300}
                     onChange={handleIntervalChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                   >
                     <option value={30}>30 seconds</option>
                     <option value={60}>1 minute</option>
@@ -266,3 +266,4 @@ export function SyncControl({
 }
 
 export default SyncControl;
+

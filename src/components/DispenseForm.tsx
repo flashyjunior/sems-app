@@ -310,7 +310,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
                 const drugName = parts.slice(0, -1).join(' ');
                 setDose({ ...dose, drugName: drugName || dose?.drugName, strength: strength || dose?.strength, warnings: dose?.warnings || [] });
               }}
-              className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-1.5 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
             />
           </div>
 
@@ -322,7 +322,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
                 type="number"
                 value={dose?.doseMg || ''}
                 onChange={(e) => setDose({ ...dose, doseMg: parseFloat(e.target.value) || 0, warnings: dose?.warnings || [] })}
-                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-1.5 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
                 step="0.1"
               />
             </div>
@@ -332,7 +332,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
                 type="text"
                 value={dose?.frequency || ''}
                 onChange={(e) => setDose({ ...dose, frequency: e.target.value, warnings: dose?.warnings || [] })}
-                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-1.5 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white "
                 placeholder="e.g., TDS"
               />
             </div>
@@ -346,7 +346,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
                 type="text"
                 value={dose?.route || ''}
                 onChange={(e) => setDose({ ...dose, route: e.target.value, warnings: dose?.warnings || [] })}
-                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-1.5 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white "
                 placeholder="e.g., oral"
               />
             </div>
@@ -356,7 +356,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
                 type="text"
                 value={dose?.duration || ''}
                 onChange={(e) => setDose({ ...dose, duration: e.target.value, warnings: dose?.warnings || [] })}
-                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-1.5 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white "
                 placeholder="e.g., 7 days"
               />
             </div>
@@ -368,7 +368,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
             <textarea
               value={dose?.instructions || ''}
               onChange={(e) => setDose({ ...dose, instructions: e.target.value, warnings: dose?.warnings || [] })}
-              className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-1.5 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white "
               placeholder="Special instructions"
               rows={1}
             />
@@ -509,7 +509,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
                   value={patientData.name || ''}
                   onChange={(e) => handlePatientNameChange(e.target.value)}
                   onFocus={() => patientData.name && matchingPatients.length > 0 && setShowPatientDropdown(true)}
-                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                   placeholder="Type patient name to search..."
                   autoComplete="off"
                 />
@@ -549,7 +549,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
                     searchPatients(e.target.value);
                   }}
                   onFocus={() => patientData.phoneNumber && matchingPatients.length > 0 && setShowPatientDropdown(true)}
-                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                   placeholder="Search by phone number..."
                   autoComplete="off"
                 />
@@ -572,7 +572,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
                       age: parseInt(e.target.value) || 0,
                     })
                   }
-                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                   placeholder="Age"
                 />
               </div>
@@ -591,7 +591,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
                       weight: parseFloat(e.target.value) || 0,
                     })
                   }
-                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                   placeholder="Weight"
                 />
               </div>
@@ -607,7 +607,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
                       pregnancyStatus: e.target.value as any,
                     })
                   }
-                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 >
                   <option value="unknown">Unknown</option>
                   <option value="yes">Pregnant</option>
@@ -679,7 +679,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
               value={patientData.name || ''}
               onChange={(e) => handlePatientNameChange(e.target.value)}
               onFocus={() => patientData.name && matchingPatients.length > 0 && setShowPatientDropdown(true)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               placeholder="Type patient name to search..."
               autoComplete="off"
             />
@@ -719,7 +719,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
                 searchPatients(e.target.value);
               }}
               onFocus={() => patientData.phoneNumber && matchingPatients.length > 0 && setShowPatientDropdown(true)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               placeholder="Search by phone number..."
               autoComplete="off"
             />
@@ -742,7 +742,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
                   age: parseInt(e.target.value) || 0,
                 })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               placeholder="Age"
             />
           </div>
@@ -761,7 +761,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
                   weight: parseFloat(e.target.value) || 0,
                 })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               placeholder="Weight"
             />
           </div>
@@ -779,7 +779,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
                 pregnancyStatus: e.target.value as any,
               })
             }
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
           >
             <option value="unknown">Unknown</option>
             <option value="yes">Pregnant</option>
@@ -810,3 +810,6 @@ function getDeviceId(): string {
 
   return deviceId;
 }
+
+
+

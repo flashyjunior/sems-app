@@ -230,7 +230,7 @@ export function TemplateEditor({ onClose, onSave }: TemplateEditorProps) {
                       value={templateName}
                       onChange={(e) => setTemplateName(e.target.value)}
                       disabled={!isEditing && !isCreating}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+                      className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 bg-white"
                     />
                   </div>
                   <div>
@@ -242,7 +242,7 @@ export function TemplateEditor({ onClose, onSave }: TemplateEditorProps) {
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       disabled={!isEditing && !isCreating}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 text-gray-900 bg-white"
                     />
                   </div>
                 </div>
@@ -283,7 +283,7 @@ export function TemplateEditor({ onClose, onSave }: TemplateEditorProps) {
                         onChange={(e) => setHtmlTemplate(e.target.value)}
                         disabled={!isEditing && !isCreating}
                         rows={12}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 text-gray-900 bg-white"
                       />
                     </div>
 
@@ -296,7 +296,7 @@ export function TemplateEditor({ onClose, onSave }: TemplateEditorProps) {
                         onChange={(e) => setEscposTemplate(e.target.value)}
                         disabled={!isEditing && !isCreating}
                         rows={8}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 text-gray-900 bg-white"
                       />
                     </div>
 
@@ -404,3 +404,5 @@ export function TemplateEditor({ onClose, onSave }: TemplateEditorProps) {
     </div>
   );
 }
+
+

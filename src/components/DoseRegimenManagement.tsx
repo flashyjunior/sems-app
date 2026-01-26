@@ -302,7 +302,7 @@ export function DoseRegimenManagement() {
               <select
                 value={formData.drugId}
                 onChange={(e) => setFormData({ ...formData, drugId: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 required
               >
                 <option value="">Select a drug</option>
@@ -319,7 +319,7 @@ export function DoseRegimenManagement() {
               <select
                 value={formData.ageGroup}
                 onChange={(e) => setFormData({ ...formData, ageGroup: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               >
                 {AGE_GROUPS.map((ag) => (
                   <option key={ag} value={ag}>
@@ -335,7 +335,7 @@ export function DoseRegimenManagement() {
                 type="number"
                 value={formData.ageMin}
                 onChange={(e) => setFormData({ ...formData, ageMin: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               />
             </div>
 
@@ -345,7 +345,7 @@ export function DoseRegimenManagement() {
                 type="number"
                 value={formData.ageMax}
                 onChange={(e) => setFormData({ ...formData, ageMax: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               />
             </div>
 
@@ -356,7 +356,7 @@ export function DoseRegimenManagement() {
                 step="0.1"
                 value={formData.weightMin}
                 onChange={(e) => setFormData({ ...formData, weightMin: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               />
             </div>
 
@@ -367,7 +367,7 @@ export function DoseRegimenManagement() {
                 step="0.1"
                 value={formData.weightMax}
                 onChange={(e) => setFormData({ ...formData, weightMax: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               />
             </div>
 
@@ -378,7 +378,7 @@ export function DoseRegimenManagement() {
                 value={formData.doseMg}
                 onChange={(e) => setFormData({ ...formData, doseMg: e.target.value })}
                 placeholder="e.g., 500"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 required
               />
             </div>
@@ -390,7 +390,7 @@ export function DoseRegimenManagement() {
                 value={formData.frequency}
                 onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
                 placeholder="e.g., Three times daily"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 required
               />
             </div>
@@ -402,7 +402,7 @@ export function DoseRegimenManagement() {
                 value={formData.duration}
                 onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
                 placeholder="e.g., 7 days"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 required
               />
             </div>
@@ -412,7 +412,7 @@ export function DoseRegimenManagement() {
               <select
                 value={formData.route}
                 onChange={(e) => setFormData({ ...formData, route: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               >
                 {ROUTES.map((r) => (
                   <option key={r} value={r}>
@@ -429,7 +429,7 @@ export function DoseRegimenManagement() {
                 value={formData.maxDoseMgDay}
                 onChange={(e) => setFormData({ ...formData, maxDoseMgDay: e.target.value })}
                 placeholder="e.g., 4000"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               />
             </div>
 
@@ -439,7 +439,7 @@ export function DoseRegimenManagement() {
                 value={formData.instructions}
                 onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
                 placeholder="e.g., Take with food, Do not exceed maximum dose"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 rows={3}
               />
             </div>
@@ -474,7 +474,7 @@ export function DoseRegimenManagement() {
             <select
               value={selectedDrugFilter}
               onChange={(e) => setSelectedDrugFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
             >
               <option value="">All Drugs</option>
               {drugs.map((d) => (
@@ -542,3 +542,5 @@ export function DoseRegimenManagement() {
     </div>
   );
 }
+
+

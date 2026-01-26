@@ -593,7 +593,7 @@ export function DrugVariantsSelector({
             }}
             onFocus={() => regimenOptions.length > 0 && setShowDropdown(true)}
             placeholder="Type drug name (e.g., Amox)..."
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
           />
           {loading && (
             <div className="absolute right-3 top-10">
@@ -662,7 +662,7 @@ export function DrugVariantsSelector({
                         drugName: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                     placeholder="Drug name..."
                   />
                 </div>
@@ -679,7 +679,7 @@ export function DrugVariantsSelector({
                         strength: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                     placeholder="e.g., 500mg"
                   />
                 </div>
@@ -698,7 +698,7 @@ export function DrugVariantsSelector({
                           doseMg: parseFloat(e.target.value) || 0,
                         })
                       }
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                       step="0.1"
                     />
                   </div>
@@ -713,7 +713,7 @@ export function DrugVariantsSelector({
                           frequency: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                       placeholder="e.g., TDS"
                     />
                   </div>
@@ -732,7 +732,7 @@ export function DrugVariantsSelector({
                           route: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                     />
                   </div>
                   <div>
@@ -746,7 +746,7 @@ export function DrugVariantsSelector({
                           duration: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                       placeholder="e.g., 7 days"
                     />
                   </div>
@@ -763,7 +763,7 @@ export function DrugVariantsSelector({
                         instructions: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                     rows={2}
                   />
                 </div>
@@ -847,3 +847,6 @@ function getDeviceId(): string {
   }
   return deviceId;
 }
+
+
+

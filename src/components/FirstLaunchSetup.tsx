@@ -101,7 +101,7 @@ export function FirstLaunchSetup({ onComplete }: { onComplete: () => void }) {
               onChange={(e) => setApiUrl(e.target.value)}
               placeholder="https://yourserver.com"
               disabled={loading || success}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+              className="w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 bg-white "
             />
             <p className="mt-2 text-xs text-gray-500">
               Example: https://api.mypharmacy.com or http://192.168.1.100:3000
@@ -159,3 +159,4 @@ export function FirstLaunchSetup({ onComplete }: { onComplete: () => void }) {
     </div>
   );
 }
+

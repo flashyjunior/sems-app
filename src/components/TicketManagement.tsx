@@ -643,7 +643,7 @@ export function TicketManagement() {
               placeholder="Search by ticket number or title..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
             />
             <select
               value={filterStatus}
@@ -755,7 +755,7 @@ export function TicketManagement() {
                   type="text"
                   value={newTicket.title}
                   onChange={(e) => setNewTicket({ ...newTicket, title: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                   placeholder="Brief description of your issue"
                   required
                 />
@@ -769,7 +769,7 @@ export function TicketManagement() {
                   <select
                     value={newTicket.category}
                     onChange={(e) => setNewTicket({ ...newTicket, category: e.target.value as TicketCategory })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                     required
                   >
                     <option value="technical">Technical Issue</option>
@@ -787,7 +787,7 @@ export function TicketManagement() {
                   <select
                     value={newTicket.priority}
                     onChange={(e) => setNewTicket({ ...newTicket, priority: e.target.value as TicketPriority })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                     required
                   >
                     <option value="low">Low</option>
@@ -805,7 +805,7 @@ export function TicketManagement() {
                 <textarea
                   value={newTicket.description}
                   onChange={(e) => setNewTicket({ ...newTicket, description: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                   placeholder="Provide detailed information about your issue"
                   rows={6}
                   required
@@ -820,7 +820,7 @@ export function TicketManagement() {
                   type="file"
                   multiple
                   onChange={handleFileSelect}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                   accept="image/*,.pdf,.doc,.docx"
                 />
                 {newTicket.attachments.length > 0 && (
@@ -874,7 +874,7 @@ export function TicketManagement() {
               placeholder="Search by ticket number or title..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
             />
             <select
               value={filterStatus}
@@ -1057,7 +1057,7 @@ export function TicketManagement() {
                   value={noteContent}
                   onChange={(e) => setNoteContent(e.target.value)}
                   placeholder="Add a comment..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900 bg-white"
                   rows={3}
                 />
                 
@@ -1113,3 +1113,5 @@ export function TicketManagement() {
     </div>
   );
 }
+
+

@@ -176,7 +176,7 @@ export function SystemSettingsEditor({ onBack }: SystemSettingsEditorProps) {
                 name="facilityName"
                 value={formData.facilityName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white "
                 placeholder="e.g., City Hospital Pharmacy"
               />
             </div>
@@ -191,7 +191,7 @@ export function SystemSettingsEditor({ onBack }: SystemSettingsEditorProps) {
                 name="facilityLogo"
                 value={formData.facilityLogo}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white "
                 placeholder="https://example.com/logo.png"
               />
             </div>
@@ -206,7 +206,7 @@ export function SystemSettingsEditor({ onBack }: SystemSettingsEditorProps) {
                 name="address"
                 value={formData.address}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white "
                 placeholder="Street address"
               />
             </div>
@@ -221,7 +221,7 @@ export function SystemSettingsEditor({ onBack }: SystemSettingsEditorProps) {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white "
                 placeholder="+1 (555) 000-0000"
               />
             </div>
@@ -236,7 +236,7 @@ export function SystemSettingsEditor({ onBack }: SystemSettingsEditorProps) {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white "
                 placeholder="pharmacy@hospital.local"
               />
             </div>
@@ -251,7 +251,7 @@ export function SystemSettingsEditor({ onBack }: SystemSettingsEditorProps) {
                 name="licenseNumber"
                 value={formData.licenseNumber}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white "
                 placeholder="PHR-0001"
               />
             </div>
@@ -287,7 +287,7 @@ export function SystemSettingsEditor({ onBack }: SystemSettingsEditorProps) {
                   onChange={handleChange}
                   min="1"
                   max="60"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white "
                 />
               </div>
             )}
@@ -322,7 +322,7 @@ export function SystemSettingsEditor({ onBack }: SystemSettingsEditorProps) {
                 onChange={handleChange}
                 min="30"
                 max="730"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white "
               />
               <p className="text-xs text-gray-600 mt-1">
                 How long to keep historical records before automatic purging
@@ -385,3 +385,4 @@ export function SystemSettingsEditor({ onBack }: SystemSettingsEditorProps) {
     </div>
   );
 }
+

@@ -273,7 +273,7 @@ export function DrugManagement({ initialSearchTerm = '' }: { initialSearchTerm?:
                 value={formData.genericName}
                 onChange={(e) => setFormData({ ...formData, genericName: e.target.value })}
                 placeholder="e.g., Paracetamol"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 required
               />
             </div>
@@ -285,7 +285,7 @@ export function DrugManagement({ initialSearchTerm = '' }: { initialSearchTerm?:
                 value={formData.tradeName}
                 onChange={(e) => setFormData({ ...formData, tradeName: e.target.value })}
                 placeholder="e.g., Panadol"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               />
             </div>
 
@@ -296,7 +296,7 @@ export function DrugManagement({ initialSearchTerm = '' }: { initialSearchTerm?:
                 value={formData.strength}
                 onChange={(e) => setFormData({ ...formData, strength: e.target.value })}
                 placeholder="e.g., 500mg"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 required
               />
             </div>
@@ -306,7 +306,7 @@ export function DrugManagement({ initialSearchTerm = '' }: { initialSearchTerm?:
               <select
                 value={formData.route}
                 onChange={(e) => setFormData({ ...formData, route: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 required
               >
                 {ROUTES.map((r) => (
@@ -322,7 +322,7 @@ export function DrugManagement({ initialSearchTerm = '' }: { initialSearchTerm?:
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                 required
               >
                 <option value="">Select a category</option>
@@ -339,7 +339,7 @@ export function DrugManagement({ initialSearchTerm = '' }: { initialSearchTerm?:
               <select
                 value={formData.pregnancyCategory}
                 onChange={(e) => setFormData({ ...formData, pregnancyCategory: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               >
                 <option value="">Select category</option>
                 {PREGNANCY_CATEGORIES.map((c) => (
@@ -357,7 +357,7 @@ export function DrugManagement({ initialSearchTerm = '' }: { initialSearchTerm?:
                 value={formData.stgReference}
                 onChange={(e) => setFormData({ ...formData, stgReference: e.target.value })}
                 placeholder="e.g., STG-2024-001"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               />
             </div>
 
@@ -368,7 +368,7 @@ export function DrugManagement({ initialSearchTerm = '' }: { initialSearchTerm?:
                 value={formData.contraindications}
                 onChange={(e) => setFormData({ ...formData, contraindications: e.target.value })}
                 placeholder="e.g., Liver disease, Pregnancy, Allergies"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               />
             </div>
 
@@ -379,7 +379,7 @@ export function DrugManagement({ initialSearchTerm = '' }: { initialSearchTerm?:
                 value={formData.warnings}
                 onChange={(e) => setFormData({ ...formData, warnings: e.target.value })}
                 placeholder="e.g., May cause drowsiness, Do not exceed 4g/day"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               />
             </div>
           </div>
@@ -490,3 +490,5 @@ export function DrugManagement({ initialSearchTerm = '' }: { initialSearchTerm?:
     </div>
   );
 }
+
+
