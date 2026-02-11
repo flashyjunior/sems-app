@@ -80,10 +80,28 @@ async function handler(req: NextRequest): Promise<NextResponse> {
           email: user.email,
           fullName: user.fullName,
           role: user.role,
+          pharmacyId: user.pharmacyId,
+          pharmacy: user.pharmacy,
         },
       },
       { status: 200 }
     );
+
+    // Set secure, HttpOnly cookie for server-side auth checks
+    try {
+      const secure = process.env.NODE_ENV === 'production';
+      response.cookies.set('authToken', token, {
+        httpOnly: true,
+        secure,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24, // 1 day
+      });
+    } catch (e) {
+      // If environment doesn't support response.cookies, fall back to header
+      const cookieVal = `authToken=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60 * 24}` + (process.env.NODE_ENV === 'production' ? '; Secure' : '');
+      response.headers.set('Set-Cookie', cookieVal);
+    }
 
     return setCORSHeaders(response, req.headers.get("origin") || undefined);
   } catch (error) {

@@ -77,7 +77,7 @@ export function LogsViewer({ className = '' }: LogsViewerProps) {
         className={`px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors ${className}`}
         title="View application logs for troubleshooting"
       >
-        📋 Logs
+         Logs
       </button>
     );
   }
@@ -98,7 +98,7 @@ export function LogsViewer({ className = '' }: LogsViewerProps) {
             onClick={() => setIsOpen(false)}
             className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
           >
-            ✕
+            
           </button>
         </div>
 
@@ -190,7 +190,7 @@ export function LogsViewer({ className = '' }: LogsViewerProps) {
             onClick={handleCopyToClipboard}
             className="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors"
           >
-            {copied ? '✓ Copied' : 'Copy to Clipboard'}
+            {copied ? '[OK] Copied' : 'Copy to Clipboard'}
           </button>
           <button
             onClick={() => handleDownload('json')}

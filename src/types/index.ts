@@ -7,6 +7,8 @@ export interface User {
   role: UserRole;
   email?: string;
   createdAt: number;
+  pharmacyId?: string;
+  pharmacy?: Pharmacy;
 }
 
 export interface Role {
@@ -28,6 +30,20 @@ export interface AuthState {
   lastLogin: number | null;
 }
 
+// Pharmacy Types
+export interface Pharmacy {
+  id: string;
+  name: string;
+  location?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  licenseNumber?: string;
+  manager?: string;
+  isActive: boolean;
+  createdAt: number;
+}
+
 // Drug & Dosing Types
 export interface DrugCategory {
   id: string;
@@ -41,6 +57,7 @@ export interface Drug {
   tradeName: string[];
   strength: string;
   route: 'oral' | 'iv' | 'im' | 'subcutaneous' | 'topical' | 'inhalation';
+  form?: string;
   category: string;
   stgReference: string;
   contraindications: string[];
@@ -70,6 +87,7 @@ export interface DoseCalculation {
   strength: string;
   doseMg: number;
   volumeMl?: number;
+  dosageForm?: string;
   frequency: string;
   duration: string;
   route: string;
@@ -89,12 +107,14 @@ export interface PatientInput {
   weight: number;
   pregnancyStatus?: 'yes' | 'no' | 'unknown';
   allergies: string[];
+  patientAgeGroup?: 'paediatric' | 'adult' | 'geriatric';
 }
 
 // Dispense Record Types
 export interface DispenseRecord {
   id: string;
   timestamp: number;
+  pharmacyId?: string;
   pharmacistId: string;
   pharmacistName?: string;
   patientName?: string;
@@ -219,6 +239,7 @@ export type TemplatePlaceholder =
   | 'drugName'
   | 'strength'
   | 'dose'
+  | 'dosageForm'
   | 'frequency'
   | 'duration'
   | 'route'
@@ -273,6 +294,7 @@ export interface Ticket {
   category: TicketCategory;
   priority: TicketPriority;
   status: TicketStatus;
+  dispenseRecordId?: string;
   attachments?: TicketAttachment[];
   createdAt: number;
   updatedAt: number;
@@ -352,6 +374,7 @@ export interface SystemSettings {
   phone?: string;
   email?: string;
   licenseNumber?: string;
+  pharmacyId?: string; // Unique identifier for this pharmacy outlet
   autoSyncEnabled: boolean;
   autoSyncInterval: number; // minutes
   offlineMode: boolean;

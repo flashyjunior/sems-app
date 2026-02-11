@@ -1,19 +1,22 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useAppStore } from '@/store/app';
 import { SyncStatus } from './SyncStatus';
 import { NotificationBell } from './NotificationBell';
 import { ChevronDown } from 'lucide-react';
 
 interface NavbarProps {
-  currentView: 'dashboard' | 'dispense' | 'settings' | 'tickets' | 'pending-drugs';
-  onViewChange: (view: 'dashboard' | 'dispense' | 'settings' | 'tickets' | 'pending-drugs') => void;
+  currentView: 'dashboard' | 'dispense' | 'settings' | 'tickets' | 'pending-drugs' | 'analytics';
+  onViewChange: (view: 'dashboard' | 'dispense' | 'settings' | 'tickets' | 'pending-drugs' | 'analytics') => void;
   onLogout: () => void;
   isAdmin: boolean;
   onNotificationTicketSelect?: (ticketId: string) => void;
 }
 
 export function Navbar({ currentView, onViewChange, onLogout, isAdmin, onNotificationTicketSelect }: NavbarProps) {
+  const user = useAppStore((s) => s.user);
+  const [pendingCount, setPendingCount] = useState<number | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -28,19 +31,63 @@ export function Navbar({ currentView, onViewChange, onLogout, isAdmin, onNotific
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Fetch pending temp-drugs count for admin badge
+  useEffect(() => {
+    let mounted = true;
+    async function fetchCount() {
+      try {
+        if (!isAdmin) return setPendingCount(null);
+        const res = await fetch('/api/admin/temp-drugs?count=true', { method: 'GET', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}` } });
+        if (!mounted) return;
+        if (res.ok) {
+          const json = await res.json();
+          setPendingCount(json.count || 0);
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    fetchCount();
+    const id = setInterval(fetchCount, 60000);
+    return () => {
+      mounted = false;
+      clearInterval(id);
+    };
+  }, [isAdmin]);
+
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { id: 'dispense', label: 'Dispense', icon: '💊' },
-    { id: 'tickets', label: 'Support', icon: '🎫' },
-    ...(isAdmin ? [{ id: 'settings', label: 'Settings', icon: '⚙️' }] : []),
+    { id: 'dashboard', label: 'Dashboard', icon: '[chart]' },
+    { id: 'dispense', label: 'Dispense', icon: '[pill]' },
+    { id: 'analytics', label: 'Analytics', icon: '[chart]' },
+    { id: 'tickets', label: 'Support', icon: '' },
+    // Admin-only items
+    ...(isAdmin
+      ? [
+          { id: 'pending-drugs', label: 'Pending Drugs', icon: '' },
+          { id: 'settings', label: 'Settings', icon: '' },
+        ]
+      : []),
   ];
+
+  const pharmacyName = user?.pharmacy?.name;
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">SEMS</h1>
-          <p className="text-sm text-gray-600">Smart Dispensing System</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-gray-600">Smart Dispensing System</p>
+            {pharmacyName && (
+              <>
+                <span className="text-sm text-gray-400">-</span>
+                <p className="text-sm font-medium text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded">
+                   {pharmacyName}
+                </p>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center gap-6">
@@ -53,10 +100,12 @@ export function Navbar({ currentView, onViewChange, onLogout, isAdmin, onNotific
               onClick={() => setShowDropdown(!showDropdown)}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium transition"
             >
-              {currentView === 'dashboard' && '📊 Dashboard'}
-              {currentView === 'dispense' && '💊 Dispense'}
-              {currentView === 'tickets' && '🎫 Support'}
-              {currentView === 'settings' && '⚙️ Settings'}
+              {currentView === 'dashboard' && '[chart] Dashboard'}
+              {currentView === 'dispense' && '[pill] Dispense'}
+              {currentView === 'analytics' && '[chart] Analytics'}
+              {currentView === 'tickets' && ' Support'}
+              {currentView === 'pending-drugs' && ' Pending Drugs'}
+              {currentView === 'settings' && ' Settings'}
               <ChevronDown size={18} className={`transition ${showDropdown ? 'rotate-180' : ''}`} />
             </button>
 
@@ -66,7 +115,15 @@ export function Navbar({ currentView, onViewChange, onLogout, isAdmin, onNotific
                   <button
                     key={item.id}
                     onClick={() => {
-                      onViewChange(item.id as 'dashboard' | 'dispense' | 'settings' | 'tickets');
+                      onViewChange(
+                        item.id as
+                          | 'dashboard'
+                          | 'dispense'
+                          | 'settings'
+                          | 'tickets'
+                          | 'analytics'
+                          | 'pending-drugs'
+                      );
                       setShowDropdown(false);
                     }}
                     className={`w-full text-left px-4 py-3 flex items-center gap-2 transition ${
@@ -76,7 +133,14 @@ export function Navbar({ currentView, onViewChange, onLogout, isAdmin, onNotific
                     }`}
                   >
                     <span className="text-lg">{item.icon}</span>
-                    {item.label}
+                    <div className="flex items-center gap-2">
+                      <span>{item.label}</span>
+                      {item.id === 'pending-drugs' && pendingCount && pendingCount > 0 && (
+                        <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-semibold leading-4 text-white bg-red-600 rounded">
+                          {pendingCount}
+                        </span>
+                      )}
+                    </div>
                   </button>
                 ))}
               </div>

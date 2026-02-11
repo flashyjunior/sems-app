@@ -78,10 +78,10 @@ export function DatabaseHealthIndicator() {
 
   const statusIcon =
     health.status === 'healthy'
-      ? '🟢'
+      ? ''
       : health.status === 'degraded'
-      ? '🟡'
-      : '🔴';
+      ? ''
+      : '';
 
   return (
     <div className={`border ${statusColor} rounded-lg p-3 text-sm`}>
@@ -92,7 +92,7 @@ export function DatabaseHealthIndicator() {
         <span>{statusIcon}</span>
         <span>Database: {health.status.toUpperCase()}</span>
         <span className="ml-auto text-xs">
-          {showDetails ? '▼' : '▶'}
+          {showDetails ? '' : ''}
         </span>
       </button>
 
@@ -100,7 +100,7 @@ export function DatabaseHealthIndicator() {
         <div className={`mt-2 space-y-2 text-xs ${statusTextColor} ml-6`}>
           <div>
             <strong>Connection:</strong>{' '}
-            {health.database.connected ? '✓ Connected' : '✗ Not Connected'}
+            {health.database.connected ? '[OK] Connected' : ' Not Connected'}
             {health.database.error && (
               <div className="mt-1 font-mono bg-red-100 p-2 rounded break-words">
                 {health.database.error}
@@ -110,7 +110,7 @@ export function DatabaseHealthIndicator() {
 
           <div>
             <strong>DispenseRecord Table:</strong>{' '}
-            {health.tables.dispenseRecord.exists ? `✓ Exists (${health.tables.dispenseRecord.count} records)` : '✗ Not Found'}
+            {health.tables.dispenseRecord.exists ? `[OK] Exists (${health.tables.dispenseRecord.count} records)` : ' Not Found'}
             {health.tables.dispenseRecord.error && (
               <div className="mt-1 font-mono bg-red-100 p-2 rounded break-words">
                 {health.tables.dispenseRecord.error}
@@ -120,7 +120,7 @@ export function DatabaseHealthIndicator() {
 
           <div>
             <strong>User Table:</strong>{' '}
-            {health.tables.user.exists ? `✓ Exists (${health.tables.user.count} records)` : '✗ Not Found'}
+            {health.tables.user.exists ? `[OK] Exists (${health.tables.user.count} records)` : ' Not Found'}
             {health.tables.user.error && (
               <div className="mt-1 font-mono bg-red-100 p-2 rounded break-words">
                 {health.tables.user.error}

@@ -228,7 +228,7 @@ export function generatePharmacyLabelHTML(data: PrintLabelData): string {
           
           ${warningsText ? `
           <div class="warnings-section">
-            ⚠ Warnings: ${escapeHtml(warningsText)}
+            [WARN] Warnings: ${escapeHtml(warningsText)}
           </div>
           ` : ''}
         </div>

@@ -83,6 +83,7 @@ export class SyncManager {
           });
           
           // Map record fields - handle both camelCase and snake_case
+          const stateUser = useAppStore.getState().user;
           syncPayload = {
             externalId: record.externalId || record.external_id || record.id,
             patientName: record.patientName || record.patient_name,
@@ -101,6 +102,9 @@ export class SyncManager {
             auditLog: record.auditLog 
               ? (typeof record.auditLog === 'string' ? JSON.parse(record.auditLog) : record.auditLog)
               : undefined,
+            // Attach pharmacyId from the record only. Do NOT trust logged-in user's pharmacyId for sync.
+            // Security: using the record's pharmacyId prevents privilege escalation by changing the user's assigned pharmacy.
+            pharmacyId: record.pharmacyId || record.pharmacy_id || undefined,
           };
           
           // Check if this is an update (was previously synced, now needs sync again)
@@ -944,16 +948,16 @@ export class SyncManager {
             // Map local ID to server ID
             idMap.set(tempDrug.id, response.data.id);
             synced++;
-            console.log(`[SyncManager] ✓ Synced temp drug: ${tempDrug.id} -> server ID: ${response.data.id}`);
+            console.log(`[SyncManager] [OK] Synced temp drug: ${tempDrug.id} -> server ID: ${response.data.id}`);
             logInfo(`Synced temp drug: ${tempDrug.id} -> server ID: ${response.data.id}`);
             
             // Delete from local database after successful sync to prevent duplicate syncing
             await db.tempDrugs.delete(tempDrug.id);
-            console.log(`[SyncManager] ✓ Deleted synced temp drug ${tempDrug.id} from local DB`);
+            console.log(`[SyncManager] [OK] Deleted synced temp drug ${tempDrug.id} from local DB`);
           }
         } catch (err) {
           failed++;
-          console.error(`[SyncManager] ✗ Failed to sync temp drug ${tempDrug.id}:`, err);
+          console.error(`[SyncManager]  Failed to sync temp drug ${tempDrug.id}:`, err);
           logError(`Failed to sync temp drug ${tempDrug.id}`, err instanceof Error ? err : new Error(String(err)));
         }
       }
@@ -983,16 +987,16 @@ export class SyncManager {
           
           if (response.status === 201) {
             synced++;
-            console.log(`[SyncManager] ✓ Synced temp regimen: ${tempRegimen.id} (linked to temp drug: ${serverTempDrugId})`);
+            console.log(`[SyncManager] [OK] Synced temp regimen: ${tempRegimen.id} (linked to temp drug: ${serverTempDrugId})`);
             logInfo(`Synced temp regimen: ${tempRegimen.id} (linked to temp drug: ${serverTempDrugId})`);
             
             // Delete from local database after successful sync to prevent duplicate syncing
             await db.tempDrugRegimens.delete(tempRegimen.id);
-            console.log(`[SyncManager] ✓ Deleted synced temp regimen ${tempRegimen.id} from local DB`);
+            console.log(`[SyncManager] [OK] Deleted synced temp regimen ${tempRegimen.id} from local DB`);
           }
         } catch (err) {
           failed++;
-          console.error(`[SyncManager] ✗ Failed to sync temp regimen ${tempRegimen.id}:`, err);
+          console.error(`[SyncManager]  Failed to sync temp regimen ${tempRegimen.id}:`, err);
           logError(`Failed to sync temp regimen ${tempRegimen.id}`, err instanceof Error ? err : new Error(String(err)));
         }
       }
@@ -1056,6 +1060,37 @@ export class SyncManager {
         stack: error instanceof Error ? error.stack : undefined,
       });
       return { pulled: false };
+    }
+  }
+
+  /**
+   * Pull pharmacies from cloud to IndexedDB
+   */
+  async pullPharmacies(options: SyncOptions): Promise<{ pulled: number }> {
+    try {
+      logInfo('Starting pharmacies pull from cloud');
+
+      const response = await axios.post(
+        `${options.apiBaseUrl}/api/sync/pull-pharmacies`,
+        {},
+        {
+          headers: {
+            'Authorization': `Bearer ${options.authToken}`,
+          },
+        }
+      );
+
+      if (response.data.success && response.data.pharmacies) {
+        // Save to IndexedDB
+        await db.pharmacies.bulkPut(response.data.pharmacies);
+        logInfo(`Pulled ${response.data.pharmacies.length} pharmacies to IndexedDB`);
+        return { pulled: response.data.pharmacies.length };
+      }
+
+      return { pulled: 0 };
+    } catch (error) {
+      logError('Failed to pull pharmacies', error instanceof Error ? error : new Error(String(error)));
+      return { pulled: 0 };
     }
   }
 }

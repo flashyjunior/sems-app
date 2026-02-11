@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, LogOut, RotateCcw, Settings, Bell, Home, CheckCircle } from 'lucide-react';
+import { Menu, X, LogOut, RotateCcw, Settings, Bell, Home, CheckCircle, BarChart3 } from 'lucide-react';
 import { useAppStore } from '@/store/app';
 
 interface FloatingMenuProps {
   onLogout: () => void;
   onSync?: () => void;
-  onNavigate?: (view: 'dashboard' | 'dispense' | 'settings' | 'tickets' | 'pending-drugs') => void;
-  currentView?: 'dashboard' | 'dispense' | 'settings' | 'tickets' | 'pending-drugs';
+  onNavigate?: (view: 'dashboard' | 'dispense' | 'settings' | 'tickets' | 'pending-drugs' | 'analytics') => void;
+  currentView?: 'dashboard' | 'dispense' | 'settings' | 'tickets' | 'pending-drugs' | 'analytics';
   isAdmin?: boolean;
   syncInProgress?: boolean;
   userName?: string;
@@ -50,7 +50,7 @@ export function FloatingMenu({
     }
   };
 
-  const handleNavigate = (view: 'dashboard' | 'dispense' | 'settings' | 'tickets' | 'pending-drugs') => {
+  const handleNavigate = (view: 'dashboard' | 'dispense' | 'settings' | 'tickets' | 'pending-drugs' | 'analytics') => {
     if (onNavigate) {
       onNavigate(view);
       setIsOpen(false);
@@ -74,6 +74,12 @@ export function FloatingMenu({
       label: 'Dispense',
       icon: RotateCcw,
       action: () => handleNavigate('dispense'),
+    },
+    {
+      id: 'analytics',
+      label: 'Analytics',
+      icon: BarChart3,
+      action: () => handleNavigate('analytics'),
     },
     {
       id: 'support',

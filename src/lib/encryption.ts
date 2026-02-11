@@ -36,7 +36,7 @@ function getEncryptionKey(): Buffer {
 
     // Development mode: Generate a temporary key
     console.warn(
-      '\n⚠️  WARNING: ENCRYPTION_KEY not set. Using temporary development key.\n' +
+      '\n[WARN]  WARNING: ENCRYPTION_KEY not set. Using temporary development key.\n' +
       'For persistent storage across restarts, add to .env.local:\n' +
       'ENCRYPTION_KEY=<run: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'base64\'))">\n'
     );

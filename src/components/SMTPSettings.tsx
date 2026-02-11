@@ -250,7 +250,7 @@ export function SMTPSettingsComponent() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900"
               >
-                {showPassword ? '🙈' : '👁️'}
+                {showPassword ? '[hide]' : '[eye]'}
               </button>
             </div>
             <p className="text-xs text-gray-500 mt-1">For Gmail, use an App Password, not your main password</p>
@@ -341,7 +341,7 @@ export function SMTPSettingsComponent() {
           <h3 className="font-semibold text-blue-900 mb-2">Gmail Setup Guide:</h3>
           <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
             <li>Enable 2-Factor Authentication on your Gmail account</li>
-            <li>Go to Google Account → Security → App passwords</li>
+            <li>Go to Google Account  Security  App passwords</li>
             <li>Generate an app password for "Mail" and "Windows Computer"</li>
             <li>Use the generated 16-character password in the Password field</li>
             <li>Host: smtp.gmail.com, Port: 587, Secure: Enabled</li>

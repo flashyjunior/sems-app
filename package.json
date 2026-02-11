@@ -6,10 +6,13 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "check:nonascii": "node scripts/check-non-ascii.js",
+    "prepare": "husky install",
     "prisma:generate": "prisma generate",
     "start": "next start",
     "lint": "eslint",
     "init:db": "node scripts/init-db.js",
+    "seed-analytics": "npx tsx src/scripts/seed-analytics-data.ts",
     "test": "jest --runInBand",
     "test:watch": "jest --watch"
   },
@@ -33,6 +36,7 @@
     "zustand": "^5.0.9"
   },
   "devDependencies": {
+    "husky": "^8.0.0",
     "@jest/globals": "^30.2.0",
     "@prisma/client": "^7.2.0",
     "@tailwindcss/postcss": "^4",

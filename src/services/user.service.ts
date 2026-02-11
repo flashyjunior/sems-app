@@ -117,7 +117,13 @@ export const changeUserPassword = async (id: number, oldPassword: string, newPas
 export const authenticateUser = async (email: string, password: string) => {
   try {
     logInfo('Authenticating user', { email });
-    const user = await getUserByEmail(email);
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        role: true,
+        pharmacy: true,
+      },
+    });
     
     if (!user) {
       logInfo('User not found', { email });
@@ -163,7 +169,16 @@ export const listUsers = async (page: number = 1, limit: number = 20) => {
       prisma.user.findMany({
         skip,
         take: limit,
-        include: { role: true },
+        include: { 
+          role: true,
+          pharmacy: {
+            select: {
+              id: true,
+              name: true,
+              location: true,
+            }
+          }
+        },
         orderBy: { createdAt: 'desc' },
       }),
       prisma.user.count(),

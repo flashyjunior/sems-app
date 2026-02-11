@@ -5,6 +5,7 @@ interface LabelData {
   drugName: string;
   strength: string;
   dose: number;
+  dosageForm?: string;
   frequency: string;
   duration: string;
   route: string;
@@ -68,6 +69,7 @@ export class PrintService {
         drugName: dose.drugName,
         strength: dose.strength,
         dose: dose.doseMg,
+        dosageForm: dose.dosageForm,
         frequency: dose.frequency,
         duration: dose.duration,
         route: dose.route,
@@ -106,8 +108,8 @@ export class PrintService {
       // Build warnings HTML
       const warningsHtml = data.warnings && data.warnings.length > 0
         ? `<div class="warnings">
-            <div class="warnings-title">⚠️ WARNINGS</div>
-            ${data.warnings.map((w: string) => `<div class="warning-item">• ${w}</div>`).join('')}
+            <div class="warnings-title">[WARN] WARNINGS</div>
+            ${data.warnings.map((w: string) => `<div class="warning-item">- ${w}</div>`).join('')}
           </div>`
         : '';
 
@@ -319,11 +321,11 @@ export class PrintService {
               
               <div>
                 <div class="main-instruction">
-                  TAKE ${data.dose} ${data.route.toUpperCase()}<br>${data.frequency.toUpperCase()}
+                  TAKE ${data.dose} ${data.dosageForm ? data.dosageForm.toUpperCase() : data.route.toUpperCase()}<br>${data.frequency.toUpperCase()}
                 </div>
                 
                 <div class="drug-box">
-                  ${data.drugName.toUpperCase()} ${data.strength}
+                  ${data.drugName.toUpperCase()} ${data.strength}${data.dosageForm ? ' (' + data.dosageForm + ')' : ''}
                 </div>
                 
                 <div class="instructions-box">
@@ -394,6 +396,7 @@ export class PrintService {
 {{drugName}}
 Strength: {{strength}}
 Dose: {{dose}} mg
+ Form: {{dosageForm}}
 Frequency: {{frequency}}
 Duration: {{duration}}
 Route: {{route}}

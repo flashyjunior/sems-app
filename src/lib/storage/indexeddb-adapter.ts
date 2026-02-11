@@ -14,6 +14,7 @@ import type {
   SystemSettings,
   Ticket,
   TicketNote,
+  Pharmacy,
 } from '@/types';
 import type { StorageAdapter } from './interface';
 import { db, type SEMSDB } from '@/lib/db';
@@ -40,6 +41,7 @@ export class IndexedDBAdapter implements StorageAdapter {
   private ticketTable!: Table<Ticket>;
   private ticketNoteTable!: Table<TicketNote>;
   private syncMetadataTable!: Table<{ key: string; value: unknown }>;
+  private pharmacyTable!: Table<Pharmacy>;
 
   constructor() {
     // Use the shared SEMSDB instance (already configured with v1 and v2 schemas)
@@ -61,6 +63,7 @@ export class IndexedDBAdapter implements StorageAdapter {
     this.ticketTable = this.db.table('tickets');
     this.ticketNoteTable = this.db.table('ticketNotes');
     this.syncMetadataTable = this.db.table('syncMetadata');
+    this.pharmacyTable = this.db.table('pharmacies');
   }
 
   // ============ Users ============
@@ -404,6 +407,33 @@ export class IndexedDBAdapter implements StorageAdapter {
 
   async deleteTicketNote(id: string): Promise<void> {
     await this.ticketNoteTable.delete(id);
+  }
+
+  // ============ Pharmacies ============
+  async getPharmacy(id: string): Promise<Pharmacy | undefined> {
+    return await this.pharmacyTable.get(id);
+  }
+
+  async getAllPharmacies(): Promise<Pharmacy[]> {
+    return await this.pharmacyTable.toArray();
+  }
+
+  async savePharmacy(pharmacy: Pharmacy): Promise<void> {
+    await this.pharmacyTable.put(pharmacy);
+  }
+
+  async savePharmacies(pharmacies: Pharmacy[]): Promise<void> {
+    await this.pharmacyTable.bulkPut(pharmacies);
+  }
+
+  async updatePharmacy(id: string, updates: Partial<Pharmacy>): Promise<void> {
+    const pharmacy = await this.pharmacyTable.get(id);
+    if (!pharmacy) throw new Error(`Pharmacy ${id} not found`);
+    await this.pharmacyTable.update(id, updates);
+  }
+
+  async deletePharmacy(id: string): Promise<void> {
+    await this.pharmacyTable.delete(id);
   }
 
   // ============ Utility ============

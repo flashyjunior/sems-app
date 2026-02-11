@@ -307,6 +307,18 @@ export function TicketManagement() {
     }
   };
 
+  const handleOpenDispenseEvent = (dispenseRecordId?: string | null) => {
+    if (!dispenseRecordId) {
+      alert('No dispensing event linked to this ticket.');
+      return;
+    }
+    try {
+      window.dispatchEvent(new CustomEvent('sems:open-dispense', { detail: { dispenseRecordId } }));
+    } catch (e) {
+      console.error('Failed to dispatch sems:open-dispense event', e);
+    }
+  };
+
   // Handle notification navigation to ticket
   useEffect(() => {
     if (selectedTicketId) {
@@ -833,7 +845,7 @@ export function TicketManagement() {
                           onClick={() => handlePreviewAttachment(file)}
                           className="text-sm text-blue-600 hover:text-blue-800 cursor-pointer flex items-center gap-2 transition-colors"
                         >
-                          <span>👁️</span>
+                          <span>[eye]</span>
                           <span className="underline">{file.name}</span>
                           <span className="text-xs text-gray-500">({(file.size / 1024).toFixed(2)} KB)</span>
                         </li>
@@ -945,7 +957,7 @@ export function TicketManagement() {
                       <p className="text-xs text-gray-500">{formatDate(ticket.createdAt)}</p>
                       <p className="text-xs text-gray-500">{formatTime(ticket.createdAt)}</p>
                       {ticket.notes && ticket.notes.length > 0 && (
-                        <p className="text-xs text-blue-600 mt-2">💬 {ticket.notes.length} comment{ticket.notes.length !== 1 ? 's' : ''}</p>
+                        <p className="text-xs text-blue-600 mt-2"> {ticket.notes.length} comment{ticket.notes.length !== 1 ? 's' : ''}</p>
                       )}
                     </div>
                   </div>
@@ -963,7 +975,7 @@ export function TicketManagement() {
             onClick={handleBackToTickets}
             className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2"
           >
-            ← Back to Tickets
+            {"<- Back to Tickets"}
           </button>
 
           <div className="bg-white rounded-lg shadow p-8">
@@ -995,6 +1007,17 @@ export function TicketManagement() {
                   {ticketDetails.priority}
                 </span>
               </div>
+              {ticketDetails.dispenseRecordId && (
+                <div className="ml-4">
+                  <button
+                    onClick={() => handleOpenDispenseEvent(ticketDetails.dispenseRecordId)}
+                    className="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm"
+                    type="button"
+                  >
+                    Open Dispensing Event
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Details */}
@@ -1038,7 +1061,7 @@ export function TicketManagement() {
                       onClick={() => handleDownloadAttachment(attachment)}
                       className="text-blue-600 hover:text-blue-800 cursor-pointer flex items-center gap-2 transition-colors"
                     >
-                      <span>📎</span>
+                      <span>[attach]</span>
                       <span className="underline">{attachment.name}</span>
                       <span className="text-xs text-gray-500">({(attachment.size / 1024).toFixed(2)} KB)</span>
                     </li>

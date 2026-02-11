@@ -21,6 +21,7 @@ const DEFAULT_HTML_TEMPLATE = `
     <div class="header">{{drugName}}</div>
     <div class="field"><strong>Strength:</strong> {{strength}}</div>
     <div class="field"><strong>Dose:</strong> <div class="label-value">{{dose}} mg</div></div>
+    <div class="field"><strong>Form:</strong> <div class="label-value">{{dosageForm}}</div></div>
     <div class="field"><strong>Frequency:</strong> {{frequency}}</div>
     <div class="field"><strong>Duration:</strong> {{duration}}</div>
     <div class="field"><strong>Route:</strong> {{route}}</div>
@@ -43,6 +44,7 @@ const DEFAULT_ESCPOS_TEMPLATE = `
 {{drugName}}
 Strength: {{strength}}
 Dose: {{dose}} mg
+Form: {{dosageForm}}
 Frequency: {{frequency}}
 Duration: {{duration}}
 Route: {{route}}
@@ -57,6 +59,7 @@ export const AVAILABLE_PLACEHOLDERS: Record<TemplatePlaceholder, string> = {
   drugName: 'Drug Name',
   strength: 'Drug Strength',
   dose: 'Dose (in mg)',
+  dosageForm: 'Dosage form (tablet/capsule/liquid/etc.)',
   frequency: 'Frequency (e.g., Every 8 hours)',
   duration: 'Duration (e.g., 7 days)',
   route: 'Route of Administration',

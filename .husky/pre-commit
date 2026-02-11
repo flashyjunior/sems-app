@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Run non-ascii check and TypeScript check before commit
+echo "Running non-ASCII source check..."
+node scripts/check-non-ascii.js
+if [ $? -ne 0 ]; then
+  echo "Non-ASCII check failed. Aborting commit." >&2
+  exit 1
+fi
+
+echo "Running TypeScript compile check..."
+npx -y tsc --noEmit
+if [ $? -ne 0 ]; then
+  echo "TypeScript check failed. Aborting commit." >&2
+  exit 1
+fi
+
+echo "Pre-commit checks passed."

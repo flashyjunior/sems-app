@@ -108,7 +108,55 @@ async function handleGET(request: AuthenticatedRequest) {
       })),
     }));
 
-    return NextResponse.json(formattedTickets);
+    // Also include AlertTicket entries mapped to ticket-like objects
+    let alertTicketFormatted: any[] = [];
+    try {
+      const alertWhere: any = {};
+      if (!all) {
+        // my-tickets view: only alert tickets created by the user
+        alertWhere.createdBy = user.id;
+      }
+
+      const alertTickets = await prisma.alertTicket.findMany({
+        where: alertWhere,
+        include: { createdByUser: true, alert: { include: { dispensingEvent: true } } },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      alertTicketFormatted = alertTickets.map((a: any) => {
+        const high = a.alert;
+        const evt = high?.dispensingEvent;
+        return {
+          id: a.id,
+          ticketNumber: `ALERT-${a.id}`,
+          userId: a.createdByUser ? String(a.createdByUser.id) : null,
+          userName: a.createdByUser ? a.createdByUser.fullName : 'System',
+          userEmail: a.createdByUser ? a.createdByUser.email : null,
+          title: `Risk Alert: ${high?.drugName || high?.id || 'unknown'}`,
+          description: `Risk category: ${high?.riskCategory || 'unknown'}\nScore: ${high?.riskScore ?? 'N/A'}\nDispensingEvent: ${evt?.id || high?.dispensingEventId || 'N/A'}`,
+          category: 'urgent',
+          priority: 'high',
+          status: 'open',
+          attachments: [],
+          createdAt: a.createdAt.getTime(),
+          updatedAt: a.createdAt.getTime(),
+          resolvedAt: null,
+          closedAt: null,
+          notes: a.note ? [{ id: `alertnote-${a.id}`, ticketId: a.id, authorId: a.createdByUser ? String(a.createdByUser.id) : null, authorName: a.createdByUser ? a.createdByUser.fullName : 'System', content: a.note, isAdminNote: false, createdAt: a.createdAt.getTime() }] : [],
+          origin: 'alert',
+          highRiskAlertId: high?.id || null,
+          dispensingEventId: high?.dispensingEventId || evt?.id || null,
+          dispenseRecordId: evt?.dispenseRecordId || null,
+        };
+      });
+    } catch (e) {
+      console.error('Error fetching alert tickets for list:', e);
+    }
+
+    // Merge and sort by createdAt desc
+    const merged = [...formattedTickets, ...alertTicketFormatted].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+    return NextResponse.json(merged);
   } catch (error) {
     console.error('Error fetching tickets:', error);
     return NextResponse.json(

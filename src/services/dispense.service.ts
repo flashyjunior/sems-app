@@ -50,6 +50,7 @@ export const createDispenseRecord = async (userId: number, data: DispenseCreate)
 
     const dispense = await prisma.dispenseRecord.create({
       data: {
+        pharmacyId: (data as any).pharmacyId || undefined,
         userId,
         externalId: data.externalId,
         patientName: data.patientName,

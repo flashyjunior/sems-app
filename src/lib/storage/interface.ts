@@ -13,6 +13,7 @@ import type {
   SystemSettings,
   Ticket,
   TicketNote,
+  Pharmacy,
 } from '@/types';
 
 /**
@@ -150,6 +151,14 @@ export interface StorageAdapter {
   saveTicketNote(note: TicketNote): Promise<void>;
   updateTicketNote(id: string, updates: Partial<TicketNote>): Promise<void>;
   deleteTicketNote(id: string): Promise<void>;
+
+  // ============ Pharmacies ============
+  getPharmacy(id: string): Promise<Pharmacy | undefined>;
+  getAllPharmacies(): Promise<Pharmacy[]>;
+  savePharmacy(pharmacy: Pharmacy): Promise<void>;
+  savePharmacies(pharmacies: Pharmacy[]): Promise<void>;
+  updatePharmacy(id: string, updates: Partial<Pharmacy>): Promise<void>;
+  deletePharmacy(id: string): Promise<void>;
 
   // ============ Utility ============
   clear(): Promise<void>;

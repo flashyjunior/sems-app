@@ -6,9 +6,10 @@ import { doseCalculationService } from '@/services/dose';
 import { printService } from '@/services/print';
 import { syncService } from '@/services/sync';
 import { db, addDispenseRecord } from '@/lib/db';
+import { captureDispensingEvent } from '@/services/analytics/eventProcessor';
 import { DrugSearch } from './DrugSearch';
 import { DrugVariantsSelector } from './DrugVariantsSelector';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, AlertTriangle } from 'lucide-react';
 import type { Drug, PatientInput, DispenseRecord } from '@/types';
 
 interface DispenseFormProps {
@@ -23,10 +24,13 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
     weight: 0,
     pregnancyStatus: 'no',
     allergies: [],
+    patientAgeGroup: 'adult',
   });
   const [dose, setDose] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [highRiskAlert, setHighRiskAlert] = useState<any>(null);
+  const [showHighRiskConfirmation, setShowHighRiskConfirmation] = useState(false);
   const [matchingPatients, setMatchingPatients] = useState<Array<{
     name: string;
     phoneNumber?: string;
@@ -165,6 +169,36 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
       // Save to local database
       await addDispenseRecord(record);
 
+      // NEW: Capture DPAP analytics event
+      try {
+        const analyticsEvent = await captureDispensingEvent({
+          dispenseRecordId: record.id,
+          timestamp: new Date(receiptTimestamp),
+          pharmacyId: user?.pharmacy?.id || user?.pharmacyId || 'UNKNOWN_PHARMACY',
+          userId: parseInt(user.id, 10),
+          drugId: selectedDrug.id,
+          drugName: selectedDrug.genericName,
+          patientAgeGroup: patientData.patientAgeGroup || 'adult',
+          isPrescription: true,
+          isControlledDrug: selectedDrug.category?.toLowerCase().includes('controlled') || false,
+          isAntibiotic: selectedDrug.category?.toLowerCase().includes('antibiotic') || false,
+          stgCompliant: true,
+          overrideFlag: false,
+          patientIsPregnant: patientData.pregnancyStatus === 'yes',
+        });
+
+        // Check if high-risk
+        if (analyticsEvent.highRiskFlag) {
+          setHighRiskAlert(analyticsEvent);
+          setShowHighRiskConfirmation(true);
+          setLoading(false);
+          return;
+        }
+      } catch (analyticsErr) {
+        console.warn('Analytics capture failed:', analyticsErr);
+        // Continue even if analytics fails
+      }
+
       // Add to recent dispenses
       addRecentDispense(record);
 
@@ -215,7 +249,8 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
           return;
         }
 
-        setDose(calculated);
+        // Dose calculation result
+        setDose({ ...calculated, dosageForm: calculated.dosageForm || selectedDrug.form || 'tablet' });
         setCurrentPatient(patientData);
         setCurrentDose(calculated);
       } else {
@@ -240,6 +275,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
           drugId: selectedDrug.id,
           drugName: selectedDrug.genericName,
           strength: selectedDrug.strength,
+          dosageForm: selectedDrug.form || 'tablet',
           doseMg: 0,
           frequency: '',
           duration: '',
@@ -315,18 +351,30 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
           </div>
 
           {/* Dose & Frequency */}
-          <div className="grid grid-cols-2 gap-2">
-            <div>
+          <div className="grid grid-cols-3 gap-2 items-end">
+            <div className="max-w-[90px]">
               <label className="block text-xs font-bold text-gray-700 mb-0.5">Dose (mg)</label>
               <input
                 type="number"
                 value={dose?.doseMg || ''}
                 onChange={(e) => setDose({ ...dose, doseMg: parseFloat(e.target.value) || 0, warnings: dose?.warnings || [] })}
-                className="w-full px-3 py-1.5 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
+                className="w-full px-2 py-1 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
                 step="0.1"
               />
             </div>
-            <div>
+
+            <div className="max-w-[80px]">
+              <label className="block text-xs font-bold text-gray-700 mb-0.5">Qty</label>
+              <input
+                type="number"
+                min={1}
+                value={dose?.quantity ?? 1}
+                onChange={(e) => setDose({ ...dose, quantity: parseInt(e.target.value) || 1, warnings: dose?.warnings || [] })}
+                className="w-full px-2 py-1 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
+              />
+            </div>
+
+            <div className="col-span-1">
               <label className="block text-xs font-bold text-gray-700 mb-0.5">Frequency</label>
               <input
                 type="text"
@@ -337,6 +385,27 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
               />
             </div>
           </div>
+
+          {/* Dosage Form field (separate small control) */}
+          <div className="mt-2 max-w-xs">
+            <label className="block text-xs font-bold text-gray-700 mb-0.5">Form</label>
+            <select
+              value={dose?.dosageForm || selectedDrug?.form || 'tablet'}
+              onChange={(e) => setDose({ ...dose, dosageForm: e.target.value, warnings: dose?.warnings || [] })}
+              className="w-40 px-2 py-1 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
+            >
+              <option value="tablet">Tablet</option>
+              <option value="capsule">Capsule</option>
+              <option value="liquid">Liquid</option>
+              <option value="injection">Injection</option>
+              <option value="patch">Patch</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          {/* Units input removed to avoid coupling with doseMg */}
+
+          {/* Dosage Form selection removed - preserving original behavior */}
 
           {/* Route & Duration */}
           <div className="grid grid-cols-2 gap-2">
@@ -425,6 +494,28 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
     );
   }
 
+  // Runtime guard: prevent dispense workflow when user is not assigned to a pharmacy
+  const userPharmacyId = user?.pharmacy?.id || user?.pharmacyId;
+  if (!userPharmacyId) {
+    return (
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <h3 className="text-lg font-semibold text-red-700 mb-2">Access Denied</h3>
+        <p className="text-sm text-gray-700 mb-4">
+          You are not assigned to a pharmacy. Creating dispense records is restricted to users linked to a pharmacy.
+        </p>
+        <p className="text-sm text-gray-600 mb-4">Please ask an administrator to assign you to a pharmacy or use the Settings menu to update your assignment.</p>
+        <div className="flex gap-2">
+          <button
+            onClick={() => { /* no-op: user should navigate via Settings in the app nav */ }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Open Settings
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Mode selection screen
   if (dispensingMode === 'mode-select') {
     return (
@@ -453,11 +544,11 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
               Search for a drug, enter patient details, and calculate dose based on age/weight
             </p>
             <div className="mt-4 text-xs text-gray-500">
-              ✓ Detailed calculation
+              [OK] Detailed calculation
               <br />
-              ✓ Patient age & weight required
+              [OK] Patient age & weight required
               <br />
-              ✓ Full customization
+              [OK] Full customization
             </div>
           </button>
 
@@ -479,11 +570,11 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
               Search for a drug variant, auto-fill from database, print directly or edit before saving
             </p>
             <div className="mt-4 text-xs text-gray-500">
-              ✓ Quick selection
+              [OK] Quick selection
               <br />
-              ✓ Pre-configured doses
+              [OK] Pre-configured doses
               <br />
-              ✓ Auto-print option
+              [OK] Auto-print option
             </div>
           </button>
         </div>
@@ -614,6 +705,25 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
                   <option value="no">Not Pregnant</option>
                 </select>
               </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Patient Age Category
+                </label>
+                <select
+                  value={patientData.patientAgeGroup || 'adult'}
+                  onChange={(e) =>
+                    setPatientData({
+                      ...patientData,
+                      patientAgeGroup: e.target.value as any,
+                    })
+                  }
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                >
+                  <option value="paediatric">Paediatric (0-12)</option>
+                  <option value="adult">Adult (13-64)</option>
+                  <option value="geriatric">Geriatric (65+)</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -657,6 +767,65 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
         </div>
       )}
 
+      {/* High-Risk Confirmation Dialog */}
+      {showHighRiskConfirmation && highRiskAlert && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md p-6 border-l-4 border-red-600">
+            <div className="flex items-center gap-2 mb-4">
+              <AlertTriangle className="text-red-600 w-6 h-6" />
+              <h3 className="text-lg font-bold text-red-600">[WARN] High-Risk Dispensing Detected</h3>
+            </div>
+            <div className="space-y-3 mb-6">
+              <p className="text-sm text-gray-700">
+                <strong>Risk Score:</strong> {highRiskAlert.riskScore}/100
+              </p>
+              <p className="text-sm text-gray-700">
+                <strong>Risk Category:</strong> <span className="text-red-600 font-semibold">{highRiskAlert.riskCategory?.toUpperCase()}</span>
+              </p>
+              {highRiskAlert.riskFlags && highRiskAlert.riskFlags.length > 0 && (
+                <div>
+                  <p className="text-sm font-semibold text-gray-700 mb-1">Flags:</p>
+                  <ul className="text-sm text-gray-600 list-disc list-inside space-y-0.5">
+                    {highRiskAlert.riskFlags.map((flag: string) => (
+                      <li key={flag}>{flag.replace(/_/g, ' ')}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+            <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-6">
+              <p className="text-xs text-yellow-800">
+                <strong>Action Required:</strong> Review the flagged risks carefully before proceeding. This dispensing may require additional verification or supervision.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowHighRiskConfirmation(false);
+                  setHighRiskAlert(null);
+                  setSelectedDrug(null);
+                  setDose(null);
+                }}
+                className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowHighRiskConfirmation(false);
+                  setHighRiskAlert(null);
+                  addRecentDispense({} as any); // Record already saved
+                  onDispenseComplete();
+                }}
+                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition"
+              >
+                Confirm & Proceed
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <DrugSearch onSelect={setSelectedDrug} />
 
       {selectedDrug && (
@@ -669,7 +838,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
       )}
 
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div className="relative">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Patient Name
@@ -679,7 +848,7 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
               value={patientData.name || ''}
               onChange={(e) => handlePatientNameChange(e.target.value)}
               onFocus={() => patientData.name && matchingPatients.length > 0 && setShowPatientDropdown(true)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+              className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm text-gray-900 bg-white"
               placeholder="Type patient name to search..."
               autoComplete="off"
             />
@@ -719,14 +888,12 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
                 searchPatients(e.target.value);
               }}
               onFocus={() => patientData.phoneNumber && matchingPatients.length > 0 && setShowPatientDropdown(true)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+              className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm text-gray-900 bg-white"
               placeholder="Search by phone number..."
               autoComplete="off"
             />
           </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Age (years)
@@ -742,10 +909,13 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
                   age: parseInt(e.target.value) || 0,
                 })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+              className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               placeholder="Age"
             />
           </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Weight (kg)
@@ -761,9 +931,28 @@ export function DispenseForm({ onDispenseComplete }: DispenseFormProps) {
                   weight: parseFloat(e.target.value) || 0,
                 })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+              className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm text-gray-900 bg-white"
               placeholder="Weight"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Pregnancy Status
+            </label>
+            <select
+              value={patientData.pregnancyStatus || 'unknown'}
+              onChange={(e) =>
+                setPatientData({
+                  ...patientData,
+                  pregnancyStatus: e.target.value as any,
+                })
+              }
+              className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+            >
+              <option value="unknown">Unknown</option>
+              <option value="yes">Pregnant</option>
+              <option value="no">Not Pregnant</option>
+            </select>
           </div>
         </div>
 
