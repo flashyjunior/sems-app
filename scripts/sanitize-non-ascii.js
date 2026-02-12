@@ -51,11 +51,10 @@ files.forEach((file) => {
     }
   });
 
-  // Remove other non-ASCII characters conservatively: replace with empty string
-  const cleaned = content.replace(/[\u0080-\uFFFF]/g, '');
-  if (cleaned !== orig) {
-    fs.writeFileSync(file, cleaned, 'utf8');
-    console.log(`Sanitized ${file}`);
+  // After applying replacements, keep remaining characters intact (do not strip emojis)
+  if (content !== orig) {
+    fs.writeFileSync(file, content, 'utf8');
+    console.log(`Updated ${file}`);
     changed++;
   }
 });

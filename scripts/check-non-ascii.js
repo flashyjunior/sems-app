@@ -5,9 +5,17 @@ const path = require('path');
 const root = path.resolve(__dirname, '..');
 const scanDir = path.join(root, 'src');
 
-function isAscii(str) {
-  // allow common whitespace and control chars
-  return /^[\u0000-\u007f]*$/.test(str);
+function isAllowedChar(ch) {
+  // Allow ASCII and emoji / pictographic characters (so UI emojis are permitted)
+  // Uses Unicode property escapes; requires a modern Node.js (v10+).
+  if (/^[\u0000-\u007f]$/.test(ch)) return true;
+  try {
+    // match Emoji or Extended_Pictographic characters
+    return /\p{Emoji}|\p{Extended_Pictographic}/u.test(ch);
+  } catch (e) {
+    // Fallback: allow common emoji-range codepoints (basic BMP symbols)
+    return /[\u2600-\u26FF\u2700-\u27BF\u1F300-\u1F6FF\u1F900-\u1F9FF]/.test(ch);
+  }
 }
 
 function walk(dir) {
@@ -31,9 +39,9 @@ files.forEach((file) => {
   const content = fs.readFileSync(file, 'utf8');
   for (let i = 0; i < content.length; i++) {
     const ch = content[i];
-    if (!isAscii(ch)) {
+    if (!isAllowedChar(ch)) {
       const snippet = content.substr(Math.max(0, i - 20), 60).replace(/\n/g, '\\n');
-      console.error(`Non-ASCII char in ${file}: index ${i} -> ...${snippet}...`);
+      console.error(`Disallowed char in ${file}: index ${i} -> ...${snippet}...`);
       found++;
       break;
     }
