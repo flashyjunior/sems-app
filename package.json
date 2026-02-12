@@ -13,7 +13,6 @@
     "start": "next start",
     "lint": "eslint",
     "init:db": "node scripts/init-db.js",
-    "seed-analytics": "npx tsx src/scripts/seed-analytics-data.ts",
     "test": "jest --runInBand",
     "test:watch": "jest --watch"
   },

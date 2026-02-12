@@ -179,27 +179,11 @@ export function DrugVariantsSelector({
             .toArray();
           
           if (regimens && regimens.length > 0) {
-            // Drug has regimens - show all of them
             regimens.forEach((regimen) => {
               allRegimens.push({
                 drug,
                 regimen,
               });
-            });
-          } else {
-            // Drug has no regimens - add a default "custom dose" option
-            allRegimens.push({
-              drug,
-              regimen: {
-                id: `custom-${drug.id}`,
-                drugId: drug.id,
-                ageGroup: 'adult',
-                doseMg: '',
-                frequency: '',
-                duration: '',
-                route: drug.route || 'oral',
-                instructions: '',
-              } as any,
             });
           }
         }
@@ -237,7 +221,6 @@ export function DrugVariantsSelector({
         drugName: option.drug.genericName,
         strength: option.drug.strength,
         doseMg: doseMgValue,
-        dosageForm: option.drug.form || 'tablet',
         frequency: option.regimen.frequency || '',
         duration: option.regimen.duration || '7 days',
         route: option.drug.route,
@@ -514,7 +497,7 @@ export function DrugVariantsSelector({
           // Save to local temp database (IndexedDB)
           console.log('Saving to local IndexedDB tempDrugs table:', tempDrugData);
           const tempDrugId = await db.tempDrugs.add(tempDrugData as any);
-          console.log('[OK] Saved to IndexedDB with ID:', tempDrugId);
+          console.log('✓ Saved to IndexedDB with ID:', tempDrugId);
           // Note: Syncing will happen automatically via sync service when internet is available
 
           // Create new temp dose regimen
@@ -538,7 +521,7 @@ export function DrugVariantsSelector({
           // Save to local temp database (IndexedDB)
           console.log('Saving to local IndexedDB tempDrugRegimens table:', tempRegimen);
           const tempRegimenId = await db.tempDrugRegimens.add(tempRegimen as any);
-          console.log('[OK] Saved to IndexedDB with ID:', tempRegimenId);
+          console.log('✓ Saved to IndexedDB with ID:', tempRegimenId);
           // Note: Syncing will happen automatically via sync service when internet is available
 
           console.log('=== TEMP SAVE COMPLETE ===');
@@ -624,7 +607,6 @@ export function DrugVariantsSelector({
               <div className="max-h-80 overflow-y-auto">
                 {regimenOptions.map((option, idx) => {
                   const regimen = option.regimen;
-                  const isCustomDose = regimen.id.startsWith('custom-');
                   const ageGroupLabel = regimen.ageGroup === 'pediatric' ? '(Pediatric)' : 
                                        regimen.ageGroup === 'neonatal' ? '(Neonatal)' : 
                                        regimen.ageGroup === 'geriatric' ? '(Geriatric)' : '(Adult)';
@@ -636,13 +618,12 @@ export function DrugVariantsSelector({
                     >
                       <div className="font-semibold text-gray-900 text-sm">
                         {option.drug.genericName} {option.drug.strength}
-                        {isCustomDose && <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Custom Dose</span>}
                       </div>
                       <div className="text-xs text-gray-600 mt-0.5">
-                        {ageGroupLabel} - {regimen.frequency || 'Custom'} - {regimen.duration || 'Custom'}
+                        {ageGroupLabel} • {regimen.frequency || 'N/A'} • {regimen.duration || 'N/A'}
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
-                        Route: {option.drug.route} - Dose: {regimen.doseMg || 'Custom'}
+                        Route: {option.drug.route} • Dose: {regimen.doseMg || 'N/A'}
                       </div>
                     </button>
                   );
@@ -704,9 +685,9 @@ export function DrugVariantsSelector({
                 </div>
               </div>
 
-                {/* Dose, Form & Frequency (compact dose + form select) */}
-                <div className="grid grid-cols-3 gap-2 items-end">
-                  <div className="max-w-[120px]">
+                {/* Dose & Frequency */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1">Dose</label>
                     <input
                       type="number"
@@ -717,32 +698,10 @@ export function DrugVariantsSelector({
                           doseMg: parseFloat(e.target.value) || 0,
                         })
                       }
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
                       step="0.1"
                     />
                   </div>
-
-                  <div className="max-w-[140px]">
-                    <label className="block text-xs font-bold text-gray-700 mb-1">Form</label>
-                    <select
-                      value={editedDose.dosageForm || selectedVariant.drug.form || 'tablet'}
-                      onChange={(e) =>
-                        setEditedDose({
-                          ...editedDose,
-                          dosageForm: e.target.value,
-                        })
-                      }
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
-                    >
-                      <option value="tablet">Tablet</option>
-                      <option value="capsule">Capsule</option>
-                      <option value="liquid">Liquid</option>
-                      <option value="injection">Injection</option>
-                      <option value="patch">Patch</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1">Frequency</label>
                     <input

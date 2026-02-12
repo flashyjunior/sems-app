@@ -14,8 +14,6 @@ import { createActivityLog } from '@/services/activity-log.service';
 import { logInfo, logError } from '@/lib/logger';
 import { writeLog } from '@/lib/file-logger';
 import { AuthenticatedRequest } from '@/lib/auth-middleware';
-import { getUserScope } from '@/lib/user-scope';
-import prisma from '@/lib/prisma';
 
 async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
   const corsResponse = handleCORS(req);
@@ -23,18 +21,6 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
 
   try {
     if (req.method === 'GET') {
-      // Get user's pharmacy assignment
-      let userPharmacyId: string | null = null;
-      try {
-        const user = await prisma.user.findUnique({
-          where: { id: req.user!.userId },
-          select: { pharmacyId: true },
-        });
-        userPharmacyId = user?.pharmacyId || null;
-      } catch (error) {
-        logError('Error fetching user pharmacy information', error);
-      }
-
       // List dispense records with pagination and filtering
       const { searchParams } = new URL(req.url);
       const page = parseInt(searchParams.get('page') || '1');
@@ -65,45 +51,13 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
         filters.userId = parseInt(pharmacistId);
       }
 
-      // Pharmacy-specific users can only see their own pharmacy's records
-      if (userPharmacyId) {
-        filters.pharmacyId = userPharmacyId;
-      }
-
       const result = await listDispenseRecords(page, limit, filters);
 
       const response = NextResponse.json(result, { status: 200 });
       return setCORSHeaders(response, req.headers.get('origin') || undefined);
     } else if (req.method === 'POST') {
-      // Get user's pharmacy assignment
-      let userPharmacyId: string | null = null;
-      try {
-        const user = await prisma.user.findUnique({
-          where: { id: req.user!.userId },
-          select: { pharmacyId: true },
-        });
-        userPharmacyId = user?.pharmacyId || null;
-      } catch (error) {
-        logError('Error fetching user pharmacy information', error);
-        // Continue without pharmacy info, it will be set to null
-      }
-
-      // Create new dispense record - parse body early so we can allow payloads that include pharmacyId
+      // Create new dispense record
       const body = await req.json();
-
-      // If neither the user nor the request body supplies a pharmacyId, reject
-      if (!userPharmacyId && !body?.pharmacyId) {
-        return setCORSHeaders(
-          NextResponse.json(
-            {
-              error: 'Unauthorized',
-              message: 'You must be assigned to a pharmacy to create transactions. Please contact the administrator.',
-            },
-            { status: 403 }
-          ),
-          req.headers.get('origin') || undefined
-        );
-      }
 
       const validation = dispenseCreateSchema.safeParse(body);
       if (!validation.success) {
@@ -117,25 +71,6 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
               })),
             },
             { status: 400 }
-          ),
-          req.headers.get('origin') || undefined
-        );
-      }
-
-      // Ensure pharmacyId is set from the user's assignment when missing
-      if (!validation.data.pharmacyId && userPharmacyId) {
-        (validation.data as any).pharmacyId = userPharmacyId;
-      }
-
-      // Validate pharmacy access - ensure they can only create for their assigned pharmacy when userPharmacyId exists
-      if (body.pharmacyId && userPharmacyId && body.pharmacyId !== userPharmacyId) {
-        return setCORSHeaders(
-          NextResponse.json(
-            {
-              error: 'Access denied',
-              message: `You can only create dispenses for your assigned pharmacy`,
-            },
-            { status: 403 }
           ),
           req.headers.get('origin') || undefined
         );
@@ -223,40 +158,6 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
           patientName: validation.data.patientName,
           createdAt: new Date(),
         };
-      }
-
-      // Capture analytics event (convert dispense to analytics record)
-      if (dispense && !dbError) {
-        try {
-          const dose = validation.data.dose
-            ? typeof validation.data.dose === 'string'
-              ? JSON.parse(validation.data.dose)
-              : validation.data.dose
-            : null;
-
-          // Use server-side processor to record analytics (avoids client-only dependencies)
-          const { processDispensingEvent } = await import('@/services/analytics/serverProcessor');
-          await processDispensingEvent({
-            dispenseRecordId: String(dispense.id),
-            timestamp: new Date(),
-            pharmacyId: (validation.data.pharmacyId ?? userPharmacyId ?? '') as string,
-            userId: req.user!.userId,
-            drugId: validation.data.drugId || '',
-            drugName: validation.data.drugName || '',
-            genericName: validation.data.drugName || null,
-            patientAgeGroup: validation.data.patientAge ? (validation.data.patientAge < 12 ? 'paediatric' : validation.data.patientAge > 65 ? 'geriatric' : 'adult') : 'adult',
-            isPrescription: true,
-            isControlledDrug: false,
-            isAntibiotic: false,
-            stgCompliant: true,
-            patientIsPregnant: false,
-            overrideFlag: false,
-          });
-        } catch (analyticsError) {
-          // Log but don't fail if analytics capture fails
-          console.warn('Failed to capture analytics event from dispense:', analyticsError);
-          logError('Failed to capture analytics event', analyticsError, { dispenseId: dispense.id });
-        }
       }
 
       try {

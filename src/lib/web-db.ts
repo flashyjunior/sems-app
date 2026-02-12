@@ -4,7 +4,6 @@
  */
 
 import { db } from './db';
-import { useAppStore } from '@/store/app';
 import type { DispenseRecord, SyncQueueItem } from '@/types';
 
 export class WebDatabase {
@@ -28,7 +27,6 @@ export class WebDatabase {
       
       const dispenseRecord: DispenseRecord = {
         id,
-        pharmacyId: record.pharmacyId || useAppStore.getState().user?.pharmacyId,
         pharmacistId: record.pharmacistId || 'unknown',
         patientName: record.patientName,
         patientPhoneNumber: record.patientPhoneNumber,
@@ -76,7 +74,6 @@ export class WebDatabase {
       return records.map((record) => ({
         id: record.id,
         external_id: record.id,
-        pharmacy_id: record.pharmacyId,
         patient_name: record.patientName,
         patient_phone_number: record.patientPhoneNumber,
         patient_age: record.patientAge,

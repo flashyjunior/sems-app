@@ -152,7 +152,7 @@ export function FirstLaunchSetup({ onComplete }: { onComplete: () => void }) {
 
           {/* Help Text */}
           <p className="text-xs text-gray-500 text-center">
-            You can change this later in Settings  Sync Configuration
+            You can change this later in Settings → Sync Configuration
           </p>
         </div>
       </div>

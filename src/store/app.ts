@@ -58,10 +58,6 @@ interface AppState {
   // Ticket navigation
   selectedTicketId: string | null;
   setSelectedTicketId: (ticketId: string | null) => void;
-  selectedHighRiskAlertId: string | null;
-  setSelectedHighRiskAlertId: (id: string | null) => void;
-  selectedDispenseRecordId: string | null;
-  setSelectedDispenseRecordId: (id: string | null) => void;
 
   // Recent dispenses
   recentDispenses: DispenseRecord[];
@@ -159,11 +155,6 @@ export const useAppStore = create<AppState>((set, get) => ({
   selectedTicketId: null,
   setSelectedTicketId: (ticketId) =>
     set({ selectedTicketId: ticketId }),
-  selectedHighRiskAlertId: null,
-  setSelectedHighRiskAlertId: (id) => set({ selectedHighRiskAlertId: id }),
-
-  selectedDispenseRecordId: null,
-  setSelectedDispenseRecordId: (id) => set({ selectedDispenseRecordId: id }),
 
   // Recent dispenses
   recentDispenses: [],

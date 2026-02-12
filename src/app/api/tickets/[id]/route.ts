@@ -43,60 +43,6 @@ async function handleGET(request: AuthenticatedRequest): Promise<NextResponse> {
     });
 
     if (!ticket) {
-      // If a regular support ticket was not found, try to resolve an AlertTicket
-      try {
-        const alertTicket = await prisma.alertTicket.findUnique({
-          where: { id: ticketId },
-          include: {
-            createdByUser: true,
-            alert: {
-              include: {
-                dispensingEvent: true,
-              },
-            },
-          },
-        });
-
-        if (alertTicket) {
-          const high = alertTicket.alert;
-          const evt = high?.dispensingEvent;
-
-          // Map AlertTicket to ticket-like response expected by the UI
-          return NextResponse.json({
-            id: alertTicket.id,
-            ticketNumber: `ALERT-${alertTicket.id}`,
-            userId: alertTicket.createdByUser ? String(alertTicket.createdByUser.id) : null,
-            userName: alertTicket.createdByUser ? alertTicket.createdByUser.fullName : 'System',
-            userEmail: alertTicket.createdByUser ? alertTicket.createdByUser.email : null,
-            title: `Risk Alert: ${high?.drugName || high?.id || 'unknown'}`,
-            description: `Risk category: ${high?.riskCategory || 'unknown'}\nScore: ${high?.riskScore ?? 'N/A'}\nDispensingEvent: ${evt?.id || high?.dispensingEventId || 'N/A'}`,
-            category: 'urgent',
-            priority: 'high',
-            origin: 'alert',
-            status: 'open',
-            attachments: [],
-            createdAt: alertTicket.createdAt.getTime(),
-            updatedAt: alertTicket.createdAt.getTime(),
-            resolvedAt: null,
-            closedAt: null,
-            notes: alertTicket.note ? [{
-              id: `alertnote-${alertTicket.id}`,
-              ticketId: alertTicket.id,
-              authorId: alertTicket.createdByUser ? String(alertTicket.createdByUser.id) : null,
-              authorName: alertTicket.createdByUser ? alertTicket.createdByUser.fullName : 'System',
-              content: alertTicket.note,
-              isAdminNote: false,
-              createdAt: alertTicket.createdAt.getTime(),
-            }] : [],
-            highRiskAlertId: high?.id || null,
-            dispensingEventId: high?.dispensingEventId || evt?.id || null,
-            dispenseRecordId: evt?.dispenseRecordId || null,
-          });
-        }
-      } catch (e) {
-        console.error('Error resolving alertTicket fallback:', e);
-      }
-
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 

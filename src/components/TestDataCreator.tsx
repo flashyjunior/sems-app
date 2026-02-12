@@ -72,23 +72,23 @@ export function TestDataCreator({ className = '' }: TestDataCreatorProps) {
       }));
       await db.syncQueue.bulkAdd(syncItems);
 
-      setMessage(`[OK] Created ${recordCount} test record${recordCount > 1 ? 's' : ''} - they should appear as pending in the sync control`);
+      setMessage(`✅ Created ${recordCount} test record${recordCount > 1 ? 's' : ''} - they should appear as pending in the sync control`);
       setTimeout(() => setMessage(null), 5000);
       setIsOpen(false);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      setMessage(` Error: ${errorMsg}`);
+      setMessage(`❌ Error: ${errorMsg}`);
     }
   };
 
   const handleResetSyncedStatus = async () => {
     try {
       const count = await resetAllRecordsToUnsynced();
-      setMessage(`[OK] Reset ${count} records to unsynced status`);
+      setMessage(`✅ Reset ${count} records to unsynced status`);
       setTimeout(() => setMessage(null), 5000);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      setMessage(` Error: ${errorMsg}`);
+      setMessage(`❌ Error: ${errorMsg}`);
     }
   };
 
@@ -99,7 +99,7 @@ export function TestDataCreator({ className = '' }: TestDataCreatorProps) {
         className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
         title="Create test records for sync testing"
       >
-         Test Data
+        🧪 Test Data
       </button>
 
       {isOpen && (
@@ -127,7 +127,7 @@ export function TestDataCreator({ className = '' }: TestDataCreatorProps) {
             {message && (
               <div
                 className={`mb-4 p-3 rounded-lg text-sm ${
-                  message.startsWith('[OK]')
+                  message.startsWith('✅')
                     ? 'bg-green-50 text-green-800 border border-green-200'
                     : 'bg-red-50 text-red-800 border border-red-200'
                 }`}
@@ -148,7 +148,7 @@ export function TestDataCreator({ className = '' }: TestDataCreatorProps) {
                 className="flex-1 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 font-medium transition-colors text-xs"
                 title="Reset all records to unsynced status"
               >
-                 Reset Synced
+                🔄 Reset Synced
               </button>
               <button
                 onClick={() => setIsOpen(false)}

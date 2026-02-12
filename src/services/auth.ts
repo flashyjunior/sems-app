@@ -43,8 +43,6 @@ export class AuthService {
         role: roleStr as any,
         email: userData.email,
         createdAt: Date.now(),
-        pharmacyId: userData.pharmacyId,
-        pharmacy: userData.pharmacy,
       };
 
       // Store session
@@ -65,12 +63,6 @@ export class AuthService {
   }
 
   async logout(): Promise<void> {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-    } catch (e) {
-      // ignore network errors
-    }
-
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(AUTH_TOKEN_KEY);
   }

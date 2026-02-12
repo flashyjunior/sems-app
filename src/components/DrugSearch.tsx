@@ -69,7 +69,7 @@ export function DrugSearch({ onSelect }: DrugSearchProps) {
                 {drug.genericName}
               </div>
               <div className="text-sm text-gray-600">
-                {drug.strength} - {drug.tradeName.join(', ')}
+                {drug.strength} • {drug.tradeName.join(', ')}
               </div>
               <div className="text-xs text-gray-500">{drug.route}</div>
             </button>

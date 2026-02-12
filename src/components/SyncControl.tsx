@@ -157,7 +157,7 @@ export function SyncControl({
                 onClick={() => setIsOpen(false)}
                 className="text-gray-500 hover:text-gray-700"
               >
-                
+                ✕
               </button>
             </div>
 
@@ -173,7 +173,7 @@ export function SyncControl({
             {/* Manual Sync Result */}
             {manualSyncResult && (
               <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-800">
-                [OK] Synced {manualSyncResult.synced} records
+                ✓ Synced {manualSyncResult.synced} records
                 {manualSyncResult.failed > 0 &&
                   `, Failed: ${manualSyncResult.failed}`}
               </div>
@@ -182,7 +182,7 @@ export function SyncControl({
             {/* Error Message */}
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-800">
-                 {error}
+                ✕ {error}
               </div>
             )}
 

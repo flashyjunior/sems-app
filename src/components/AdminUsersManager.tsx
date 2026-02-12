@@ -321,7 +321,7 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
         }
       }
       
-      setSuccess(`[OK] Synced ${usersData.users?.length || 0} users to local database`);
+      setSuccess(`✅ Synced ${usersData.users?.length || 0} users to local database`);
       setTimeout(() => setSuccess(null), 5000);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error syncing users';
@@ -351,7 +351,7 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
         className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
         title="Admin: Manage users and roles"
       >
-         Admin Users
+        👥 Admin Users
       </button>
 
       {isOpen && (
@@ -363,7 +363,7 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
                 onClick={() => setIsOpen(false)}
                 className="text-gray-500 hover:text-gray-700 font-bold text-xl"
               >
-                
+                ✕
               </button>
             </div>
 
@@ -394,7 +394,7 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
             {/* Messages */}
             {error && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-800">
-                 {error}
+                ❌ {error}
               </div>
             )}
             {success && (
@@ -500,7 +500,7 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
                       className="px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium transition-colors"
                       title="Pull users from PostgreSQL to IndexDB and SQLite"
                     >
-                       Sync to Local
+                      📥 Sync to Local
                     </button>
                   </div>
 
@@ -611,14 +611,14 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
                                   disabled={loading}
                                   className="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium text-sm transition-colors"
                                 >
-                                  {loading ? 'Saving...' : '[OK] Save'}
+                                  {loading ? 'Saving...' : '✓ Save'}
                                 </button>
                                 <button
                                   onClick={handleCancelEdit}
                                   disabled={loading}
                                   className="flex-1 px-3 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 disabled:opacity-50 font-medium text-sm transition-colors"
                                 >
-                                   Cancel
+                                  ✕ Cancel
                                 </button>
                               </div>
                             </div>
@@ -650,13 +650,13 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
                                   onClick={() => handleEditUser(u)}
                                   className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm transition-colors"
                                 >
-                                   Edit
+                                  ✏️ Edit
                                 </button>
                                 <button
                                   onClick={() => handleDeleteUser(u.id, u.fullName)}
                                   className="flex-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium text-sm transition-colors"
                                 >
-                                   Delete
+                                  🗑️ Delete
                                 </button>
                               </div>
                             </div>

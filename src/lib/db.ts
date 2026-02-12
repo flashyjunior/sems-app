@@ -17,7 +17,6 @@ import type {
   TicketNote,
   TempDrug,
   TempDrugRegimen,
-  Pharmacy,
 } from '@/types';
 
 export class SEMSDB extends Dexie {
@@ -40,7 +39,6 @@ export class SEMSDB extends Dexie {
   ticketNotes!: Table<TicketNote>;
   tempDrugs!: Table<TempDrug>;
   tempDrugRegimens!: Table<TempDrugRegimen>;
-  pharmacies!: Table<Pharmacy>;
 
   constructor() {
     super('SEMSDB');
@@ -59,7 +57,6 @@ export class SEMSDB extends Dexie {
       printerSettings: 'id, isDefault',
       systemSettings: 'id',
       smtpSettings: 'id',
-      pharmacies: 'id, name',
     });
 
     // Version 2: Add ticket tables
@@ -81,7 +78,6 @@ export class SEMSDB extends Dexie {
         smtpSettings: 'id',
         tickets: 'id, ticketNumber, userId, synced',
         ticketNotes: 'id, ticketId, synced',
-        pharmacies: 'id, name',
       })
       .upgrade(async (tx) => {
         // Migration logic: tickets and ticketNotes tables will be created automatically
@@ -109,7 +105,6 @@ export class SEMSDB extends Dexie {
         ticketNotes: 'id, ticketId, synced',
         tempDrugs: 'id, genericName, status, createdAt',
         tempDrugRegimens: 'id, tempDrugId, status, createdAt',
-        pharmacies: 'id, name',
       })
       .upgrade(async (tx) => {
         // Migration logic: temp tables will be created automatically

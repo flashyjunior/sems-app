@@ -144,7 +144,7 @@ export function Dashboard() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-bold text-gray-900">Dashboard</h2>
+        <h2 className="text-3xl font-bold text-gray-900">📊 Dashboard</h2>
         <p className="text-gray-600 mt-2 hidden">Overview of your dispensing activity</p>
       </div>
 
@@ -215,7 +215,7 @@ export function Dashboard() {
         {/* Trend Chart */}
         <div className="lg:col-span-2 bg-white rounded-lg shadow p-6">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Dispenses - Last 7 Days</h3>
+            <h3 className="text-lg font-semibold text-gray-900">💊 Dispenses - Last 7 Days</h3>
             <div className="flex gap-2">
               <button
                 onClick={() => setTrendChartType('bar')}

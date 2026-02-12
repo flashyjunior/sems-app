@@ -200,7 +200,7 @@ export async function sendTicketResolutionEmail(
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
           <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 5px;">
             <h2 style="color: #2c3e50; border-bottom: 2px solid ${statusColor}; padding-bottom: 10px;">
-              Ticket ${status === 'resolved' ? 'Resolved' : 'Closed'}
+              🎫 Ticket ${status === 'resolved' ? 'Resolved' : 'Closed'}
             </h2>
 
             <div style="background-color: #fff; padding: 15px; border-left: 4px solid ${statusColor}; margin: 20px 0;">

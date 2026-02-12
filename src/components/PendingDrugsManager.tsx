@@ -250,7 +250,7 @@ export function PendingDrugsManager({ onBack }: PendingDrugsManagerProps) {
                     )}
                   </h2>
                   <p className="text-gray-600 text-sm mt-1">
-                    {drug.strength} - {drug.route} - {drug.category}
+                    {drug.strength} • {drug.route} • {drug.category}
                   </p>
                 </div>
                 <div className="text-right ml-4">
@@ -298,10 +298,10 @@ export function PendingDrugsManager({ onBack }: PendingDrugsManagerProps) {
                     {drug.regimens.map((regimen) => (
                       <div key={regimen.id} className="bg-blue-50 border border-blue-200 rounded p-3 text-sm">
                         <p className="font-medium text-gray-800">
-                          {regimen.doseMg}mg - {regimen.frequency} - {regimen.duration}
+                          {regimen.doseMg}mg • {regimen.frequency} • {regimen.duration}
                         </p>
                         <p className="text-gray-600 text-xs mt-1">
-                          {regimen.ageGroup || 'Age: varies'} - {regimen.route}
+                          {regimen.ageGroup || 'Age: varies'} • {regimen.route}
                         </p>
                         {regimen.instructions && (
                           <p className="text-gray-600 text-xs mt-1 italic">{regimen.instructions}</p>

@@ -104,7 +104,6 @@ export const paginationSchema = z.object({
 // Dispense Record validation
 export const dispenseCreateSchema = z.object({
   externalId: z.string().min(1, 'Dispense ID is required'),
-  pharmacyId: z.string().optional(),
   patientName: z.string().optional(),
   patientPhoneNumber: z.string().optional(),
   patientAge: z.number().optional(),

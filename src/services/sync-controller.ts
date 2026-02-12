@@ -235,10 +235,6 @@ export class SyncController {
       const drugsResult = await syncManager.pullDrugsAndRegimens(this.options);
       logInfo(`Pulled ${drugsResult.drugs} drugs and ${drugsResult.regimens} dose regimens`);
 
-      // Pull pharmacies
-      const pharmaciesResult = await syncManager.pullPharmacies(this.options);
-      logInfo(`Pulled ${pharmaciesResult.pulled} pharmacies`);
-
       // Pull tickets
       const ticketsResult = await syncManager.pullTickets(this.options);
       logInfo(`Pulled ${ticketsResult.pulled} tickets`);

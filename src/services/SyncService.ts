@@ -166,16 +166,16 @@ export class SyncService {
 
           if (response.ok) {
             await db.syncQueue.delete(item.id!);
-            console.log('[SyncService] [OK] Synced', item.method, item.endpoint);
+            console.log('[SyncService] ✓ Synced', item.method, item.endpoint);
           } else if (response.status >= 500 || item.retries < 3) {
             // Retry on server error or if retries left
             item.retries += 1;
             await db.syncQueue.put(item);
-            console.warn('[SyncService] [WARN] Failed, will retry:', item.method, item.endpoint);
+            console.warn('[SyncService] ⚠ Failed, will retry:', item.method, item.endpoint);
           } else {
             // Give up
             await db.syncQueue.delete(item.id!);
-            console.error('[SyncService]  Failed permanently:', item.method, item.endpoint);
+            console.error('[SyncService] ✗ Failed permanently:', item.method, item.endpoint);
           }
         } catch (error) {
           console.error('[SyncService] Sync error:', error);

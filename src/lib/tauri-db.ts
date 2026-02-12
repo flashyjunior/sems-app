@@ -1,7 +1,6 @@
 'use client';
 
 import { db } from './db';
-import { useAppStore } from '@/store/app';
 
 /**
  * Local SQLite database for offline storage
@@ -46,7 +45,6 @@ export class LocalDatabase {
           safetyAcknowledgements: JSON.stringify(record.safetyAcknowledgements),
           printedAt: record.printedAt,
           deviceId: record.deviceId,
-          pharmacyId: record.pharmacyId || useAppStore.getState().user?.pharmacyId,
           auditLog: record.auditLog ? JSON.stringify(record.auditLog) : null,
           createdAt: now,
           updatedAt: now,
@@ -56,7 +54,6 @@ export class LocalDatabase {
         // Use IndexedDB fallback
         const record_obj = await db.dispenseRecords.add({
           ...record,
-          pharmacyId: record.pharmacyId || useAppStore.getState().user?.pharmacyId,
           synced: false,
           createdAt: Date.now(),
           updatedAt: Date.now(),

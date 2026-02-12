@@ -16,22 +16,15 @@ export interface AuthenticatedRequest extends NextRequest {
 export const withAuth = (handler: (req: AuthenticatedRequest) => Promise<NextResponse>) => {
   return async (req: AuthenticatedRequest) => {
     const authHeader = req.headers.get('authorization');
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { error: 'Missing or invalid authorization header' },
+        { status: 401 }
+      );
+    }
 
-      // Prefer Authorization header, fallback to HttpOnly cookie named 'authToken'
-      let token: string | null = null;
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        token = authHeader.substring(7);
-      } else {
-        const cookie = req.cookies.get ? req.cookies.get('authToken') : undefined;
-        if (cookie && cookie.value) token = cookie.value;
-      }
-
-      if (!token) {
-        return NextResponse.json(
-          { error: 'Missing or invalid authorization token' },
-          { status: 401 }
-        );
-      }
+    const token = authHeader.substring(7);
     const payload = verifyToken(token);
 
     if (!payload) {

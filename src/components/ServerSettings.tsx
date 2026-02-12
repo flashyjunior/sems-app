@@ -32,14 +32,14 @@ export const ServerSettings: React.FC<{
       
       if (response.ok) {
         setConnectionStatus('success');
-        setStatusMessage('[OK] Connected successfully to server');
+        setStatusMessage('✓ Connected successfully to server');
       } else {
         setConnectionStatus('error');
-        setStatusMessage(` Server returned status ${response.status}`);
+        setStatusMessage(`✗ Server returned status ${response.status}`);
       }
     } catch (error) {
       setConnectionStatus('error');
-      setStatusMessage(` Connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setStatusMessage(`✗ Connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setTestingConnection(false);
     }
