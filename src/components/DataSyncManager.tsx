@@ -21,6 +21,7 @@ export function DataSyncManager() {
     smtpSettings: number;
     dispenseRecords: number;
     tickets: number;
+    pharmacies: number;
   } | null>(null);
   const user = useAppStore((s) => s.user);
 
@@ -47,6 +48,7 @@ export function DataSyncManager() {
         smtpSettings: 0,
         dispenseRecords: 0,
         tickets: 0,
+        pharmacies: 0,
       };
 
       // 1. Sync Roles
@@ -207,7 +209,18 @@ export function DataSyncManager() {
         console.error('Error syncing SMTP settings:', err);
       }
 
-      // 8. Sync Dispense Records
+      // 8. Sync Pharmacies
+      try {
+        const pharmaciesResult = await syncManager.pullPharmacies({
+          apiBaseUrl,
+          authToken,
+        });
+        stats.pharmacies = pharmaciesResult.pulled;
+      } catch (err) {
+        console.error('Error syncing pharmacies:', err);
+      }
+
+      // 9. Sync Dispense Records
       try {
         const dispenseResult = await syncManager.pullDispenseRecords({
           apiBaseUrl,
@@ -218,7 +231,7 @@ export function DataSyncManager() {
         console.error('Error syncing dispense records:', err);
       }
 
-      // 9. Sync Tickets
+      // 10. Sync Tickets
       try {
         const ticketsResult = await syncManager.pullTickets({
           apiBaseUrl,
@@ -231,7 +244,7 @@ export function DataSyncManager() {
 
       setSyncStats(stats);
       setSuccess(
-        `✅ Sync complete! Roles: ${stats.roles}, Users: ${stats.users}, Drugs: ${stats.drugs}, Doses: ${stats.doseRegimens}, Printers: ${stats.printerSettings}, Templates: ${stats.printTemplates}, System: ${stats.systemSettings}, SMTP: ${stats.smtpSettings}, Dispense: ${stats.dispenseRecords}, Tickets: ${stats.tickets}`
+        `[OK] Sync complete! Roles: ${stats.roles}, Users: ${stats.users}, Drugs: ${stats.drugs}, Doses: ${stats.doseRegimens}, Printers: ${stats.printerSettings}, Templates: ${stats.printTemplates}, System: ${stats.systemSettings}, SMTP: ${stats.smtpSettings}, Pharmacies: ${stats.pharmacies}, Dispense: ${stats.dispenseRecords}, Tickets: ${stats.tickets}`
       );
       setTimeout(() => setSuccess(null), 8000);
     } catch (err) {
@@ -272,16 +285,16 @@ export function DataSyncManager() {
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-sm text-blue-900 font-medium mb-2">Last Sync Results:</p>
           <div className="grid grid-cols-2 gap-2 text-sm text-blue-800">
-            <p>👤 Roles: {syncStats.roles}</p>
-            <p>👥 Users: {syncStats.users}</p>
-            <p>💊 Drugs: {syncStats.drugs}</p>
-            <p>📋 Doses: {syncStats.doseRegimens}</p>
-            <p>🖨️ Printers: {syncStats.printerSettings}</p>
-            <p>🏷️ Templates: {syncStats.printTemplates}</p>
-            <p>⚙️ System: {syncStats.systemSettings}</p>
-            <p>📧 SMTP: {syncStats.smtpSettings}</p>
-            <p>📊 Dispense: {syncStats.dispenseRecords}</p>
-            <p>🎫 Tickets: {syncStats.tickets}</p>
+            <p> Roles: {syncStats.roles}</p>
+            <p> Users: {syncStats.users}</p>
+            <p>[pill] Drugs: {syncStats.drugs}</p>
+            <p> Doses: {syncStats.doseRegimens}</p>
+            <p> Printers: {syncStats.printerSettings}</p>
+            <p> Templates: {syncStats.printTemplates}</p>
+            <p> System: {syncStats.systemSettings}</p>
+            <p> SMTP: {syncStats.smtpSettings}</p>
+            <p>[chart] Dispense: {syncStats.dispenseRecords}</p>
+            <p> Tickets: {syncStats.tickets}</p>
           </div>
         </div>
       )}

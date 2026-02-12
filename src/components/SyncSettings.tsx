@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Settings, Server, Clock, AlertCircle } from 'lucide-react';
+import { useToast } from '@/components/ui/Toast';
 
 export function SyncSettings() {
   const [apiUrl, setApiUrl] = useState('');
@@ -9,6 +10,7 @@ export function SyncSettings() {
   const [isEditing, setIsEditing] = useState(false);
   const [saved, setSaved] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'unknown' | 'connected' | 'disconnected'>('unknown');
+  const showToast = useToast();
 
   // Load saved settings on mount
   useEffect(() => {
@@ -36,7 +38,7 @@ export function SyncSettings() {
   // Save settings
   const handleSave = async () => {
     if (!apiUrl.trim()) {
-      alert('Please enter a valid API URL');
+      showToast('Please enter a valid API URL', 'error', 4000);
       return;
     }
 
@@ -44,7 +46,7 @@ export function SyncSettings() {
       // Validate URL format
       new URL(apiUrl);
     } catch (e) {
-      alert('Please enter a valid URL (e.g., http://localhost:3000)');
+      showToast('Please enter a valid URL (e.g., http://localhost:3000)', 'error', 4000);
       return;
     }
 
@@ -110,9 +112,9 @@ export function SyncSettings() {
                   />
                   <span className="text-sm font-medium">
                     {connectionStatus === 'connected'
-                      ? 'Connected ✓'
+                      ? 'Connected [OK]'
                       : connectionStatus === 'disconnected'
-                        ? 'Disconnected ✗'
+                        ? 'Disconnected '
                         : 'Not tested'}
                   </span>
                 </div>
@@ -222,7 +224,7 @@ export function SyncSettings() {
 
       {saved && (
         <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm font-medium">
-          ✓ Settings saved successfully!
+          [OK] Settings saved successfully!
         </div>
       )}
     </div>

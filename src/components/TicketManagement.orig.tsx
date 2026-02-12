@@ -307,18 +307,6 @@ export function TicketManagement() {
     }
   };
 
-  const handleOpenDispenseEvent = (dispenseRecordId?: string | null) => {
-    if (!dispenseRecordId) {
-      alert('No dispensing event linked to this ticket.');
-      return;
-    }
-    try {
-      window.dispatchEvent(new CustomEvent('sems:open-dispense', { detail: { dispenseRecordId } }));
-    } catch (e) {
-      console.error('Failed to dispatch sems:open-dispense event', e);
-    }
-  };
-
   // Handle notification navigation to ticket
   useEffect(() => {
     if (selectedTicketId) {
@@ -975,7 +963,7 @@ export function TicketManagement() {
             onClick={handleBackToTickets}
             className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2"
           >
-            {"<- Back to Tickets"}
+             Back to Tickets
           </button>
 
           <div className="bg-white rounded-lg shadow p-8">
@@ -1007,17 +995,6 @@ export function TicketManagement() {
                   {ticketDetails.priority}
                 </span>
               </div>
-              {ticketDetails.dispenseRecordId && (
-                <div className="ml-4">
-                  <button
-                    onClick={() => handleOpenDispenseEvent(ticketDetails.dispenseRecordId)}
-                    className="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm"
-                    type="button"
-                  >
-                    Open Dispensing Event
-                  </button>
-                </div>
-              )}
             </div>
 
             {/* Details */}

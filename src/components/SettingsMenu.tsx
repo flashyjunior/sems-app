@@ -28,8 +28,10 @@ import { LogsViewer } from './LogsViewer';
 import { SyncSettings } from './SyncSettings';
 import { SMTPSettingsComponent } from './SMTPSettings';
 import { PendingDrugsManager } from './PendingDrugsManager';
+import { PharmacyManagement } from './PharmacyManagement';
+import { UserPharmacyAssignment } from './UserPharmacyAssignment';
 
-type SettingsSection = 'menu' | 'templates' | 'profile' | 'printers' | 'system' | 'admin-users' | 'records' | 'sync' | 'sync-config' | 'logs' | 'smtp' | 'pending-drugs';
+type SettingsSection = 'menu' | 'templates' | 'profile' | 'printers' | 'system' | 'admin-users' | 'records' | 'sync' | 'sync-config' | 'logs' | 'smtp' | 'pending-drugs' | 'pharmacy-mgmt' | 'user-pharmacy';
 
 export function SettingsMenu() {
   const [currentSection, setCurrentSection] = useState<SettingsSection>('menu');
@@ -58,6 +60,46 @@ export function SettingsMenu() {
     return <AdminUsersManager onBack={handleBack} />;
   }
 
+  if (currentSection === 'pharmacy-mgmt') {
+    return (
+      <div>
+        <button
+          onClick={handleBack}
+          className="mb-4 px-4 py-2 text-blue-600 hover:text-blue-800 font-medium"
+        >
+           Back
+        </button>
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900">Pharmacy Management</h2>
+            <p className="text-gray-600 mt-1">Create and manage pharmacy locations</p>
+          </div>
+          <PharmacyManagement />
+        </div>
+      </div>
+    );
+  }
+
+  if (currentSection === 'user-pharmacy') {
+    return (
+      <div>
+        <button
+          onClick={handleBack}
+          className="mb-4 px-4 py-2 text-blue-600 hover:text-blue-800 font-medium"
+        >
+           Back
+        </button>
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900">User Pharmacy Assignments</h2>
+            <p className="text-gray-600 mt-1">Assign users to pharmacies for transaction tracking</p>
+          </div>
+          <UserPharmacyAssignment />
+        </div>
+      </div>
+    );
+  }
+
   if (currentSection === 'records') {
     return (
       <div>
@@ -65,7 +107,7 @@ export function SettingsMenu() {
           onClick={handleBack}
           className="mb-4 px-4 py-2 text-blue-600 hover:text-blue-800 font-medium"
         >
-          ← Back
+           Back
         </button>
         <DispenseRecordsViewer />
       </div>
@@ -79,7 +121,7 @@ export function SettingsMenu() {
           onClick={handleBack}
           className="mb-4 px-4 py-2 text-blue-600 hover:text-blue-800 font-medium"
         >
-          ← Back
+           Back
         </button>
         <DataSyncManager />
       </div>
@@ -93,7 +135,7 @@ export function SettingsMenu() {
           onClick={handleBack}
           className="mb-4 px-4 py-2 text-blue-600 hover:text-blue-800 font-medium"
         >
-          ← Back
+           Back
         </button>
         <SyncSettings />
       </div>
@@ -107,7 +149,7 @@ export function SettingsMenu() {
           onClick={handleBack}
           className="mb-4 px-4 py-2 text-blue-600 hover:text-blue-800 font-medium"
         >
-          ← Back
+           Back
         </button>
         <div className="space-y-6">
           <div>
@@ -127,7 +169,7 @@ export function SettingsMenu() {
           onClick={handleBack}
           className="mb-4 px-4 py-2 text-blue-600 hover:text-blue-800 font-medium"
         >
-          ← Back
+           Back
         </button>
         <SMTPSettingsComponent />
       </div>
@@ -140,7 +182,7 @@ export function SettingsMenu() {
     <div className="space-y-6">
       {/* Settings Header */}
       <div>
-        <h2 className="text-3xl font-bold text-gray-900">⚙️ Settings</h2>
+        <h2 className="text-3xl font-bold text-gray-900">Settings</h2>
         <p className="text-gray-600 mt-1">Manage your preferences and system configuration</p>
       </div>
 
@@ -155,7 +197,7 @@ export function SettingsMenu() {
             <History className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 text-lg">💊 Dispense Records</h3>
+            <h3 className="font-semibold text-gray-900 text-lg">Dispense Records</h3>
             <p className="text-sm text-gray-700 mt-1">View, print, and manage past records</p>
           </div>
           <ChevronRight className="w-5 h-5 text-purple-600 flex-shrink-0 mt-1" />
@@ -205,6 +247,40 @@ export function SettingsMenu() {
               <p className="text-sm text-gray-700 mt-1">Manage users, roles, and permissions</p>
             </div>
             <ChevronRight className="w-5 h-5 text-red-600 flex-shrink-0 mt-1" />
+          </button>
+        )}
+
+        {/* Pharmacy Management - Only for Admins */}
+        {isAdmin && (
+          <button
+            onClick={() => setCurrentSection('pharmacy-mgmt')}
+            className="flex items-start gap-4 p-6 border-2 border-purple-500 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg hover:shadow-lg transition-shadow text-left"
+          >
+            <div className="p-3 bg-purple-600 rounded-lg flex-shrink-0">
+              <Building2 className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-gray-900 text-lg">Pharmacy Management</h3>
+              <p className="text-sm text-gray-700 mt-1">Create and manage pharmacy locations</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-purple-600 flex-shrink-0 mt-1" />
+          </button>
+        )}
+
+        {/* User Pharmacy Assignment - Only for Admins */}
+        {isAdmin && (
+          <button
+            onClick={() => setCurrentSection('user-pharmacy')}
+            className="flex items-start gap-4 p-6 border-2 border-pink-500 bg-gradient-to-br from-pink-50 to-pink-100 rounded-lg hover:shadow-lg transition-shadow text-left"
+          >
+            <div className="p-3 bg-pink-600 rounded-lg flex-shrink-0">
+              <Users className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-gray-900 text-lg">User Assignments</h3>
+              <p className="text-sm text-gray-700 mt-1">Assign users to pharmacies</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-pink-600 flex-shrink-0 mt-1" />
           </button>
         )}
 
@@ -359,13 +435,13 @@ export function SettingsMenu() {
       {/* Information Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="font-semibold text-blue-900 mb-2">💡 Tip</h4>
+          <h4 className="font-semibold text-blue-900 mb-2"> Tip</h4>
           <p className="text-sm text-blue-800">
             Settings are saved locally and synced to the server when you're online.
           </p>
         </div>
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <h4 className="font-semibold text-green-900 mb-2">✓ Status</h4>
+          <h4 className="font-semibold text-green-900 mb-2">[OK] Status</h4>
           <p className="text-sm text-green-800">
             All changes are saved automatically.
           </p>

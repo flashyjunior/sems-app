@@ -39,6 +39,7 @@ export function DispenseRecordsViewer() {
   });
   const syncCompletedCounter = useAppStore((state) => state.syncCompletedCounter);
   const recordSavedCounter = useAppStore((state) => state.recordSavedCounter);
+  const selectedDispenseRecordId = useAppStore((s) => s.selectedDispenseRecordId);
 
   // Fetch facility name on mount and when sync completes
   useEffect(() => {
@@ -69,6 +70,61 @@ export function DispenseRecordsViewer() {
     setCurrentPage(1); // Reset to first page when filters change
     loadRecords();
   }, [filter, syncCompletedCounter, recordSavedCounter, debouncedSearchText, startDate, endDate]);
+
+  // If an external component requests we open a particular dispense record, load and focus it
+  useEffect(() => {
+    if (!selectedDispenseRecordId) return;
+
+    (async () => {
+      try {
+        await loadRecords();
+        // fetch fresh array from db to compute index reliably
+        let allRecords = await db.dispenseRecords.toArray();
+        // Apply same client-side filters/search so index aligns with displayed list
+        if (filter === 'synced') allRecords = allRecords.filter(r => r.synced);
+        else if (filter === 'pending') allRecords = allRecords.filter(r => !r.synced);
+        if (debouncedSearchText.trim()) {
+          const lowerSearch = debouncedSearchText.toLowerCase();
+          allRecords = allRecords.filter(r =>
+            (r.patientName?.toLowerCase().includes(lowerSearch) ||
+              r.drugName?.toLowerCase().includes(lowerSearch) ||
+              r.pharmacistName?.toLowerCase().includes(lowerSearch) ||
+              r.id.toLowerCase().includes(lowerSearch) ||
+              (r.timestamp || 0).toString().includes(debouncedSearchText))
+          );
+        }
+        if (startDate) {
+          const startMs = new Date(startDate).getTime();
+          allRecords = allRecords.filter(r => (r.timestamp || 0) >= startMs);
+        }
+        if (endDate) {
+          const endDt = new Date(endDate);
+          endDt.setHours(23, 59, 59, 999);
+          const endMs = endDt.getTime();
+          allRecords = allRecords.filter(r => (r.timestamp || 0) <= endMs);
+        }
+        allRecords.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+        const idx = allRecords.findIndex(r => r.id === selectedDispenseRecordId);
+        if (idx >= 0) {
+          const page = Math.floor(idx / pageSize) + 1;
+          setCurrentPage(page);
+          const rec = allRecords[idx] as DispenseRecordWithDetails;
+          setSelectedRecord(rec);
+          setTimeout(() => {
+            try {
+              const el = document.querySelector(`[data-record-id=\"${selectedDispenseRecordId}\"]`);
+              if (el && (el as HTMLElement).scrollIntoView) {
+                (el as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            } catch (e) {}
+          }, 150);
+        }
+      } catch (e) {
+        console.error('Error focusing dispense record:', e);
+      }
+    })();
+  }, [selectedDispenseRecordId]);
 
   const loadRecords = async () => {
     setLoading(true);
@@ -171,7 +227,7 @@ export function DispenseRecordsViewer() {
     const formattedDateTime = `${formattedDate} ${formattedTime}`;
 
     const rxNumber = (record.timestamp || 0).toString();
-    const qrData = `${rxNumber}|${record.drugName}|${record.dose?.strength || 'N/A'}|${record.dose?.doseMg !== undefined ? record.dose.doseMg.toFixed(2) : 'N/A'}|${record.dose?.frequency || 'N/A'}|${record.patientName || 'Unknown'}`;
+    const qrData = `${rxNumber}|${record.drugName}|${record.dose?.strength || 'N/A'}|${record.dose?.doseMg !== undefined ? record.dose.doseMg.toFixed(2) : 'N/A'}|${record.dose?.frequency || 'N/A'}|${record.dose?.dosageForm || ''}|${record.patientName || 'Unknown'}`;
 
     // Fetch facility settings - use the singleton pattern with 'system-settings' ID
     let facilityName = 'PHARMACY';
@@ -405,11 +461,11 @@ export function DispenseRecordsViewer() {
             
             <div>
               <div class="main-instruction">
-                TAKE ${record.dose?.doseMg !== undefined ? record.dose.doseMg.toFixed(2) : '1'} ${(record.dose?.route || 'TABLET').toUpperCase()}<br>${(record.dose?.frequency || 'N/A').toUpperCase()}
+                TAKE ${record.dose?.doseMg !== undefined ? record.dose.doseMg.toFixed(2) : '1'} ${(record.dose?.dosageForm ? record.dose.dosageForm.toUpperCase() : (record.dose?.route || 'TABLET').toUpperCase())}<br>${(record.dose?.frequency || 'N/A').toUpperCase()}
               </div>
               
               <div class="drug-box">
-                ${record.drugName.toUpperCase()} ${record.dose?.strength || ''}
+                ${record.drugName.toUpperCase()} ${record.dose?.strength || ''}${record.dose?.dosageForm ? ' (' + record.dose.dosageForm + ')' : ''}
               </div>
               
               <div class="instructions-box">
@@ -426,8 +482,8 @@ export function DispenseRecordsViewer() {
             <div style="display: flex; gap: 2mm; align-items: flex-start;">
               ${record.dose?.warnings && record.dose.warnings.length > 0 ? `
                 <div class="warnings">
-                  <div class="warnings-title">⚠️ WARNINGS</div>
-                  ${record.dose.warnings.map((w: string) => `<div class="warning-item">• ${w}</div>`).join('')}
+                  <div class="warnings-title">[WARN] WARNINGS</div>
+                  ${record.dose.warnings.map((w: string) => `<div class="warning-item">- ${w}</div>`).join('')}
                 </div>
               ` : ''}
             </div>
@@ -518,7 +574,7 @@ export function DispenseRecordsViewer() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-bold text-gray-900">💊 Dispense Records</h2>
+        <h2 className="text-3xl font-bold text-gray-900">Dispense Records</h2>
         <p className="text-gray-600 mt-1">View and manage all dispensed records</p>
       </div>
 
@@ -654,7 +710,7 @@ export function DispenseRecordsViewer() {
                   const isActive = getIsActive(record);
                   const dateTime = `${formatDate(record.timestamp)} ${formatTime(record.timestamp)}`;
                   return (
-                  <tr key={record.id} className={`hover:bg-gray-50 ${!isActive ? 'bg-red-50' : ''}`}>
+                  <tr key={record.id} data-record-id={record.id} className={`hover:bg-gray-50 ${!isActive ? 'bg-red-50' : ''}`}>
                     <td className="px-6 py-2 text-sm text-gray-900 font-medium">{dateTime}</td>
                     <td className="px-6 py-2 text-sm text-gray-900">{record.patientName}</td>
                     <td className="px-6 py-2 text-sm text-gray-900">{record.drugName}</td>
@@ -667,7 +723,7 @@ export function DispenseRecordsViewer() {
                           ? 'bg-green-100 text-green-800'
                           : 'bg-yellow-100 text-yellow-800'
                       }`}>
-                        {record.synced ? '✓ Synced' : '⏳ Pending'}
+                        {record.synced ? '[OK] Synced' : ' Pending'}
                       </span>
                     </td>
                     <td className="px-6 py-2 text-sm">
@@ -771,7 +827,7 @@ export function DispenseRecordsViewer() {
               !getIsActive(selectedRecord) ? 'bg-red-50' : 'bg-gray-50'
             }`}>
               <div className="flex items-center gap-3">
-                <h3 className="text-lg font-semibold text-gray-900">💊 Dispense Record Details</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Dispense Record Details</h3>
                 {!getIsActive(selectedRecord) && (
                   <span className="px-3 py-1 bg-red-200 text-red-800 rounded text-sm font-medium">CANCELED</span>
                 )}
@@ -780,7 +836,7 @@ export function DispenseRecordsViewer() {
                 onClick={() => setSelectedRecord(null)}
                 className="text-gray-500 hover:text-gray-700"
               >
-                ✕
+                
               </button>
             </div>
 
@@ -797,7 +853,7 @@ export function DispenseRecordsViewer() {
                 <div>
                   <label className="text-sm font-medium text-gray-600">Sync Status</label>
                   <p className={`font-medium ${selectedRecord.synced ? 'text-green-700' : 'text-yellow-700'}`}>
-                    {selectedRecord.synced ? '✓ Synced to Cloud' : '⏳ Pending Sync'}
+                    {selectedRecord.synced ? '[OK] Synced to Cloud' : ' Pending Sync'}
                   </p>
                 </div>
                 <div>
