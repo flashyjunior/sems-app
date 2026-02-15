@@ -7,6 +7,9 @@ export interface User {
   role: UserRole;
   email?: string;
   createdAt: number;
+  // Optional multi-pharmacy support
+  pharmacy?: { id: string; name?: string };
+  pharmacyId?: string;
 }
 
 export interface Role {
@@ -46,6 +49,7 @@ export interface Drug {
   contraindications: string[];
   pregnancyCategory?: 'A' | 'B' | 'C' | 'D' | 'X';
   warnings?: string[];
+  form?: string;
 }
 
 export interface DoseRegimen {
@@ -55,7 +59,7 @@ export interface DoseRegimen {
   ageMax?: number;
   weightMin?: number;
   weightMax?: number;
-  ageGroup: 'adult' | 'pediatric' | 'neonatal';
+  ageGroup: 'adult' | 'pediatric' | 'paediatric' | 'neonatal';
   doseMg: string;
   frequency: string;
   duration: string;
@@ -79,6 +83,7 @@ export interface DoseCalculation {
   requiresPinConfirm: boolean;
   pregnancyStatus?: 'yes' | 'no' | 'unknown';
   allergies?: string[];
+  dosageForm?: string;
 }
 
 // Patient Input Types
@@ -89,6 +94,7 @@ export interface PatientInput {
   weight: number;
   pregnancyStatus?: 'yes' | 'no' | 'unknown';
   allergies: string[];
+  patientAgeGroup?: 'adult' | 'pediatric' | 'paediatric' | 'neonatal';
 }
 
 // Dispense Record Types
@@ -279,6 +285,8 @@ export interface Ticket {
   resolvedAt?: number;
   closedAt?: number;
   notes?: TicketNote[];
+  // optional link to a dispense record created from this ticket (if any)
+  dispenseRecordId?: string;
 }
 
 export interface TicketNote {

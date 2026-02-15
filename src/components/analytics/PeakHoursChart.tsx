@@ -45,7 +45,16 @@ export const PeakHoursChart: React.FC<PeakHoursChartProps> = ({
         if (!response.ok) throw new Error('Failed to fetch peak hours');
 
         const result = await response.json();
-        setPeakHours(result.data.hours);
+        // Normalize API response: some routes return the array directly as `data`,
+        // others return an object like { hours: [...] }. Accept both.
+        const raw = Array.isArray(result?.data) ? result.data : result?.data?.hours || [];
+        const normalized = (Array.isArray(raw) ? raw : []).map((h: any) => ({
+          hour: h.hour,
+          count: h.count || 0,
+          prescriptions: h.prescriptionCount ?? h.prescriptions ?? 0,
+          avgRiskScore: h.avgRiskScore ?? 0,
+        }));
+        setPeakHours(normalized);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
@@ -68,7 +77,7 @@ export const PeakHoursChart: React.FC<PeakHoursChartProps> = ({
     );
   }
 
-  if (peakHours.length === 0) {
+  if (!peakHours || peakHours.length === 0) {
     return (
       <div style={{ ...styles.card, padding: '2rem', textAlign: 'center' }}>
         <p style={styles.secondaryText}>No peak hours data available</p>
@@ -76,7 +85,8 @@ export const PeakHoursChart: React.FC<PeakHoursChartProps> = ({
     );
   }
 
-  const maxCount = Math.max(...peakHours.map(h => h.count || 0));
+  const counts = peakHours.map(h => h?.count || 0);
+  const maxCount = counts.length ? Math.max(...counts) : 0;
 
   const getHeatmapColor = (count: number, max: number): string => {
     const intensity = count / max;
@@ -91,7 +101,7 @@ export const PeakHoursChart: React.FC<PeakHoursChartProps> = ({
   return (
     <div style={{ marginBottom: '2rem' }}>
       <h3 style={{ marginBottom: '1rem', fontSize: '1.3rem' }}>
-         Peak Hours Distribution
+         ⏰ Peak Hours Distribution
       </h3>
 
       <div style={styles.card}>
@@ -187,11 +197,17 @@ export const PeakHoursChart: React.FC<PeakHoursChartProps> = ({
           borderRadius: '4px',
           fontSize: '0.9rem',
         }}>
-          <strong>Peak Activity:</strong> {peakHours.reduce((max, h) => 
-            h.count > max.count ? h : max
-          ).hour}:00 ({peakHours.reduce((max, h) => 
-            h.count > max.count ? h : max
-          ).count} events)
+          {/* Safely compute peak activity with defaults */}
+          {peakHours && peakHours.length ? (
+            (() => {
+              const peak = peakHours.reduce((max: PeakHour, h: PeakHour) => (h.count > (max.count || 0) ? h : max), peakHours[0]);
+              return (
+                <><strong>Peak Activity:</strong> {peak.hour}:00 ({peak.count} events)</>
+              );
+            })()
+          ) : (
+            <><strong>Peak Activity:</strong> N/A</>
+          )}
         </div>
       </div>
     </div>

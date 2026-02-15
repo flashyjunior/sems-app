@@ -43,14 +43,15 @@ interface Role {
 
 interface AdminUsersManagerProps {
   onBack?: () => void;
+  isFullPage?: boolean;
 }
 
 /**
  * Admin Users Manager - Manage users and roles in PostgreSQL
  * This is the authoritative source - users/roles sync from here to local dbs
  */
-export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function AdminUsersManager({ onBack, isFullPage = false }: AdminUsersManagerProps) {
+  const [isOpen, setIsOpen] = useState(isFullPage ? true : false);
   const [activeTab, setActiveTab] = useState<'users' | 'roles'>('users');
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -346,15 +347,28 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
 
   return (
     <div>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-        title="Admin: Manage users and roles"
-      >
-         Admin Users
-      </button>
+      {/* Button only shows in modal mode */}
+      {!isFullPage && (
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          title="Admin: Manage users and roles"
+        >
+           Admin Users
+        </button>
+      )}
 
-      {isOpen && (
+      {/* Render as modal or full page based on mode */}
+      {isFullPage ? (
+        // Full-page mode
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Admin: User Management</h2>
+          </div>
+          <TabsContent />
+        </div>
+      ) : isOpen ? (
+        // Modal mode
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
@@ -363,12 +377,30 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
                 onClick={() => setIsOpen(false)}
                 className="text-gray-500 hover:text-gray-700 font-bold text-xl"
               >
-                
+                ✕
               </button>
             </div>
+            <TabsContent />
+            <div className="mt-6 pt-4 border-t border-gray-200">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="w-full px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 font-medium transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
 
-            {/* Tabs */}
-            <div className="flex gap-2 mb-6 border-b border-gray-200 overflow-x-auto">
+  // Shared tabs content component
+  function TabsContent() {
+    return (
+      <>
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6 border-b border-gray-200 overflow-x-auto">
               <button
                 onClick={() => setActiveTab('users')}
                 className={`px-4 py-2 font-medium whitespace-nowrap ${
@@ -669,23 +701,12 @@ export function AdminUsersManager({ onBack }: AdminUsersManagerProps) {
               </div>
             )}
 
-            {/* Roles Tab */}
-            {activeTab === 'roles' && (
-              <RoleManagement />
-            )}
-
-            <div className="mt-6 pt-4 border-t border-gray-200">
-              <button
-                onClick={() => setIsOpen(false)}
-                className="w-full px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 font-medium transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+        {/* Roles Tab */}
+        {activeTab === 'roles' && (
+          <RoleManagement />
+        )}
+      </>
+    );
+  }
 }
 

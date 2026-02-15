@@ -482,7 +482,7 @@ export function DispenseRecordsViewer() {
             <div style="display: flex; gap: 2mm; align-items: flex-start;">
               ${record.dose?.warnings && record.dose.warnings.length > 0 ? `
                 <div class="warnings">
-                  <div class="warnings-title">[WARN] WARNINGS</div>
+                  <div class="warnings-title">⚠️ WARNINGS</div>
                   ${record.dose.warnings.map((w: string) => `<div class="warning-item">- ${w}</div>`).join('')}
                 </div>
               ` : ''}
@@ -723,7 +723,7 @@ export function DispenseRecordsViewer() {
                           ? 'bg-green-100 text-green-800'
                           : 'bg-yellow-100 text-yellow-800'
                       }`}>
-                        {record.synced ? '[OK] Synced' : ' Pending'}
+                        {record.synced ? '✅ Synced' : ' Pending'}
                       </span>
                     </td>
                     <td className="px-6 py-2 text-sm">
@@ -853,7 +853,7 @@ export function DispenseRecordsViewer() {
                 <div>
                   <label className="text-sm font-medium text-gray-600">Sync Status</label>
                   <p className={`font-medium ${selectedRecord.synced ? 'text-green-700' : 'text-yellow-700'}`}>
-                    {selectedRecord.synced ? '[OK] Synced to Cloud' : ' Pending Sync'}
+                    {selectedRecord.synced ? '✅ Synced to Cloud' : ' Pending Sync'}
                   </p>
                 </div>
                 <div>

@@ -58,10 +58,12 @@ export async function captureDispensingEvent(
 ): Promise<DispensingEventOutput> {
   try {
     // Forward to server API which performs enrichment, scoring and persistence.
+    // Ensure pharmacyId is a string to satisfy server expectation
+    const bodyPayload = { ...input, pharmacyId: input.pharmacyId !== undefined && input.pharmacyId !== null ? String(input.pharmacyId) : input.pharmacyId };
     const res = await fetch('/api/analytics/dispense', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}` },
-      body: JSON.stringify(input),
+      body: JSON.stringify(bodyPayload),
     });
 
     if (!res.ok) {

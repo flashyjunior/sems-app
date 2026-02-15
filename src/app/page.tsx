@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useAppStore } from '@/store/app';
+import { useRouter } from 'next/navigation';
 import { LoginForm } from '@/components/LoginForm';
 import { Navbar } from '@/components/Navbar';
 import { Dashboard } from '@/components/Dashboard';
+import { AnalyticsDashboard } from '@/components/analytics';
 import { DispenseForm } from '@/components/DispenseForm';
 import { DispenseRecordsViewer } from '@/components/DispenseRecordsViewer';
 import { DatabaseInitializer } from '@/components/DatabaseInitializer';
-import { SettingsMenu } from '@/components/SettingsMenu';
 import { TicketManagement } from '@/components/TicketManagement';
 import { FirstLaunchSetup } from '@/components/FirstLaunchSetup';
 import { FloatingMenu } from '@/components/FloatingMenu';
@@ -20,7 +21,8 @@ export default function Home() {
   const user = useAppStore((s) => s.user);
   const logout = useAppStore((s) => s.logout);
   const syncInProgress = useAppStore((s) => s.syncConfig?.isSyncing || false);
-  const [currentView, setCurrentView] = useState<'dashboard' | 'dispense' | 'settings' | 'tickets' | 'pending-drugs'>('dashboard');
+  const router = useRouter();
+  const [currentView, setCurrentView] = useState<'dashboard' | 'dispense' | 'settings' | 'tickets' | 'pending-drugs' | 'analytics'>('dashboard');
   const [showFirstLaunch, setShowFirstLaunch] = useState(false);
   
   const isAdmin = user?.role === 'admin';
@@ -48,6 +50,14 @@ export default function Home() {
     }
   };
 
+  const handleViewChange = (view: 'dashboard' | 'dispense' | 'settings' | 'tickets' | 'pending-drugs' | 'analytics') => {
+    if (view === 'settings') {
+      router.push('/settings');
+    } else {
+      setCurrentView(view);
+    }
+  };
+
   return (
     <>
       {showFirstLaunch && <FirstLaunchSetup onComplete={() => setShowFirstLaunch(false)} />}
@@ -60,7 +70,7 @@ export default function Home() {
           {/* Navbar */}
           <Navbar
             currentView={currentView}
-            onViewChange={setCurrentView}
+            onViewChange={handleViewChange}
             onLogout={logout}
             isAdmin={isAdmin}
             onNotificationTicketSelect={(ticketId) => {
@@ -71,6 +81,12 @@ export default function Home() {
           {/* Main Content */}
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {currentView === 'dashboard' && <Dashboard />}
+
+            {currentView === 'analytics' && (
+              <div>
+                <AnalyticsDashboard pharmacyId={user?.pharmacy?.id || user?.pharmacyId || undefined} />
+              </div>
+            )}
             
             {currentView === 'dispense' && (
               <div className="space-y-8">
@@ -99,8 +115,6 @@ export default function Home() {
                 </div>
               </div>
             )}
-
-            {currentView === 'settings' && <SettingsMenu />}
 
             {currentView === 'tickets' && <TicketManagement />}
 

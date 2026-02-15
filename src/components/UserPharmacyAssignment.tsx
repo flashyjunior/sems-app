@@ -28,12 +28,17 @@ interface Pharmacy {
  * User Pharmacy Assignment Component
  * Allows admins to assign pharmacies to users
  */
-export function UserPharmacyAssignment() {
+
+interface UserPharmacyAssignmentProps {
+  isFullPage?: boolean;
+}
+
+export function UserPharmacyAssignment({ isFullPage = false }: UserPharmacyAssignmentProps) {
   const user = useAppStore((s) => s.user);
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(isFullPage ? true : false);
   const [users, setUsers] = useState<User[]>([]);
   const [pharmacies, setPharmacies] = useState<Pharmacy[]>([]);
   const [loading, setLoading] = useState(false);
@@ -165,15 +170,28 @@ export function UserPharmacyAssignment() {
 
   return (
     <div>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-        title="Admin: Assign pharmacies to users"
-      >
-         User Assignments
-      </button>
+      {/* Button only shows in modal mode */}
+      {!isFullPage && (
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          title="Admin: Assign pharmacies to users"
+        >
+           User Assignments
+        </button>
+      )}
 
-      {isOpen && (
+      {/* Render as modal or full page based on mode */}
+      {isFullPage ? (
+        // Full-page mode
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Assign Users to Pharmacies</h2>
+          </div>
+          <AssignmentContent />
+        </div>
+      ) : isOpen ? (
+        // Modal mode
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
@@ -182,16 +200,25 @@ export function UserPharmacyAssignment() {
                 onClick={() => setIsOpen(false)}
                 className="text-gray-500 hover:text-gray-700 font-bold text-xl"
               >
-                
+                ✕
               </button>
             </div>
+            <AssignmentContent />
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
 
-            {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-800 flex gap-2">
-                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                {error}
-              </div>
-            )}
+  function AssignmentContent() {
+    return (
+      <>
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-800 flex gap-2">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            {error}
+          </div>
+        )}
 
             {success && (
               <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-800 flex gap-2">
@@ -329,9 +356,7 @@ export function UserPharmacyAssignment() {
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+      </>
+    );
+  }
 }

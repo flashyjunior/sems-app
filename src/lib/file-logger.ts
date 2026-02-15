@@ -45,24 +45,25 @@ export async function writeLog(log: FileLog): Promise<void> {
     } else {
       console.log(`${prefix}: ${log.message}`);
     }
+    // If running in a browser environment, attempt to persist to localStorage as a fallback
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      try {
+        const logs = getLogs();
+        logs.push({
+          ...log,
+          id: `log-${Date.now()}-${Math.random()}`,
+        });
 
-    // Try to write to localStorage as fallback (since logs table may not exist in IndexedDB schema)
-    try {
-      const logs = getLogs();
-      logs.push({
-        ...log,
-        id: `log-${Date.now()}-${Math.random()}`,
-      });
+        // Keep only last MAX_LOGS
+        if (logs.length > MAX_LOGS) {
+          logs.splice(0, logs.length - MAX_LOGS);
+        }
 
-      // Keep only last MAX_LOGS
-      if (logs.length > MAX_LOGS) {
-        logs.splice(0, logs.length - MAX_LOGS);
+        localStorage.setItem('sems_logs', JSON.stringify(logs));
+      } catch (storageError) {
+        // localStorage might be full or unavailable, just continue with console
+        console.debug('Could not write to storage:', storageError);
       }
-
-      localStorage.setItem('sems_logs', JSON.stringify(logs));
-    } catch (storageError) {
-      // localStorage might be full, just continue with console
-      console.debug('Could not write to storage:', storageError);
     }
   } catch (error) {
     console.error('Error writing log:', error);
@@ -74,6 +75,7 @@ export async function writeLog(log: FileLog): Promise<void> {
  */
 export function getLogs(): FileLog[] {
   try {
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') return [];
     const stored = localStorage.getItem('sems_logs');
     return stored ? JSON.parse(stored) : [];
   } catch (error) {
@@ -153,7 +155,9 @@ export function getErrorLogs(): FileLog[] {
  */
 export function clearLogs(): void {
   try {
-    localStorage.removeItem('sems_logs');
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      localStorage.removeItem('sems_logs');
+    }
   } catch (error) {
     console.error('Error clearing logs:', error);
   }
@@ -193,6 +197,9 @@ export function exportLogsAsCSV(): string {
  * Download logs as file
  */
 export function downloadLogs(format: 'json' | 'csv' = 'json'): void {
+  // Only available in browser context
+  if (typeof window === 'undefined' || typeof document === 'undefined') return;
+
   const content = format === 'json' ? exportLogsAsJSON() : exportLogsAsCSV();
   const mimeType = format === 'json' ? 'application/json' : 'text/csv';
   const filename = `sems-logs-${new Date().toISOString().split('T')[0]}.${format}`;

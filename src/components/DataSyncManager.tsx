@@ -287,13 +287,13 @@ export function DataSyncManager() {
           <div className="grid grid-cols-2 gap-2 text-sm text-blue-800">
             <p> Roles: {syncStats.roles}</p>
             <p> Users: {syncStats.users}</p>
-            <p>[pill] Drugs: {syncStats.drugs}</p>
+            <p>💊 Drugs: {syncStats.drugs}</p>
             <p> Doses: {syncStats.doseRegimens}</p>
             <p> Printers: {syncStats.printerSettings}</p>
             <p> Templates: {syncStats.printTemplates}</p>
             <p> System: {syncStats.systemSettings}</p>
             <p> SMTP: {syncStats.smtpSettings}</p>
-            <p>[chart] Dispense: {syncStats.dispenseRecords}</p>
+            <p>📊 Dispense: {syncStats.dispenseRecords}</p>
             <p> Tickets: {syncStats.tickets}</p>
           </div>
         </div>

@@ -1,0 +1,16 @@
+{
+  "dispenseRecordId": "test-dispense-manual-1",
+  "timestamp": "2026-02-12T10:50:00.000Z",
+  "pharmacyId": "1",
+  "userId": 2,
+  "drugId": "drug-001",
+  "drugName": "Paracetamol",
+  "genericName": "Paracetamol",
+  "patientAgeGroup": "adult",
+  "isPrescription": true,
+  "isControlledDrug": false,
+  "isAntibiotic": false,
+  "stgCompliant": true,
+  "overrideFlag": false,
+  "patientIsPregnant": false
+}

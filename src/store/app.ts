@@ -58,6 +58,9 @@ interface AppState {
   // Ticket navigation
   selectedTicketId: string | null;
   setSelectedTicketId: (ticketId: string | null) => void;
+  // Allow selecting a dispense record (for navigation from tickets/alerts)
+  selectedDispenseRecordId?: string | null;
+  setSelectedDispenseRecordId?: (id: string | null) => void;
 
   // Recent dispenses
   recentDispenses: DispenseRecord[];
@@ -155,6 +158,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   selectedTicketId: null,
   setSelectedTicketId: (ticketId) =>
     set({ selectedTicketId: ticketId }),
+
+  selectedDispenseRecordId: null,
+  setSelectedDispenseRecordId: (id) => set({ selectedDispenseRecordId: id }),
 
   // Recent dispenses
   recentDispenses: [],

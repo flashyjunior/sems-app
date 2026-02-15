@@ -34,7 +34,7 @@ export const AnalyticsLink: React.FC = () => {
         (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
       }}
       >
-        [chart] Analytics Dashboard
+        📊 Analytics Dashboard
       </a>
     </Link>
   );
@@ -98,7 +98,7 @@ export const AnalyticsButton: React.FC<{ variant?: 'primary' | 'secondary' | 'ou
           }
         }}
       >
-        [chart] View Analytics
+        📊 View Analytics
       </button>
     </Link>
   );

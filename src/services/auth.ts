@@ -32,8 +32,8 @@ export class AuthService {
       const { token, user: userData } = await loginResponse.json();
 
       // Determine the role from the response
-      const roleStr = typeof userData.role === 'string' 
-        ? userData.role 
+      const roleStr = typeof userData.role === 'string'
+        ? userData.role
         : userData.role?.name || 'pharmacist';
 
       // Create user object for store
@@ -43,6 +43,8 @@ export class AuthService {
         role: roleStr as any,
         email: userData.email,
         createdAt: Date.now(),
+        pharmacy: userData.pharmacy ? { id: userData.pharmacy.id, name: userData.pharmacy.name } : undefined,
+        pharmacyId: userData.pharmacyId ?? (userData.pharmacy ? userData.pharmacy.id : undefined),
       };
 
       // Store session

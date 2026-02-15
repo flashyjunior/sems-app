@@ -47,11 +47,21 @@ export const createDispenseRecord = async (userId: number, data: DispenseCreate)
   try {
     // Ensure the user exists in the database
     await ensureUserExists(userId);
+    // Try to include the user's assigned pharmacyId (if any) so local dispense records are tagged
+    let userPharmacyId: number | null = null;
+    try {
+      const u = await prisma.user.findUnique({ where: { id: userId }, select: { pharmacyId: true } });
+      userPharmacyId = u?.pharmacyId ?? null;
+    } catch (e) {
+      // ignore and proceed without pharmacyId
+    }
 
     const dispense = await prisma.dispenseRecord.create({
       data: {
         userId,
         externalId: data.externalId,
+        // include pharmacyId when available
+        ...(userPharmacyId ? { pharmacyId: userPharmacyId } : {}),
         patientName: data.patientName,
         patientPhoneNumber: data.patientPhoneNumber,
         patientAge: data.patientAge,

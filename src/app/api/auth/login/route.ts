@@ -80,6 +80,8 @@ async function handler(req: NextRequest): Promise<NextResponse> {
           email: user.email,
           fullName: user.fullName,
           role: user.role,
+          pharmacyId: user.pharmacyId ?? user.pharmacy?.id ?? null,
+          pharmacy: user.pharmacy ? { id: user.pharmacy.id, name: user.pharmacy.name } : null,
         },
       },
       { status: 200 }

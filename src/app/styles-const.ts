@@ -41,3 +41,28 @@ export const GLOBAL_STYLES = `
     font-family: 'Courier New', Courier, monospace;
   }
 `;
+
+const styles = {
+  primaryColor: '#1e40af',
+  accentColor: '#06b6d4',
+  successColor: '#10b981',
+  warningColor: '#f59e0b',
+  dangerColor: '#ef4444',
+  card: {
+    background: '#ffffff',
+    borderRadius: '8px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+    padding: '1rem',
+    color: '#111827',
+  },
+  secondaryText: {
+    color: '#6b7280',
+  },
+  errorBox: {
+    background: '#fff7f7',
+    borderLeft: '4px solid #ef4444',
+    color: '#8b1d1d',
+  },
+};
+
+export default styles;

@@ -45,6 +45,13 @@ export interface PeakHours {
   avgRiskScore: number;
 }
 
+export interface PeakDays {
+  day: number; // 0-6 (Sunday-Saturday)
+  count: number;
+  prescriptionCount: number;
+  avgRiskScore: number;
+}
+
 export interface DispensingSummary {
   periodStart: Date;
   periodEnd: Date;
@@ -293,6 +300,61 @@ export async function getPeakHours(
   });
 
   return hourGroups;
+}
+
+export async function getPeakDays(
+  startDate: Date,
+  endDate: Date,
+  pharmacyId?: string
+): Promise<PeakDays[]> {
+  const whereClause: any = {
+    timestamp: {
+      gte: startDate,
+      lt: endDate,
+    },
+  };
+
+  if (pharmacyId && pharmacyId !== 'ALL_PHARMACIES') {
+    whereClause.pharmacyId = pharmacyId;
+  }
+
+  const rangeEvents = await prisma.dispensingEvent.findMany({
+    where: whereClause,
+  });
+
+  // Group by day of week
+  const dayGroups: PeakDays[] = Array.from({ length: 7 }, (_, day) => ({
+    day,
+    count: 0,
+    prescriptionCount: 0,
+    avgRiskScore: 0,
+  }));
+
+  const dayData = new Map<number, { count: number; prescr: number; riskSum: number }>();
+
+  rangeEvents.forEach((event: any) => {
+    const day = new Date(event.timestamp).getDay();
+    if (!dayData.has(day)) {
+      dayData.set(day, { count: 0, prescr: 0, riskSum: 0 });
+    }
+
+    const data = dayData.get(day)!;
+    data.count += 1;
+    data.prescr += event.isPrescription ? 1 : 0;
+    data.riskSum += event.riskScore || 0;
+  });
+
+  // Populate results
+  dayData.forEach((data: any, day: number) => {
+    dayGroups[day] = {
+      day,
+      count: data.count,
+      prescriptionCount: data.prescr,
+      avgRiskScore: data.riskSum / data.count,
+    };
+  });
+
+  return dayGroups;
 }
 
 /**

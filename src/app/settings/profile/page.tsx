@@ -1,0 +1,26 @@
+'use client';
+
+import React from 'react';
+import { UserProfileSettings } from '@/components/UserProfileSettings';
+import Link from 'next/link';
+import { ChevronLeft } from 'lucide-react';
+import { useAppStore } from '@/store/app';
+
+export default function ProfilePage() {
+  const user = useAppStore((s) => s.user);
+
+  return (
+    <div>
+      <div className="mb-4 flex items-center">
+        <Link
+          href="/settings"
+          className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Back to Settings
+        </Link>
+      </div>
+      <UserProfileSettings onBack={() => {}} userId={user?.id || ''} />
+    </div>
+  );
+}

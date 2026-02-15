@@ -747,6 +747,54 @@ export class SyncManager {
   }
 
   /**
+   * Pull pharmacies list from cloud. Some installs may not persist pharmacies locally,
+   * so we return the count pulled without failing when local DB store is not present.
+   */
+  async pullPharmacies(options: SyncOptions): Promise<{ pulled: number }> {
+    try {
+      logInfo('Pulling pharmacies from cloud');
+
+      const response = await axios.get(`${options.apiBaseUrl}/api/pharmacies`, {
+        headers: {
+          Authorization: `Bearer ${options.authToken}`,
+        },
+      });
+
+      const pharmacies = response.data?.data || response.data || [];
+      if (!Array.isArray(pharmacies) || pharmacies.length === 0) {
+        return { pulled: 0 };
+      }
+
+      // If local DB has a pharmacies table, persist; otherwise just return count
+      try {
+        if ((db as any).pharmacies) {
+          for (const p of pharmacies) {
+            try {
+              const existing = await (db as any).pharmacies.get(p.id);
+              if (existing) {
+                await (db as any).pharmacies.update(p.id, p);
+              } else {
+                await (db as any).pharmacies.add(p);
+              }
+            } catch (inner) {
+              // ignore single-item persistence errors
+              console.warn('Failed to persist pharmacy item', inner);
+            }
+          }
+        }
+      } catch (e) {
+        // ignore persistence errors
+      }
+
+      logInfo(`Pulled ${pharmacies.length} pharmacies`);
+      return { pulled: pharmacies.length };
+    } catch (error) {
+      logError('Failed to pull pharmacies', error instanceof Error ? error : new Error(String(error)));
+      return { pulled: 0 };
+    }
+  }
+
+  /**
    * Pull tickets from cloud to client
    */
   async pullTickets(options: SyncOptions): Promise<{ pulled: number }> {

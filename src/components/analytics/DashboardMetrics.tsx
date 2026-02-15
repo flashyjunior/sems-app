@@ -81,49 +81,65 @@ export const DashboardMetrics: React.FC<DashboardMetricsProps> = ({
 
   if (!data) return null;
 
-  const MetricCard = ({ 
-    label, 
-    value, 
-    unit = '', 
-    format = 'default' 
+  const MetricCard = ({
+    label,
+    value,
+    unit = '',
+    format = 'default',
+    variant = 'default',
   }: {
     label: string;
-    value: number;
+    value?: number | null;
     unit?: string;
     format?: 'number' | 'percent' | 'time' | 'default';
+    variant?: 'default' | 'primary';
   }) => {
+    // Accept undefined/null values from API and display a placeholder
+    const safeValue = value ?? 0;
     let formattedValue = '';
-    
-    if (format === 'percent') {
-      formattedValue = `${value.toFixed(1)}%`;
-    } else if (format === 'time') {
-      formattedValue = `${value.toFixed(1)}s`;
-    } else if (format === 'number') {
-      formattedValue = value.toLocaleString();
-    } else {
-      formattedValue = `${value}${unit}`;
+
+    try {
+      if (format === 'percent') {
+        formattedValue = `${Number(safeValue).toFixed(1)}%`;
+      } else if (format === 'time') {
+        formattedValue = `${Number(safeValue).toFixed(1)}s`;
+      } else if (format === 'number') {
+        // toLocaleString can throw if value isn't a number — coerce first
+        formattedValue = Number(safeValue).toLocaleString();
+      } else {
+        formattedValue = `${safeValue}${unit}`;
+      }
+    } catch (e) {
+      // Fallback to a readable representation
+      formattedValue = String(safeValue ?? '-');
     }
 
+    const isPrimary = variant === 'primary';
     return (
       <div style={{
-        ...styles.card,
-        flex: 1,
-        minWidth: '200px',
-        textAlign: 'center',
-        padding: '1.5rem',
+        ...(isPrimary ? {
+          background: `linear-gradient(90deg, ${styles.primaryColor}33, ${styles.accentColor}22)`,
+          color: '#0f172a',
+          borderRadius: 12,
+          padding: '1.25rem',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+        } : styles.card),
+        minWidth: '180px',
       }}>
         <div style={{
-          fontSize: '0.9rem',
-          color: styles.secondaryText.color,
-          marginBottom: '0.5rem',
-          fontWeight: '500',
+          fontSize: isPrimary ? '0.95rem' : '0.85rem',
+          color: isPrimary ? '#0f172a' : styles.secondaryText.color,
+          marginBottom: '0.25rem',
+          fontWeight: 600,
         }}>
           {label}
         </div>
         <div style={{
-          fontSize: '2rem',
-          fontWeight: 'bold',
-          color: styles.primaryColor,
+          fontSize: isPrimary ? '2.4rem' : '1.6rem',
+          fontWeight: 800,
+          color: isPrimary ? styles.primaryColor : styles.primaryColor,
         }}>
           {formattedValue}
         </div>
@@ -134,35 +150,33 @@ export const DashboardMetrics: React.FC<DashboardMetricsProps> = ({
   return (
     <div style={{ marginBottom: '2rem' }}>
       <h3 style={{ marginBottom: '1rem', fontSize: '1.3rem' }}>
-        [chart] Dispensing Metrics
+        📊 Dispensing Metrics
       </h3>
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gridTemplateColumns: '2fr 1fr 1fr',
         gap: '1rem',
         marginBottom: '1.5rem',
+        alignItems: 'stretch',
       }}>
-        <MetricCard 
-          label="Total Dispensings" 
-          value={data.totalDispensingS} 
+        <MetricCard
+          label="Total Dispensings"
+          value={data.totalDispensingS}
+          format="number"
+          variant="primary"
+        />
+        <MetricCard
+          label="Prescriptions"
+          value={data.totalPrescriptions}
           format="number"
         />
-        <MetricCard 
-          label="Prescriptions" 
-          value={data.totalPrescriptions} 
+        <MetricCard
+          label="OTC"
+          value={data.totalOTC}
           format="number"
         />
-        <MetricCard 
-          label="OTC" 
-          value={data.totalOTC} 
-          format="number"
-        />
-        <MetricCard 
-          label="Avg Dispensing Time" 
-          value={data.avgDispensingTime} 
-          format="time"
-        />
+        {/* Avg Dispensing Time box intentionally hidden per request */}
       </div>
 
       <div style={{

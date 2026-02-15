@@ -57,15 +57,15 @@ export function Navbar({ currentView, onViewChange, onLogout, isAdmin, onNotific
   }, [isAdmin]);
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '[chart]' },
-    { id: 'dispense', label: 'Dispense', icon: '[pill]' },
-    { id: 'analytics', label: 'Analytics', icon: '[chart]' },
-    { id: 'tickets', label: 'Support', icon: '' },
+    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+    { id: 'dispense', label: 'Dispense', icon: '💊' },
+    { id: 'analytics', label: 'Analytics', icon: '📊' },
+    { id: 'tickets', label: 'Support', icon: '🎫' },
     // Admin-only items
     ...(isAdmin
       ? [
-          { id: 'pending-drugs', label: 'Pending Drugs', icon: '' },
-          { id: 'settings', label: 'Settings', icon: '' },
+          { id: 'pending-drugs', label: 'Pending Drugs', icon: '⏳' },
+          { id: 'settings', label: 'Settings', icon: '⚙️' },
         ]
       : []),
   ];
@@ -100,12 +100,12 @@ export function Navbar({ currentView, onViewChange, onLogout, isAdmin, onNotific
               onClick={() => setShowDropdown(!showDropdown)}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium transition"
             >
-              {currentView === 'dashboard' && '[chart] Dashboard'}
-              {currentView === 'dispense' && '[pill] Dispense'}
-              {currentView === 'analytics' && '[chart] Analytics'}
-              {currentView === 'tickets' && ' Support'}
-              {currentView === 'pending-drugs' && ' Pending Drugs'}
-              {currentView === 'settings' && ' Settings'}
+              {currentView === 'dashboard' && '📊 Dashboard'}
+              {currentView === 'dispense' && '💊 Dispense'}
+              {currentView === 'analytics' && '📊 Analytics'}
+              {currentView === 'tickets' && '🎫 Support'}
+              {currentView === 'pending-drugs' && '⏳ Pending Drugs'}
+              {currentView === 'settings' && '⚙️ Settings'}
               <ChevronDown size={18} className={`transition ${showDropdown ? 'rotate-180' : ''}`} />
             </button>
 

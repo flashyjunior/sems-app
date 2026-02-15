@@ -29,8 +29,16 @@ export const ComplianceStats: React.FC<ComplianceStatsProps> = ({
   pharmacyId,
 }) => {
   const [data, setData] = useState<ComplianceData | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<'rate' | 'compliant' | 'deviation' | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [events, setEvents] = useState<any[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(false);
+  const [eventsError, setEventsError] = useState<string | null>(null);
+  const [eventsPage, setEventsPage] = useState(1);
+  const [eventsTotal, setEventsTotal] = useState<number | null>(null);
+  const [popoverEventId, setPopoverEventId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchCompliance = async () => {
@@ -57,6 +65,56 @@ export const ComplianceStats: React.FC<ComplianceStatsProps> = ({
 
     fetchCompliance();
   }, [startDate, endDate, pharmacyId]);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      if (!modalOpen || !modalType) return;
+      try {
+        setEventsLoading(true);
+        setEventsError(null);
+
+        const params = new URLSearchParams();
+        params.set('startDate', startDate.toISOString().split('T')[0]);
+        params.set('endDate', endDate.toISOString().split('T')[0]);
+        if (pharmacyId) params.set('pharmacyId', pharmacyId);
+        params.set('page', String(eventsPage));
+        params.set('limit', '200');
+
+        // If user opened compliant/deviation lists, pass stgCompliant filter
+        if (modalType === 'compliant') params.set('stgCompliant', 'true');
+        if (modalType === 'deviation') params.set('stgCompliant', 'false');
+
+        const response = await fetch(`/api/analytics/dispensing/events?${params.toString()}`);
+        if (!response.ok) throw new Error('Failed to fetch event details');
+        const result = await response.json();
+        setEvents(result.data || []);
+        setEventsTotal(result.pagination?.total ?? null);
+      } catch (err) {
+        setEventsError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setEventsLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, [modalOpen, modalType, eventsPage, startDate, endDate, pharmacyId]);
+
+  // Close popover when clicking outside
+  useEffect(() => {
+    const handler = (ev: MouseEvent) => {
+      const target = ev.target as HTMLElement | null;
+      if (!target) return;
+      if (!target.closest('[data-popover-id]')) {
+        setPopoverEventId(null);
+      }
+    };
+
+    if (popoverEventId !== null) {
+      document.addEventListener('mousedown', handler);
+      return () => document.removeEventListener('mousedown', handler);
+    }
+    return;
+  }, [popoverEventId]);
 
   if (loading) {
     return <div style={{ padding: '1rem' }}>Loading compliance data...</div>;
@@ -94,10 +152,24 @@ export const ComplianceStats: React.FC<ComplianceStatsProps> = ({
     return 'NEEDS IMPROVEMENT';
   };
 
+  const rowHighlightProps = (ev: any) => {
+    const cat = (ev.riskCategory || '').toLowerCase();
+    const score = typeof ev.riskScore === 'number' ? ev.riskScore : -1;
+    const isCritical = cat === 'critical' || score >= 80;
+    const isHigh = isCritical || cat === 'high' || score >= 60;
+    if (isCritical) {
+      return { backgroundColor: '#fff1f2', borderLeft: '4px solid #7f1d1d' };
+    }
+    if (isHigh) {
+      return { backgroundColor: '#fff7ed', borderLeft: '4px solid #ef4444' };
+    }
+    return {};
+  };
+
   return (
     <div style={{ marginBottom: '2rem' }}>
       <h3 style={{ marginBottom: '1rem', fontSize: '1.3rem' }}>
-        [OK] STG Compliance
+        ✅ STG Compliance
       </h3>
 
       <div style={{
@@ -112,7 +184,9 @@ export const ComplianceStats: React.FC<ComplianceStatsProps> = ({
           textAlign: 'center',
           padding: '2rem',
           border: `3px solid ${getStatusColor(safeComplianceRate)}`,
-        }}>
+          cursor: 'pointer',
+        }}
+        onClick={() => { setModalType('rate'); setModalOpen(true); }}>
           <div style={{ marginBottom: '0.5rem', color: styles.secondaryText.color }}>
             Compliance Rate
           </div>
@@ -139,8 +213,10 @@ export const ComplianceStats: React.FC<ComplianceStatsProps> = ({
         {/* Compliant Events Card */}
         <div style={{
           ...styles.card,
-          padding: '1.5rem',
-        }}>
+            padding: '1.5rem',
+            cursor: 'pointer',
+          }}
+          onClick={() => { setModalType('compliant'); setModalOpen(true); }}>
           <div style={{
             fontSize: '0.9rem',
             color: styles.secondaryText.color,
@@ -167,8 +243,10 @@ export const ComplianceStats: React.FC<ComplianceStatsProps> = ({
         {/* Deviation Events Card */}
         <div style={{
           ...styles.card,
-          padding: '1.5rem',
-        }}>
+            padding: '1.5rem',
+            cursor: 'pointer',
+          }}
+          onClick={() => { setModalType('deviation'); setModalOpen(true); }}>
           <div style={{
             fontSize: '0.9rem',
             color: styles.secondaryText.color,
@@ -238,7 +316,7 @@ export const ComplianceStats: React.FC<ComplianceStatsProps> = ({
       {data.topDeviations && data.topDeviations.length > 0 && (
         <div style={styles.card}>
           <h4 style={{ marginBottom: '1rem', fontSize: '1rem' }}>
-            [WARN] Top Deviation Reasons
+            ⚠️ Top Deviation Reasons
           </h4>
           <div>
             {data.topDeviations.map((deviation, index) => (
@@ -256,6 +334,167 @@ export const ComplianceStats: React.FC<ComplianceStatsProps> = ({
                 <strong>{index + 1}.</strong> {deviation}
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Details Modal */}
+      {modalOpen && modalType && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 60 }}>
+          <div style={{ width: 'min(800px, 95%)', background: 'white', borderRadius: 8, padding: '1.25rem', boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <h4 style={{ margin: 0 }}>{modalType === 'rate' ? 'Compliance Rate Details' : modalType === 'compliant' ? 'Compliant Events Details' : 'Deviation Events Details'}</h4>
+              <button onClick={() => setModalOpen(false)} style={{ background: 'transparent', border: 'none', fontSize: '1rem', cursor: 'pointer' }}>✕</button>
+            </div>
+
+            <div style={{ maxHeight: '60vh', overflow: 'auto' }}>
+              {modalType === 'rate' && (
+                <div>
+                  <p style={{ marginTop: 0 }}><strong>How Compliance Rate is computed</strong></p>
+                  <p>Compliance Rate = (Compliant Events / Total Events) × 100</p>
+                  <p><strong>Compliant Events:</strong> {data?.compliantCount ?? 0}</p>
+                  <p><strong>Deviation Events:</strong> {data?.deviationCount ?? 0}</p>
+                  <p><strong>Total Events:</strong> {(data?.compliantCount ?? 0) + (data?.deviationCount ?? 0)}</p>
+                </div>
+              )}
+
+              {modalType === 'compliant' && (
+                <div>
+                  <p style={{ marginTop: 0 }}><strong>Compliant Events Breakdown</strong></p>
+                  <p>Number of compliant events: <strong>{data?.compliantCount ?? 0}</strong></p>
+                  <p>These are dispensings that followed STG guidelines within the selected period.</p>
+                  <p style={{ marginTop: '0.5rem' }}><strong>Top deviation reasons are excluded here.</strong></p>
+                </div>
+              )}
+
+              {modalType === 'deviation' && (
+                <div>
+                  <p style={{ marginTop: 0 }}><strong>Deviation Events Breakdown</strong></p>
+                  <p>Total deviations: <strong>{data?.deviationCount ?? 0}</strong></p>
+                  <p style={{ marginTop: '0.5rem' }}><strong>Top Deviation Reasons:</strong></p>
+                  <ul>
+                    {(data?.topDeviations && data.topDeviations.length) ? data.topDeviations.map((d, i) => (
+                      <li key={i} style={{ marginBottom: '0.25rem' }}>{d}</li>
+                    )) : <li>No deviation reasons available</li>}
+                  </ul>
+                </div>
+              )}
+
+              {/* Event list (records) - shown for compliant or deviation modal types */}
+              {(modalType === 'compliant' || modalType === 'deviation') && (
+                <div style={{ marginTop: '1rem' }}>
+                  <h5 style={{ marginBottom: '0.5rem' }}>Event Records</h5>
+                  {eventsLoading ? (
+                    <div>Loading records...</div>
+                  ) : eventsError ? (
+                    <div style={{ color: 'red' }}>Error: {eventsError}</div>
+                  ) : events.length === 0 ? (
+                    <div>No records found for the selected period.</div>
+                  ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr style={{ textAlign: 'left', borderBottom: '1px solid #e5e7eb' }}>
+                            <th style={{ padding: '0.5rem' }}>Time</th>
+                            <th style={{ padding: '0.5rem' }}>Pharmacist</th>
+                            <th style={{ padding: '0.5rem' }}>Patient</th>
+                            <th style={{ padding: '0.5rem' }}>Phone</th>
+                            <th style={{ padding: '0.5rem' }}>Drug</th>
+                            <th style={{ padding: '0.5rem' }}>STG</th>
+                            <th style={{ padding: '0.5rem' }}>Risk</th>
+                            <th style={{ padding: '0.5rem' }}>Override</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {events.map((ev) => (
+                            <tr key={ev.id} style={{ borderBottom: '1px solid #f3f4f6', ...rowHighlightProps(ev) }}>
+                              <td style={{ padding: '0.5rem', verticalAlign: 'top' }}>{new Date(ev.timestamp).toLocaleString()}</td>
+                              <td style={{ padding: '0.5rem', verticalAlign: 'top' }}>{ev.pharmacist ?? '-'}</td>
+                              <td style={{ padding: '0.5rem', verticalAlign: 'top' }}>{ev.patientName ?? '-'}</td>
+                              <td style={{ padding: '0.5rem', verticalAlign: 'top' }}>{ev.patientPhone ?? '-'}</td>
+                              <td style={{ padding: '0.5rem', verticalAlign: 'top' }}>{ev.drugName ?? ev.genericName ?? '-'}</td>
+                              <td style={{ padding: '0.5rem', verticalAlign: 'top' }}>{ev.stgCompliant ? 'Yes' : 'No'}</td>
+                                <td style={{ padding: '0.5rem', verticalAlign: 'top' }}>
+                                  {ev.riskScore ?? '-'}
+                                  {ev.riskFlags && ev.riskFlags.length > 0 && (
+                                    <span style={{ marginLeft: 8, color: '#9ca3af' , display: 'inline-block', position: 'relative' }} data-popover-id>
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); setPopoverEventId((id) => id === ev.id ? null : ev.id); }}
+                                        aria-expanded={popoverEventId === ev.id}
+                                        aria-controls={`popover-${ev.id}`}
+                                        style={{ background: 'transparent', border: 'none', padding: 0, margin: 0, cursor: 'pointer', color: '#9ca3af' }}
+                                      >
+                                        ⚑
+                                      </button>
+
+                                      {popoverEventId === ev.id && (
+                                        <div id={`popover-${ev.id}`} data-popover-id style={{ position: 'absolute', top: '1.6rem', left: 0, zIndex: 80, minWidth: 220, background: 'white', border: '1px solid #e5e7eb', borderRadius: 6, padding: '0.5rem', boxShadow: '0 6px 18px rgba(0,0,0,0.12)' }}>
+                                          <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>Risk flags</div>
+                                          <div style={{ fontSize: '0.85rem', color: '#374151' }}>
+                                            {(Array.isArray(ev.riskFlags) ? ev.riskFlags : [ev.riskFlags]).map((f: any, i: number) => (
+                                              <div key={i} style={{ padding: '0.15rem 0' }}>• {f}</div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </span>
+                                  )}
+                                </td>
+                              <td style={{ padding: '0.5rem', verticalAlign: 'top' }}>{ev.overrideFlag ? 'Yes' : 'No'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.75rem' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button
+                  onClick={() => setEventsPage((p) => Math.max(1, p - 1))}
+                  disabled={eventsPage <= 1 || eventsLoading}
+                  style={{ padding: '0.4rem 0.75rem', background: eventsPage <= 1 ? '#f3f4f6' : '#fff', border: '1px solid #e5e7eb', borderRadius: 6, cursor: eventsPage <= 1 ? 'not-allowed' : 'pointer' }}
+                >
+                  ← Prev
+                </button>
+
+                <div style={{ fontSize: '0.9rem', color: '#444' }}>
+                  Page {eventsPage}{eventsTotal ? ` of ${Math.max(1, Math.ceil(eventsTotal / 200))}` : ''}
+                </div>
+
+                <button
+                  onClick={() => setEventsPage((p) => p + 1)}
+                  disabled={eventsLoading || (eventsTotal !== null && eventsPage * 200 >= eventsTotal)}
+                  style={{ padding: '0.4rem 0.75rem', background: (eventsTotal !== null && eventsPage * 200 >= eventsTotal) ? '#f3f4f6' : '#fff', border: '1px solid #e5e7eb', borderRadius: 6, cursor: (eventsTotal !== null && eventsPage * 200 >= eventsTotal) ? 'not-allowed' : 'pointer' }}
+                >
+                  Next →
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const params = new URLSearchParams();
+                    params.set('startDate', startDate.toISOString().split('T')[0]);
+                    params.set('endDate', endDate.toISOString().split('T')[0]);
+                    if (pharmacyId) params.set('pharmacyId', pharmacyId);
+                    if (modalType === 'compliant') params.set('stgCompliant', 'true');
+                    if (modalType === 'deviation') params.set('stgCompliant', 'false');
+                    window.location.href = `/records?${params.toString()}`;
+                  }}
+                  style={{ padding: '0.45rem 0.85rem', background: '#2563eb', color: 'white', borderRadius: 6, textDecoration: 'none' }}
+                >
+                  View all in Records
+                </a>
+
+                <button onClick={() => setModalOpen(false)} style={{ padding: '0.5rem 1rem', background: '#e5e7eb', border: 'none', borderRadius: 6, cursor: 'pointer' }}>Close</button>
+              </div>
+            </div>
           </div>
         </div>
       )}

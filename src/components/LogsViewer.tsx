@@ -13,13 +13,14 @@ import type { FileLog } from '@/lib/file-logger';
 
 interface LogsViewerProps {
   className?: string;
+  isFullPage?: boolean;
 }
 
 /**
  * Logs Viewer Component - View and manage logs for troubleshooting
  */
-export function LogsViewer({ className = '' }: LogsViewerProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function LogsViewer({ className = '', isFullPage = false }: LogsViewerProps) {
+  const [isOpen, setIsOpen] = useState(isFullPage ? true : false);
   const [logs, setLogs] = useState<FileLog[]>([]);
   const [filterLevel, setFilterLevel] = useState<string>('all');
   const [filterCategory, setFilterCategory] = useState<string>('all');
@@ -70,7 +71,7 @@ export function LogsViewer({ className = '' }: LogsViewerProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (!isOpen) {
+  if (!isOpen && !isFullPage) {
     return (
       <button
         onClick={() => setIsOpen(true)}
@@ -82,9 +83,8 @@ export function LogsViewer({ className = '' }: LogsViewerProps) {
     );
   }
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+  const LogsContent = () => (
+    <div className="bg-white rounded-lg shadow-2xl w-full h-full flex flex-col">
         {/* Header */}
         <div className="border-b border-gray-200 p-4 flex justify-between items-center bg-gray-50">
           <div>
@@ -212,6 +212,22 @@ export function LogsViewer({ className = '' }: LogsViewerProps) {
           </button>
         </div>
       </div>
+  );
+
+  if (isFullPage) {
+    return (
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">Application Logs</h2>
+        </div>
+        <LogsContent />
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <LogsContent />
     </div>
   );
 }

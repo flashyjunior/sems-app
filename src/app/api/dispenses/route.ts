@@ -14,6 +14,7 @@ import { createActivityLog } from '@/services/activity-log.service';
 import { logInfo, logError } from '@/lib/logger';
 import { writeLog } from '@/lib/file-logger';
 import { AuthenticatedRequest } from '@/lib/auth-middleware';
+import { processDispensingEvent } from '@/services/analytics/serverProcessor';
 
 async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
   const corsResponse = handleCORS(req);
@@ -197,6 +198,34 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
         },
         { status: 201 }
       );
+
+      // Trigger analytics processing asynchronously (do not block response)
+      (async () => {
+        try {
+          const payload: any = {
+            dispenseRecordId: dispense.externalId || null,
+            timestamp: (dispense.createdAt && new Date(dispense.createdAt)) || new Date(),
+            pharmacyId: dispense.pharmacyId ? String(dispense.pharmacyId) : undefined,
+            userId: req.user!.userId,
+            drugId: validation.data.drugId || (dispense.drugId as any) || validation.data.drugName,
+            drugName: validation.data.drugName || dispense.drugName,
+            genericName: validation.data.genericName || undefined,
+            patientAgeGroup: validation.data.patientAgeGroup || 'adult',
+            isPrescription: validation.data.isPrescription ?? true,
+            isControlledDrug: validation.data.isControlledDrug ?? false,
+            isAntibiotic: validation.data.isAntibiotic ?? false,
+            stgCompliant: validation.data.stgCompliant ?? true,
+            overrideFlag: validation.data.overrideFlag ?? false,
+            patientIsPregnant: validation.data.patientIsPregnant ?? false,
+          };
+
+          processDispensingEvent(payload).catch((err) => {
+            logError('Failed to process dispensing event (async)', err);
+          });
+        } catch (e) {
+          logError('Failed to enqueue analytics processing', e);
+        }
+      })();
       return setCORSHeaders(response, req.headers.get('origin') || undefined);
     } else if (req.method === 'PUT') {
       // Update existing dispense record

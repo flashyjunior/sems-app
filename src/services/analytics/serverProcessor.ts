@@ -22,10 +22,22 @@ export interface ServerDispenseInput {
 
 export async function processDispensingEvent(input: ServerDispenseInput) {
   try {
+    // Ensure pharmacyId is a string; if missing try to derive from user record
+    let pharmacyIdStr: string | undefined = undefined;
+    try {
+      if (input.pharmacyId !== undefined && input.pharmacyId !== null) pharmacyIdStr = String(input.pharmacyId);
+      else {
+        const u = await prisma.user.findUnique({ where: { id: input.userId }, select: { pharmacyId: true } });
+        if (u?.pharmacyId) pharmacyIdStr = String(u.pharmacyId);
+      }
+    } catch (e) {
+      // ignore
+    }
+
     const enriched = await enrichEvent({
       dispenseRecordId: input.dispenseRecordId || null,
       timestamp: input.timestamp instanceof Date ? input.timestamp : new Date(input.timestamp),
-      pharmacyId: input.pharmacyId,
+      pharmacyId: pharmacyIdStr ?? input.pharmacyId,
       userId: input.userId,
       drugId: input.drugId,
       drugName: input.drugName || input.drugId,
@@ -41,10 +53,27 @@ export async function processDispensingEvent(input: ServerDispenseInput) {
 
     const risk = calculateRiskScores(enriched as any);
 
+    // If we have a linked DispenseRecord, try to compute a print/prepare duration
+    let printDurationSec: number | undefined = undefined;
+    try {
+      if (input.dispenseRecordId) {
+        const rec = await prisma.dispenseRecord.findUnique({
+          where: { externalId: input.dispenseRecordId },
+          select: { printedAt: true, createdAt: true },
+        });
+        if (rec && rec.printedAt && rec.createdAt) {
+          const delta = (new Date(rec.printedAt).getTime() - new Date(rec.createdAt).getTime()) / 1000;
+          printDurationSec = Math.max(0, Math.round(delta));
+        }
+      }
+    } catch (e) {
+      // ignore failures to compute duration
+    }
+
     const created = await prisma.dispensingEvent.create({ data: {
       dispenseRecordId: input.dispenseRecordId || null,
       timestamp: input.timestamp instanceof Date ? input.timestamp : new Date(input.timestamp),
-      pharmacyId: input.pharmacyId,
+      pharmacyId: pharmacyIdStr ?? (input.pharmacyId as any),
       userId: input.userId,
       drugId: input.drugId,
       drugName: input.drugName || input.drugId,
@@ -60,6 +89,7 @@ export async function processDispensingEvent(input: ServerDispenseInput) {
       riskCategory: risk.category,
       riskFlags: JSON.stringify(risk.flags || []),
       highRiskFlag: risk.category === 'high' || risk.category === 'critical',
+      printDurationSec: printDurationSec,
     } });
 
     logInfo('Server processed analytics event', { id: created.id });

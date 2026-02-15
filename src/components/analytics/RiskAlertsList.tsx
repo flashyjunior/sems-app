@@ -16,6 +16,8 @@ interface RiskAlert {
   timestamp: string;
   pharmacyId: string;
   drugId: string;
+  drugName?: string | null;
+  genericName?: string | null;
   riskCategory: string;
   riskScore: number;
   riskReason: string;
@@ -49,6 +51,9 @@ export const RiskAlertsList: React.FC<RiskAlertsListProps> = ({
   // use toast for feedback
   const showToast = useToast();
 
+  // Temporary flag to hide the re-emit debugging button in production/dev UI
+  const SHOW_REEMIT = false;
+
   useEffect(() => {
     const fetchAlerts = async () => {
       try {
@@ -65,8 +70,15 @@ export const RiskAlertsList: React.FC<RiskAlertsListProps> = ({
         const response = await fetch(`/api/analytics/dispensing/risk-alerts?${params}`);
         if (!response.ok) throw new Error('Failed to fetch risk alerts');
 
-        const result = await response.json();
-        setAlerts(result.data.alerts);
+        const result = await response.json().catch(() => null);
+        // Normalize different possible response shapes and ensure alerts is always an array
+        const maybeAlerts = (result && (
+          (Array.isArray(result.data?.alerts) && result.data.alerts) ||
+          (Array.isArray(result.data) && result.data) ||
+          (Array.isArray(result) && result) ||
+          []
+        )) || [];
+        setAlerts(maybeAlerts as RiskAlert[]);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
@@ -125,13 +137,13 @@ export const RiskAlertsList: React.FC<RiskAlertsListProps> = ({
   const getRiskIcon = (category: string): string => {
     switch (category) {
       case 'critical':
-        return '[ALERT]';
+        return '🚨';
       case 'high':
-        return '[WARN]';
+        return '⚠️';
       case 'medium':
-        return '';
+        return '⚠';
       default:
-        return '[OK]';
+        return '✅';
     }
   };
 
@@ -162,7 +174,16 @@ export const RiskAlertsList: React.FC<RiskAlertsListProps> = ({
   const createTicket = async (alertId: string) => {
     try {
       showToast('Creating ticket...', 'info', 2000);
-      const res = await fetch('/api/analytics/alerts/tickets', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ alertId }) });
+      const authToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+
+      const res = await fetch('/api/analytics/alerts/tickets', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ alertId }),
+      });
+
       if (!res.ok) {
         const err = await res.json().catch(() => null);
         const msg = err?.error || 'Failed to create ticket';
@@ -171,14 +192,16 @@ export const RiskAlertsList: React.FC<RiskAlertsListProps> = ({
       }
 
       const payload = await res.json().catch(() => null);
-      const ticket = payload?.data || null;
-      const highRiskAlertId = payload?.highRiskAlertId;
-      const dispensingEventId = payload?.dispensingEventId;
+      // API returns { success: true, data: { ticket: { id, ticketNumber }, highRiskAlertId, dispensingEventId } }
+      const data = payload?.data || {};
+      const ticketObj = data?.ticket || data || null;
+      const highRiskAlertId = data?.highRiskAlertId ?? payload?.highRiskAlertId ?? null;
+      const dispensingEventId = data?.dispensingEventId ?? payload?.dispensingEventId ?? null;
 
-      if (ticket && ticket.id) {
+      if (ticketObj && ticketObj.id) {
         // Save mapping to show in UI
-        setCreatedTickets((s) => ({ ...s, [alertId]: { ticketId: ticket.id, highRiskAlertId, dispensingEventId } }));
-        showToast(`Ticket created: ${ticket.id}`, 'success', 3500);
+        setCreatedTickets((s) => ({ ...s, [alertId]: { ticketId: ticketObj.id, highRiskAlertId, dispensingEventId } }));
+        showToast(`Ticket created: ${ticketObj.id}`, 'success', 3500);
       } else {
         showToast('Ticket created', 'success', 3500);
       }
@@ -202,17 +225,17 @@ export const RiskAlertsList: React.FC<RiskAlertsListProps> = ({
   return (
     <div style={{ marginBottom: '2rem' }}>
       <h3 style={{ marginBottom: '1rem', fontSize: '1.3rem' }}>
-        [ALERT] Risk Alerts
+        🚨 Risk Alerts
       </h3>
 
       
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
-        <button
+            <button
           onClick={() => {
             // CSV export for alerts
-            const headers = ['id','timestamp','pharmacyId','drugId','riskCategory','riskScore','riskReason','isPrescription','isControlledDrug','isAntibiotic'];
-            const rows = alerts.map(a => [a.id, a.timestamp, a.pharmacyId, a.drugId, a.riskCategory, a.riskScore, a.riskReason, a.isPrescription, a.isControlledDrug, a.isAntibiotic]);
+            const headers = ['id','timestamp','pharmacyId','genericName','drugName','drugId','riskCategory','riskScore','riskReason','isPrescription','isControlledDrug','isAntibiotic'];
+            const rows = (alerts || []).map(a => [a.id, a.timestamp, a.pharmacyId, a.genericName || '', a.drugName || '', a.drugId, a.riskCategory, a.riskScore, a.riskReason, a.isPrescription, a.isControlledDrug, a.isAntibiotic]);
             const csv = [headers.join(','), ...rows.map(r => r.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(','))].join('\n');
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
@@ -261,7 +284,7 @@ export const RiskAlertsList: React.FC<RiskAlertsListProps> = ({
 
       {alerts.length === 0 ? (
         <div style={{ ...styles.card, padding: '2rem', textAlign: 'center' }}>
-          <p style={styles.secondaryText}>[OK] No risk alerts detected</p>
+          <p style={styles.secondaryText}>✅ No risk alerts detected</p>
         </div>
       ) : (
         <div style={styles.card}>
@@ -320,12 +343,15 @@ export const RiskAlertsList: React.FC<RiskAlertsListProps> = ({
                   </div>
 
                   <div style={{
-                    fontSize: '0.9rem',
-                    marginBottom: '0.5rem',
-                    color: '#333',
-                  }}>
-                    <strong>Drug ID:</strong> {maskIfUnauthorized(alert.drugId)}
-                  </div>
+                          fontSize: '0.9rem',
+                          marginBottom: '0.5rem',
+                          color: '#333',
+                        }}>
+                          <strong>Drug:</strong> {(alert.genericName || alert.drugName || alert.drugId)}
+                          {alert.genericName && alert.drugName && alert.genericName !== alert.drugName ? (
+                            <div style={{ fontSize: '0.8rem', color: '#666' }}>{alert.drugName}</div>
+                          ) : null}
+                        </div>
 
                   <div style={{
                     fontSize: '0.85rem',
@@ -343,10 +369,12 @@ export const RiskAlertsList: React.FC<RiskAlertsListProps> = ({
                     flexWrap: 'wrap',
                   }}>
                     <button onClick={() => createTicket(alert.id)} style={{ padding: '0.25rem 0.5rem' }}>Create Ticket</button>
-                    <button onClick={() => {
-                      // quick emit to debug webhook/stream
-                      fetch('/api/analytics/debug/emit-alert', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(alert) });
-                    }} style={{ padding: '0.25rem 0.5rem' }}>Re-emit</button>
+                    {SHOW_REEMIT ? (
+                      <button onClick={() => {
+                        // quick emit to debug webhook/stream
+                        fetch('/api/analytics/debug/emit-alert', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(alert) });
+                      }} style={{ padding: '0.25rem 0.5rem' }}>Re-emit</button>
+                    ) : null}
                     {alert.isPrescription && (
                       <span style={{ backgroundColor: '#e3f2fd', padding: '0.25rem 0.5rem', borderRadius: '3px' }}>
                          Prescription
@@ -359,7 +387,7 @@ export const RiskAlertsList: React.FC<RiskAlertsListProps> = ({
                     )}
                     {alert.isAntibiotic && (
                       <span style={{ backgroundColor: '#f3e5f5', padding: '0.25rem 0.5rem', borderRadius: '3px' }}>
-                        [pill] Antibiotic
+                        💊 Antibiotic
                       </span>
                     )}
                   </div>

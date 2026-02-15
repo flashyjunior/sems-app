@@ -7,7 +7,9 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
   try {
     if (req.method === 'GET') {
       // List all pharmacies
-      const pharmacies = await prisma.pharmacy.findMany({
+      let pharmacies = [];
+      try {
+        pharmacies = await prisma.pharmacy.findMany({
         select: {
           id: true,
           name: true,
@@ -23,7 +25,12 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
           }
         },
         orderBy: { name: 'asc' }
-      });
+        });
+      } catch (dbErr) {
+        // If the Pharmacy table is missing (migration not applied) return an empty list
+        console.warn('Pharmacy list query failed, returning empty list', dbErr);
+        pharmacies = [];
+      }
 
       return NextResponse.json({
         success: true,

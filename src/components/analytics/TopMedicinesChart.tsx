@@ -11,11 +11,11 @@ import styles from '@/app/styles-const';
 interface TopMedicine {
   drugId: string;
   drugCode: string;
-  genericName: string;
+  drugGenericName: string;
   count: number;
-  prescriptions: number;
-  otc: number;
-  mostCommonRiskLevel: string;
+  prescriptionCount: number;
+  otcCount: number;
+  riskCategory: string;
 }
 
 interface TopMedicinesChartProps {
@@ -88,14 +88,14 @@ export const TopMedicinesChart: React.FC<TopMedicinesChartProps> = ({
     <div style={{ marginBottom: '2rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <h3 style={{ margin: 0, fontSize: '1.3rem' }}>
-          [pill] Top {medicines.length} Most Dispensed Medicines
+          💊 Top {medicines.length} Most Dispensed Medicines
         </h3>
         <div>
           <button
             onClick={() => {
               // build CSV
-              const headers = ['drugId','drugCode','genericName','count','prescriptions','otc','mostCommonRiskLevel'];
-              const rows = medicines.map(m => [m.drugId, m.drugCode, m.genericName, m.count, m.prescriptions, m.otc, m.mostCommonRiskLevel]);
+              const headers = ['drugId','drugCode','drugGenericName','count','prescriptionCount','otcCount','riskCategory'];
+              const rows = medicines.map(m => [m.drugId, m.drugCode, m.drugGenericName, m.count, m.prescriptionCount, m.otcCount, m.riskCategory]);
               const csv = [headers.join(','), ...rows.map(r => r.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(','))].join('\n');
               const blob = new Blob([csv], { type: 'text/csv' });
               const url = URL.createObjectURL(blob);
@@ -137,9 +137,9 @@ export const TopMedicinesChart: React.FC<TopMedicinesChartProps> = ({
         {medicines.map((medicine, index) => {
           const barWidth = (medicine.count / maxCount) * 100;
           const riskColor = 
-            medicine.mostCommonRiskLevel === 'critical' ? '#d32f2f' :
-            medicine.mostCommonRiskLevel === 'high' ? '#f57c00' :
-            medicine.mostCommonRiskLevel === 'medium' ? '#fbc02d' :
+            medicine.riskCategory === 'critical' ? '#d32f2f' :
+            medicine.riskCategory === 'high' ? '#f57c00' :
+            medicine.riskCategory === 'medium' ? '#fbc02d' :
             '#388e3c';
 
           // Use a neutral bar color and surface risk via a badge
@@ -154,15 +154,15 @@ export const TopMedicinesChart: React.FC<TopMedicinesChartProps> = ({
                 fontSize: '0.9rem',
               }}>
                 <div>
-                  <strong>{index + 1}. {medicine.genericName}</strong>
+                  <strong>{index + 1}. {medicine.drugGenericName}</strong>
                   <div style={{ fontSize: '0.85rem', color: styles.secondaryText.color }}>
-                    Code: {medicine.drugCode} | Risk: {medicine.mostCommonRiskLevel}
+                    Code: {medicine.drugCode} | Risk: {medicine.riskCategory}
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontWeight: 'bold' }}>{medicine.count} total</div>
                   <div style={{ fontSize: '0.85rem', color: styles.secondaryText.color }}>
-                    Rx: {medicine.prescriptions} | OTC: {medicine.otc}
+                    Rx: {medicine.prescriptionCount} | OTC: {medicine.otcCount}
                   </div>
                 </div>
               </div>
@@ -195,7 +195,7 @@ export const TopMedicinesChart: React.FC<TopMedicinesChartProps> = ({
                 {/* Risk badge on the right */}
                 <div style={{ marginLeft: '8px', display: 'flex', alignItems: 'center' }}>
                   <span aria-hidden style={{ width: 10, height: 10, background: riskColor, borderRadius: 10, display: 'inline-block', marginRight: 8 }} />
-                  <span style={{ fontSize: '0.85rem', color: styles.secondaryText.color, textTransform: 'capitalize' }}>{medicine.mostCommonRiskLevel}</span>
+                  <span style={{ fontSize: '0.85rem', color: styles.secondaryText.color, textTransform: 'capitalize' }}>{medicine.riskCategory}</span>
                 </div>
               </div>
             </div>

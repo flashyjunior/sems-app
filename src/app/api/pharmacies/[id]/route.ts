@@ -14,12 +14,12 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
         { status: 400 }
       );
     }
-    const id = idMatch[1];
+    const id = Number(idMatch[1]);
 
     if (req.method === 'GET') {
       // Get pharmacy by ID
       const pharmacy = await prisma.pharmacy.findUnique({
-        where: { id },
+        where: { id: Number(id) },
         select: {
           id: true,
           name: true,
@@ -55,7 +55,7 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
       
       // Check if pharmacy exists
       const existingPharmacy = await prisma.pharmacy.findUnique({
-        where: { id },
+        where: { id: Number(id) },
       });
 
       if (!existingPharmacy) {
@@ -67,7 +67,8 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
 
       // Check if name is unique (if changed)
       if (body.name && body.name !== existingPharmacy.name) {
-        const nameExists = await prisma.pharmacy.findUnique({
+        // `name` is not a unique field in the schema; use findFirst to check existence
+        const nameExists = await prisma.pharmacy.findFirst({
           where: { name: body.name },
         });
 
@@ -81,7 +82,8 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
 
       // Check if license number is unique (if changed)
       if (body.licenseNumber && body.licenseNumber !== existingPharmacy.licenseNumber) {
-        const licenseExists = await prisma.pharmacy.findUnique({
+        // `licenseNumber` may not be unique in schema; use findFirst to check existence
+        const licenseExists = await prisma.pharmacy.findFirst({
           where: { licenseNumber: body.licenseNumber },
         });
 
@@ -94,7 +96,7 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
       }
 
       const updatedPharmacy = await prisma.pharmacy.update({
-        where: { id },
+        where: { id: Number(id) },
         data: {
           name: body.name,
           location: body.location,
@@ -129,7 +131,7 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
     } else if (req.method === 'DELETE') {
       // Delete pharmacy (only if no users are assigned)
       const pharmacyWithUsers = await prisma.pharmacy.findUnique({
-        where: { id },
+        where: { id: Number(id) },
         select: {
           _count: { select: { users: true } }
         }
@@ -150,7 +152,7 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
       }
 
       await prisma.pharmacy.delete({
-        where: { id },
+        where: { id: Number(id) },
       });
 
       return NextResponse.json({
@@ -170,6 +172,39 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
   }
 }
 
-export const GET = withAuth(handler);
+// Public GET (allow retrieving pharmacy details without authentication)
+export async function GET(req: NextRequest) {
+  try {
+    const url = new URL(req.url);
+    const idMatch = url.pathname.match(/\/api\/pharmacies\/([^/]+)/);
+    if (!idMatch) return NextResponse.json({ error: 'Invalid pharmacy ID' }, { status: 400 });
+    const id = Number(idMatch[1]);
+
+    const pharmacy = await prisma.pharmacy.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        location: true,
+        address: true,
+        phone: true,
+        email: true,
+        licenseNumber: true,
+        manager: true,
+        isActive: true,
+        createdAt: true,
+        _count: { select: { users: true, dispenseRecords: true } }
+      }
+    });
+
+    if (!pharmacy) return NextResponse.json({ error: 'Pharmacy not found' }, { status: 404 });
+
+    return NextResponse.json({ success: true, data: pharmacy });
+  } catch (error) {
+    console.error('Public GET pharmacy error:', error);
+    return NextResponse.json({ error: 'Failed to fetch pharmacy' }, { status: 500 });
+  }
+}
+
 export const PUT = withAuth(handler);
 export const DELETE = withAuth(handler);

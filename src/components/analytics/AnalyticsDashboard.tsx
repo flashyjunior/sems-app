@@ -10,6 +10,8 @@ import styles from '@/app/styles-const';
 import { DashboardMetrics } from './DashboardMetrics';
 import { TopMedicinesChart } from './TopMedicinesChart';
 import { PeakHoursChart } from './PeakHoursChart';
+import { PeakDaysChart } from './PeakDaysChart';
+import { DailyDispensingTrend } from './DailyDispensingTrend';
 import { ComplianceStats } from './ComplianceStats';
 import { RiskAlertsList } from './RiskAlertsList';
 import ExportJobStatus from './ExportJobStatus';
@@ -42,6 +44,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
   const [selectedSavedPreset, setSelectedSavedPreset] = useState<string>('');
   const [showSaveInput, setShowSaveInput] = useState<boolean>(false);
   const [savePresetName, setSavePresetName] = useState<string>('');
+  // Temporary flag: hide preset save/load/apply/delete controls when false
+  const SHOW_PRESET_CONTROLS = false;
+  // Temporary flag: hide reconciliation quick-check button
+  const SHOW_RECONCILE = false;
 
   useEffect(() => {
     try {
@@ -192,7 +198,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
       {/* Header */}
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>
-          [chart] Analytics Dashboard
+          📊 Analytics Dashboard
         </h1>
         <p style={styles.secondaryText}>
           Dispensing metrics, compliance monitoring, and risk analysis
@@ -233,44 +239,46 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           )}
 
           {/* Saved presets controls */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: '1rem' }}>
-            {!showSaveInput ? (
-              <button onClick={() => setShowSaveInput(true)} style={{ padding: '0.4rem 0.6rem' }}>
-                Save preset
+          {SHOW_PRESET_CONTROLS ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: '1rem' }}>
+              {!showSaveInput ? (
+                <button onClick={() => setShowSaveInput(true)} style={{ padding: '0.4rem 0.6rem' }}>
+                  Save preset
+                </button>
+              ) : (
+                <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+                  <input value={savePresetName} onChange={(e) => setSavePresetName(e.target.value)} placeholder="Preset name" style={{ padding: '0.35rem' }} />
+                  <button onClick={() => saveCurrentPreset()} style={{ padding: '0.35rem 0.5rem' }}>Save</button>
+                  <button onClick={() => { setShowSaveInput(false); setSavePresetName(''); }} style={{ padding: '0.35rem 0.5rem' }}>Cancel</button>
+                </div>
+              )}
+
+              <select
+                value={selectedSavedPreset}
+                onChange={(e) => setSelectedSavedPreset(e.target.value)}
+                style={{ padding: '0.4rem', borderRadius: 4 }}
+              >
+                <option value="">Load preset...</option>
+                {savedPresets.map((p) => (
+                  <option key={p.name} value={p.name}>{p.name} ({p.start}  {p.end})</option>
+                ))}
+              </select>
+
+              <button
+                onClick={() => selectedSavedPreset && applySavedPreset(selectedSavedPreset)}
+                style={{ padding: '0.4rem 0.6rem' }}
+              >
+                Apply
               </button>
-            ) : (
-              <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
-                <input value={savePresetName} onChange={(e) => setSavePresetName(e.target.value)} placeholder="Preset name" style={{ padding: '0.35rem' }} />
-                <button onClick={() => saveCurrentPreset()} style={{ padding: '0.35rem 0.5rem' }}>Save</button>
-                <button onClick={() => { setShowSaveInput(false); setSavePresetName(''); }} style={{ padding: '0.35rem 0.5rem' }}>Cancel</button>
-              </div>
-            )}
 
-            <select
-              value={selectedSavedPreset}
-              onChange={(e) => setSelectedSavedPreset(e.target.value)}
-              style={{ padding: '0.4rem', borderRadius: 4 }}
-            >
-              <option value="">Load preset...</option>
-              {savedPresets.map((p) => (
-                <option key={p.name} value={p.name}>{p.name} ({p.start}  {p.end})</option>
-              ))}
-            </select>
-
-            <button
-              onClick={() => selectedSavedPreset && applySavedPreset(selectedSavedPreset)}
-              style={{ padding: '0.4rem 0.6rem' }}
-            >
-              Apply
-            </button>
-
-            <button
-              onClick={() => selectedSavedPreset && deleteSavedPreset(selectedSavedPreset)}
-              style={{ padding: '0.4rem 0.6rem' }}
-            >
-              Delete
-            </button>
-          </div>
+              <button
+                onClick={() => selectedSavedPreset && deleteSavedPreset(selectedSavedPreset)}
+                style={{ padding: '0.4rem 0.6rem' }}
+              >
+                Delete
+              </button>
+            </div>
+          ) : null}
         </div>
 
         {/* Custom date inputs */}
@@ -289,47 +297,51 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
               onChange={(e) => setEndDate(new Date(e.target.value))}
               style={{ padding: '0.4rem' }}
             />
-            <button
-              onClick={() => {
-                // Validate and apply custom range
-                const s = new Date(startDate);
-                const e = new Date(endDate);
-                normalizeRangeAndApply(s, e, 'custom');
-              }}
-              style={{ marginLeft: '0.5rem', padding: '0.4rem 0.6rem' }}
-            >
-              Apply
-            </button>
+            {SHOW_PRESET_CONTROLS ? (
+              <button
+                onClick={() => {
+                  // Validate and apply custom range
+                  const s = new Date(startDate);
+                  const e = new Date(endDate);
+                  normalizeRangeAndApply(s, e, 'custom');
+                }}
+                style={{ marginLeft: '0.5rem', padding: '0.4rem 0.6rem' }}
+              >
+                Apply
+              </button>
+            ) : null}
           </div>
         )}
         
-        {/* Reconciliation quick-check */}
-        <div style={{ marginLeft: 'auto' }}>
-          <button
-            onClick={async () => {
-              try {
-                setReconLoading(true);
-                setReconError('');
-                const params = new URLSearchParams();
-                params.set('startDate', startDate.toISOString().slice(0, 10));
-                params.set('endDate', endDate.toISOString().slice(0, 10));
-                if (pharmacyId) params.set('pharmacyId', pharmacyId);
+        {/* Reconciliation quick-check (hidden behind flag) */}
+        {SHOW_RECONCILE && (
+          <div style={{ marginLeft: 'auto' }}>
+            <button
+              onClick={async () => {
+                try {
+                  setReconLoading(true);
+                  setReconError('');
+                  const params = new URLSearchParams();
+                  params.set('startDate', startDate.toISOString().slice(0, 10));
+                  params.set('endDate', endDate.toISOString().slice(0, 10));
+                  if (pharmacyId) params.set('pharmacyId', pharmacyId);
 
-                const res = await fetch(`/api/analytics/debug/counts?${params.toString()}`);
-                if (!res.ok) throw new Error('Failed to fetch reconciliation');
-                const json = await res.json();
-                setReconResult(json.data);
-              } catch (err) {
-                setReconError(err instanceof Error ? err.message : 'Unknown error');
-              } finally {
-                setReconLoading(false);
-              }
-            }}
-            style={{ padding: '0.5rem 0.9rem', borderRadius: 6, backgroundColor: styles.primaryColor, color: 'white', border: 'none' }}
-          >
-            Reconcile counts
-          </button>
-        </div>
+                  const res = await fetch(`/api/analytics/debug/counts?${params.toString()}`);
+                  if (!res.ok) throw new Error('Failed to fetch reconciliation');
+                  const json = await res.json();
+                  setReconResult(json.data);
+                } catch (err) {
+                  setReconError(err instanceof Error ? err.message : 'Unknown error');
+                } finally {
+                  setReconLoading(false);
+                }
+              }}
+              style={{ padding: '0.5rem 0.9rem', borderRadius: 6, backgroundColor: styles.primaryColor, color: 'white', border: 'none' }}
+            >
+              Reconcile counts
+            </button>
+          </div>
+        )}
       </div>
 
       {reconResult && (
@@ -354,19 +366,19 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           onClick={() => setActiveTab('overview')}
           style={tabButtonStyle(activeTab === 'overview')}
         >
-          [chart] Overview
+          📊 Overview
         </button>
         <button
           onClick={() => setActiveTab('compliance')}
           style={tabButtonStyle(activeTab === 'compliance')}
         >
-          [OK] Compliance
+          ✅ Compliance
         </button>
         <button
           onClick={() => setActiveTab('risks')}
           style={tabButtonStyle(activeTab === 'risks')}
         >
-          [ALERT] Risks
+          🚨 Risks
         </button>
       </div>
 
@@ -385,8 +397,20 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             pharmacyId={pharmacyId}
             limit={10}
           />
+          
+          <DailyDispensingTrend
+            startDate={startDate}
+            endDate={endDate}
+            pharmacyId={pharmacyId}
+          />
 
           <PeakHoursChart
+            startDate={startDate}
+            endDate={endDate}
+            pharmacyId={pharmacyId}
+          />
+
+          <PeakDaysChart
             startDate={startDate}
             endDate={endDate}
             pharmacyId={pharmacyId}
