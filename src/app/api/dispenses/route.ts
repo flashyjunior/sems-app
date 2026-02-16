@@ -201,22 +201,23 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
 
       // Trigger analytics processing asynchronously (do not block response)
       (async () => {
+        const v = validation.data as any;
         try {
           const payload: any = {
             dispenseRecordId: dispense.externalId || null,
             timestamp: (dispense.createdAt && new Date(dispense.createdAt)) || new Date(),
             pharmacyId: dispense.pharmacyId ? String(dispense.pharmacyId) : undefined,
             userId: req.user!.userId,
-            drugId: validation.data.drugId || (dispense.drugId as any) || validation.data.drugName,
-            drugName: validation.data.drugName || dispense.drugName,
-            genericName: (validation.data as any).genericName ?? undefined,
-            patientAgeGroup: validation.data.patientAgeGroup || 'adult',
-            isPrescription: validation.data.isPrescription ?? true,
-            isControlledDrug: validation.data.isControlledDrug ?? false,
-            isAntibiotic: validation.data.isAntibiotic ?? false,
-            stgCompliant: validation.data.stgCompliant ?? true,
-            overrideFlag: validation.data.overrideFlag ?? false,
-            patientIsPregnant: validation.data.patientIsPregnant ?? false,
+            drugId: v.drugId || (dispense.drugId as any) || v.drugName,
+            drugName: v.drugName || dispense.drugName,
+            genericName: v.genericName ?? undefined,
+            patientAgeGroup: v.patientAgeGroup || 'adult',
+            isPrescription: v.isPrescription ?? true,
+            isControlledDrug: v.isControlledDrug ?? false,
+            isAntibiotic: v.isAntibiotic ?? false,
+            stgCompliant: v.stgCompliant ?? true,
+            overrideFlag: v.overrideFlag ?? false,
+            patientIsPregnant: v.patientIsPregnant ?? false,
           };
 
           processDispensingEvent(payload).catch((err) => {
