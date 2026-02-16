@@ -47,7 +47,10 @@ export async function GET(request: NextRequest) {
     ]);
 
     const userMap = new Map(users.map((u: any) => [u.id, u.fullName]));
-    const recordMap = new Map(records.map((r: any) => [r.externalId, { patientName: r.patientName, patientPhone: r.patientPhoneNumber }]));
+    type RecordInfo = { patientName: string | null; patientPhone: string | null };
+    const recordMap = new Map<string, RecordInfo>(
+      records.map((r: any) => [r.externalId, { patientName: r.patientName ?? null, patientPhone: r.patientPhoneNumber ?? null }])
+    );
 
     const payload = events.map((e: any) => ({
       id: e.id,
