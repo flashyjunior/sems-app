@@ -105,7 +105,15 @@ async function handler(req: NextRequest): Promise<NextResponse> {
       error instanceof Error ? error.message : "Unknown error"
     );
 
-    logError("Login error", error, { ipAddress });
+    // Temporary debug logging: capture message and stack (no secrets)
+    try {
+      const message = error instanceof Error ? error.message : String(error);
+      const stack = error instanceof Error && error.stack ? error.stack : undefined;
+      logError("Login error (debug)", { message, stack, ipAddress });
+    } catch (e) {
+      // don't block the response on logging problems
+      console.error('Failed to write debug login log', e);
+    }
 
     const response = NextResponse.json(
       { error: error instanceof Error ? error.message : "Login failed" },
