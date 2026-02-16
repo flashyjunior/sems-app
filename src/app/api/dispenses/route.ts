@@ -209,7 +209,7 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
             userId: req.user!.userId,
             drugId: validation.data.drugId || (dispense.drugId as any) || validation.data.drugName,
             drugName: validation.data.drugName || dispense.drugName,
-            genericName: validation.data.genericName || undefined,
+            genericName: validation.data?.genericName ?? undefined,
             patientAgeGroup: validation.data.patientAgeGroup || 'adult',
             isPrescription: validation.data.isPrescription ?? true,
             isControlledDrug: validation.data.isControlledDrug ?? false,
