@@ -30,4 +30,7 @@ async function handler(req: AuthenticatedRequest): Promise<NextResponse> {
 }
 
 export const GET = withAuth(handler);
-export const OPTIONS = handleCORS;
+
+export async function OPTIONS(req: NextRequest) {
+  return handleCORS(req);
+}
