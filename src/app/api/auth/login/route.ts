@@ -91,8 +91,7 @@ async function handler(req: NextRequest): Promise<NextResponse> {
   } catch (error) {
     const ipAddress = getClientIP(req);
     const userAgent = req.headers.get("user-agent") || undefined;
-
-    // Log failed login attempt
+    // Log failed login attempt (includes stack for temporary debugging)
     await createActivityLog(
       0,
       "LOGIN_FAILED",
@@ -105,7 +104,15 @@ async function handler(req: NextRequest): Promise<NextResponse> {
       error instanceof Error ? error.message : "Unknown error"
     );
 
-    logError("Login error", error, { ipAddress });
+    // Temporary verbose logging to capture runtime error details (safe: no secrets)
+    try {
+      const errMsg = error instanceof Error ? error.message : String(error);
+      const errStack = error instanceof Error && error.stack ? error.stack : undefined;
+      logError("Login error (debug)", { message: errMsg, stack: errStack, ipAddress });
+    } catch (logErr) {
+      // swallow logging errors to avoid masking original error
+      console.error('Failed to log error debug info', logErr);
+    }
 
     const response = NextResponse.json(
       { error: error instanceof Error ? error.message : "Login failed" },
