@@ -22,13 +22,13 @@ export const setCORSHeaders = (response: NextResponse, origin?: string): NextRes
 /**
  * Middleware to handle CORS preflight requests
  */
-export const handleCORS = (req: NextRequest): NextResponse | null => {
+export const handleCORS = (req: NextRequest): NextResponse | void => {
   if (req.method === 'OPTIONS') {
     const response = new NextResponse(null, { status: 200 });
     return setCORSHeaders(response, req.headers.get('origin') || undefined);
   }
   
-  return null;
+  return undefined;
 };
 
 /**
