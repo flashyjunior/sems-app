@@ -12,7 +12,7 @@ export const getUserById = async (id: number) => {
   try {
     return await prisma.user.findUnique({
       where: { id },
-      include: { role: true },
+      include: { role: true, pharmacy: true },
     });
   } catch (error) {
     logError('Error fetching user by ID', error, { userId: id });
@@ -163,7 +163,7 @@ export const listUsers = async (page: number = 1, limit: number = 20) => {
       prisma.user.findMany({
         skip,
         take: limit,
-        include: { role: true },
+        include: { role: true, pharmacy: true },
         orderBy: { createdAt: 'desc' },
       }),
       prisma.user.count(),
@@ -173,7 +173,7 @@ export const listUsers = async (page: number = 1, limit: number = 20) => {
       data: users,
       pagination: {
         page,
-        limit,
+        include: { role: true, pharmacy: true },
         total,
         pages: Math.ceil(total / limit),
       },

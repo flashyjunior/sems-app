@@ -139,7 +139,7 @@ export function UserPharmacyAssignment({ isFullPage = false }: UserPharmacyAssig
 
       if (response.ok) {
         const data = await response.json();
-        const selectedPharmacyName = pharmacies.find(p => p.id === selectedPharmacy)?.name;
+        const selectedPharmacyName = pharmacies.find(p => String(p.id) === String(selectedPharmacy))?.name;
         setSuccess(`[OK] ${selectedUser.email} assigned to ${selectedPharmacyName}!`);
         setSelectedUser(null);
         setSelectedPharmacy('');
