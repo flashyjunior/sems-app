@@ -84,6 +84,15 @@ export const useAppStore = create<AppState>((set, get) => ({
   logout: async () => {
     await authService.logout();
     set({ user: null, isAuthenticated: false });
+    // Ensure UI returns to login screen — perform client redirect when running in browser
+    if (typeof window !== 'undefined') {
+      try {
+        window.location.href = '/';
+      } catch (e) {
+        // fallback: reload page
+        window.location.reload();
+      }
+    }
   },
 
   setUser: (user) => set({ user, isAuthenticated: !!user }),
