@@ -136,47 +136,43 @@ export const DailyDispensingTrend: React.FC<Props> = ({ startDate, endDate, phar
         if (medsRes.ok) {
           const medsJson = await medsRes.json();
           const meds = medsJson.data || [];
-          // helper to extract a display name from various possible shapes
-          const extractName = (m: any, idx: number) => {
-            const tryPaths = [
-              'genericName',
-              'drugName',
-              'displayName',
-              'name',
-              'medicineName',
-              'productName',
-              'label',
-              'drug_name',
-              'drug',
-              'drug?.name',
-              'drug?.genericName',
-              'drug?.drugName',
-            ];
-            for (const p of tryPaths) {
-              try {
-                if (p.includes('?.')) {
-                  const [a, b] = p.split('?.');
-                  if (m && m[a] && m[a][b]) return String(m[a][b]).trim();
-                } else if (m && m[p] != null) {
-                  return String(m[p]).trim();
-                }
-              } catch (e) {
-                // ignore
-              }
-            }
-            // fallback: if m is a string or has id
-            if (typeof m === 'string' && m.trim()) return m.trim();
+          // Build a stable key -> display name mapping so IDs are distinct from labels
+          const displayMap = new Map<string, string>();
+          const options: Array<{ id: string; name: string }> = [];
+
+          const makeKey = (m: any, idx: number) => {
+            // Prefer explicit ids from the API when present
             if (m && (m.id || m.drugId || m.drug_id)) return String(m.id ?? m.drugId ?? m.drug_id);
+            // Otherwise fallback to a normalized name-based key
+            const raw = (m && (m.genericName || m.drugName || m.displayName || m.name || m.medicineName || m.productName || m.label)) || '';
+            if (typeof raw === 'string' && raw.trim()) return raw.trim();
+            if (typeof m === 'string' && m.trim()) return m.trim();
+            return `unknown-${idx}`;
+          };
+
+          const makeDisplay = (m: any, idx: number) => {
+            if (!m) return `unknown-${idx}`;
+            const candidate = m.genericName ?? m.drugName ?? m.displayName ?? m.name ?? m.medicineName ?? m.productName ?? m.label;
+            if (candidate && String(candidate).trim()) return String(candidate).trim();
+            if (typeof m === 'string' && m.trim()) return m.trim();
+            // If object contains nested drug
+            if (m.drug) {
+              const nested = m.drug.genericName ?? m.drug.drugName ?? m.drug.name;
+              if (nested && String(nested).trim()) return String(nested).trim();
+            }
+            // fallback to id-like fields
+            if (m.id || m.drugId || m.drug_id) return String(m.id ?? m.drugId ?? m.drug_id);
             return `unknown-${idx}`;
           };
 
           const seen = new Set<string>();
-          const options: Array<{ id: string; name: string }> = [];
           meds.forEach((m: any, idx: number) => {
-            const name = extractName(m, idx);
-            if (!seen.has(name)) {
-              seen.add(name);
-              options.push({ id: name, name });
+            const id = makeKey(m, idx);
+            const name = makeDisplay(m, idx);
+            if (!seen.has(id)) {
+              seen.add(id);
+              displayMap.set(id, name);
+              options.push({ id, name });
             }
           });
           // sort options by display name
@@ -204,29 +200,20 @@ export const DailyDispensingTrend: React.FC<Props> = ({ startDate, endDate, phar
         }
 
         const normalizeKey = (ev: any, idx = 0) => {
-          const tryPaths = [
-            'genericName',
-            'drugName',
-            'displayName',
-            'name',
-            'medicineName',
-            'productName',
-            'label',
-            'drug_name',
-          ];
+          // Determine a stable key for the event (prefer ids, else name)
+          if (!ev) return `unknown-${idx}`;
+          if (ev.drugId || ev.drug_id || ev.id) return String(ev.drugId ?? ev.drug_id ?? ev.id);
+          const tryPaths = ['genericName','drugName','displayName','name','medicineName','productName','label','drug_name'];
           for (const p of tryPaths) {
             if (ev && ev[p] != null) {
               const s = String(ev[p]).trim();
               if (s) return s;
             }
-            // nested drug object
             if (ev && ev.drug && ev.drug[p] != null) {
               const s = String(ev.drug[p]).trim();
               if (s) return s;
             }
           }
-          // try ids
-          if (ev && (ev.drugId || ev.drug_id || ev.drug || ev.id)) return String(ev.drugId ?? ev.drug_id ?? ev.drug ?? ev.id);
           return `unknown-${idx}`;
         };
 
@@ -235,6 +222,9 @@ export const DailyDispensingTrend: React.FC<Props> = ({ startDate, endDate, phar
           const ts = new Date(ev.timestamp);
           const day = ts.toISOString().slice(0, 10);
           const drugKey = normalizeKey(ev, i);
+          // capture display name for observed keys when possible
+          const display = (ev && (ev.genericName ?? ev.drugName ?? ev.displayName ?? ev.name)) || (ev && ev.drug && (ev.drug.genericName ?? ev.drug.drugName ?? ev.drug.name));
+          if (display && !displayMap.has(drugKey)) displayMap.set(drugKey, String(display).trim());
           const bucket = countsMap.get(day) || {};
           bucket[drugKey] = (bucket[drugKey] || 0) + 1;
           countsMap.set(day, bucket);
@@ -250,7 +240,7 @@ export const DailyDispensingTrend: React.FC<Props> = ({ startDate, endDate, phar
         const currentIds = new Set(availableDrugs.map(d => d.id));
         const derived: Array<{ id: string; name: string }> = [];
         for (const k of Array.from(observedKeys)) {
-          if (!currentIds.has(k)) derived.push({ id: k, name: k });
+          if (!currentIds.has(k)) derived.push({ id: k, name: displayMap.get(k) || k });
         }
         if (derived.length > 0) {
           const merged = [...availableDrugs, ...derived];
