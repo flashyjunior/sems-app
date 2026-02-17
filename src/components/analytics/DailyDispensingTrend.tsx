@@ -179,10 +179,7 @@ export const DailyDispensingTrend: React.FC<Props> = ({ startDate, endDate, phar
           // sort options by display name
           options.sort((a, b) => a.name.localeCompare(b.name));
           setAvailableDrugs(options);
-          // default select first 3 if none selected
-          if (selectedDrugs.length === 0 && options.length > 0) {
-            setSelectedDrugs(options.slice(0, 3).map((o) => o.id));
-          }
+          // Do NOT auto-select options on load. Only user selections should drive per-drug series.
         }
 
         // Fetch events for range and aggregate per day per selected drug
@@ -249,8 +246,8 @@ export const DailyDispensingTrend: React.FC<Props> = ({ startDate, endDate, phar
           setAvailableDrugs(merged);
         }
 
-        // Build output array including counts for selected drugs
-        const selectedIds = selectedDrugs.length > 0 ? selectedDrugs : (availableDrugs.length > 0 ? availableDrugs.slice(0, 3).map(d => d.id) : Array.from(observedKeys).slice(0,3));
+        // Build output array including counts for selected drugs (or total across all observed keys when none selected)
+        const selectedIds = selectedDrugs.length > 0 ? selectedDrugs : Array.from(observedKeys);
         const out: Point[] = Array.from(countsMap.keys()).sort().map((k) => {
           const row: any = { date: k, count: 0 };
           const bucket = countsMap.get(k) || {};
@@ -334,8 +331,8 @@ export const DailyDispensingTrend: React.FC<Props> = ({ startDate, endDate, phar
               {selectedDrugs.length === 0 && (
                 <Line type="monotone" dataKey="count" stroke="#111827" strokeWidth={2} dot={false} />
               )}
-              {/* per-drug series */}
-              { (selectedDrugs.length > 0 ? selectedDrugs : availableDrugs.slice(0,3).map(d=>d.id)).map((id, idx) => {
+              {/* per-drug series (only when user selected drugs) */}
+              { selectedDrugs.length > 0 && selectedDrugs.map((id, idx) => {
                 const colors = ['#3b82f6','#ef4444','#f59e0b','#10b981','#8b5cf6','#06b6d4'];
                 return <Line key={id} type="monotone" dataKey={id} stroke={colors[idx % colors.length]} strokeWidth={2} dot={{ r: 3 }} />;
               })}
@@ -347,7 +344,7 @@ export const DailyDispensingTrend: React.FC<Props> = ({ startDate, endDate, phar
               <YAxis allowDecimals={false} />
               <Tooltip labelFormatter={(v) => `Date: ${v}`} shared={false} />
               {selectedDrugs.length === 0 && <Bar dataKey="count" fill="#111827" />}
-              { (selectedDrugs.length > 0 ? selectedDrugs : availableDrugs.slice(0,3).map(d=>d.id)).map((id, idx) => {
+              { selectedDrugs.length > 0 && selectedDrugs.map((id, idx) => {
                 const colors = ['#3b82f6','#ef4444','#f59e0b','#10b981','#8b5cf6','#06b6d4'];
                 return <Bar key={id} dataKey={id} fill={colors[idx % colors.length]} />;
               })}
@@ -357,16 +354,23 @@ export const DailyDispensingTrend: React.FC<Props> = ({ startDate, endDate, phar
       </div>
       {/* Legend */}
       <div style={{ display: 'flex', gap: 12, marginTop: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-        {(selectedDrugs.length > 0 ? selectedDrugs : availableDrugs.slice(0,3).map(d=>d.id)).map((id, idx) => {
-          const colors = ['#3b82f6','#ef4444','#f59e0b','#10b981','#8b5cf6','#06b6d4'];
-          const display = availableDrugs.find(d => d.id === id)?.name || id;
-          return (
-            <div key={id} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <div style={{ width: 12, height: 12, background: colors[idx % colors.length], borderRadius: 3 }} />
-              <div style={{ fontSize: 13 }}>{display}</div>
-            </div>
-          );
-        })}
+        {selectedDrugs.length === 0 ? (
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <div style={{ width: 12, height: 12, background: '#111827', borderRadius: 3 }} />
+            <div style={{ fontSize: 13 }}>Total</div>
+          </div>
+        ) : (
+          selectedDrugs.map((id, idx) => {
+            const colors = ['#3b82f6','#ef4444','#f59e0b','#10b981','#8b5cf6','#06b6d4'];
+            const display = availableDrugs.find(d => d.id === id)?.name || id;
+            return (
+              <div key={id} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <div style={{ width: 12, height: 12, background: colors[idx % colors.length], borderRadius: 3 }} />
+                <div style={{ fontSize: 13 }}>{display}</div>
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );
