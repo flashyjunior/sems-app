@@ -131,13 +131,14 @@ export const DailyDispensingTrend: React.FC<Props> = ({ startDate, endDate, phar
         params.set('endDate', endDate.toISOString().slice(0, 10));
         if (pharmacyId) params.set('pharmacyId', pharmacyId);
 
+        // shared map for id -> display name (populated from meds API or observed events)
+        const displayMap = new Map<string, string>();
+
         // Fetch top medicines for options
         const medsRes = await fetch(`/api/analytics/dispensing/top-medicines?${params.toString()}&limit=20`);
         if (medsRes.ok) {
           const medsJson = await medsRes.json();
           const meds = medsJson.data || [];
-          // Build a stable key -> display name mapping so IDs are distinct from labels
-          const displayMap = new Map<string, string>();
           const options: Array<{ id: string; name: string }> = [];
 
           const makeKey = (m: any, idx: number) => {
